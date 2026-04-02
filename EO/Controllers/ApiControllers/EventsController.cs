@@ -16,7 +16,7 @@ namespace EO.Controllers.ApiControllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("GetAllEvents")]
         public async Task<IActionResult> GetAllEvents()
         {
             var events = await _context.Events

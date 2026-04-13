@@ -1,5 +1,6 @@
 ﻿using EO.Models;
 using EO.WebContext;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,10 +18,11 @@ namespace EO.Controllers.ApiControllers
             _context = context;
         }
 
+        [Authorize]
         [HttpGet("GetAllEvents")]
         public async Task<IActionResult> GetAllEvents()
         {
-            var now =  DateTime.Now;
+            var now = DateTime.UtcNow;
             var events = await _context.Events
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.StartTime)
@@ -52,10 +54,11 @@ namespace EO.Controllers.ApiControllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("TodayEvents")]
         public async Task<IActionResult> GetTodayEvents()
         {
-            var today = DateTime.Today;
+            var today = DateTime.UtcNow.Date;
 
             var events = await _context.Events
                 .Where(x => x.Date.Date == today)
@@ -80,6 +83,7 @@ namespace EO.Controllers.ApiControllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("UpcomingEvents")]
         public async Task<IActionResult> GetUpcomingEvents()
         {

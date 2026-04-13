@@ -17,8 +17,22 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders()
-    .AddDefaultUI();
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = 401;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -36,11 +50,13 @@ builder.Services.AddAuthentication(options =>
 
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
+
+builder.Services.AddAuthorization();
+
 
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
@@ -56,7 +72,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() ||
+    app.Environment.IsStaging()|| app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -76,3 +93,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+

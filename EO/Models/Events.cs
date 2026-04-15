@@ -26,6 +26,8 @@
         public int EventId { get; set; }   
         public Events Event { get; set; }
 
+        public string Title { get; set; }         
+        public string Description { get; set; }
         public string Venue { get; set; }
         public string CoverImage { get; set; }
         public DateTime StartDateTime { get; set; }
@@ -116,4 +118,20 @@
         public string Designation { get; set; }
         public string Avatar { get; set; }
     }
+
+    public class CreateEventDetailsDto
+    {
+        public string Title { get; set; }       
+        public string Description { get; set; }
+
+        public string Venue { get; set; }
+        public string CoverImage { get; set; }
+        public DateTime StartDateTime { get; set; }
+        public DateTime EndDateTime { get; set; }
+        public bool IsRegistered { get; set; }
+        public List<ScheduleDto> Schedule { get; set; }
+        public List<GuestDto> Guests { get; set; }
+
+    }
+
 }

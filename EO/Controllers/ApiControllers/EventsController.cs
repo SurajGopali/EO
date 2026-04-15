@@ -23,6 +23,7 @@ namespace EO.Controllers.ApiControllers
         public async Task<IActionResult> GetAllEvents()
         {
             var now = DateTime.UtcNow;
+
             var events = await _context.Events
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.StartTime)
@@ -45,13 +46,17 @@ namespace EO.Controllers.ApiControllers
                     Type = x.Type,
                     IsRegistered = x.IsRegistered,
                     Image = x.Image,
-
                     RemainingDays = remainingDays > 0
                                     ? (int)Math.Ceiling(remainingDays) : 0,
-
                 };
             });
-            return Ok(result);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Events fetched successfully",
+                events = result
+            });
         }
 
         [Authorize]
@@ -80,7 +85,12 @@ namespace EO.Controllers.ApiControllers
                 RemainingDays = 0
             });
 
-            return Ok(result);
+            return Ok(new
+            {
+                success = true,
+                message = "Today Events fetched successfully",
+                todayEvents = result
+            });
         }
 
         [Authorize]
@@ -112,9 +122,14 @@ namespace EO.Controllers.ApiControllers
                 RemainingDays = (int)Math.Ceiling((x.Date + (x.StartTime ?? TimeSpan.Zero) - now).TotalDays)
             });
 
-            return Ok(result);
+            return Ok(new
+            {
+                success = true,
+                message = "Upcoming Events fetched successfully",
+                upcomingEvents = result
+            });
         }
-
+            
         [HttpPost("AddEvent")]
         public async Task<IActionResult> AddEvent([FromBody] EventCreateDto model)
         {
@@ -139,8 +154,9 @@ namespace EO.Controllers.ApiControllers
 
             return Ok(new
             {
+                success = true,
                 message = "Event created successfully",
-                data = model
+                AddedEvent = model
             });
         }
 
@@ -166,8 +182,9 @@ namespace EO.Controllers.ApiControllers
 
             return Ok(new
             {
+                success = true,
                 messsage = "Event updated successfully",
-                data = existingEvent
+                UpdatedEvent = existingEvent
             });
 
         }
@@ -209,8 +226,8 @@ namespace EO.Controllers.ApiControllers
             var response = new EventDetailsDto
             {
                 Id = eventData.Id.ToString(),
-                Title = orderedSchedules.FirstOrDefault()?.Title,
-                Description = orderedSchedules.FirstOrDefault()?.Description,
+                Title = eventData.EventDetail?.Title,
+                Description = eventData.EventDetail?.Description,
                 Venue = eventData.EventDetail?.Venue,
                 CoverImage = eventData.EventDetail?.CoverImage,
 
@@ -242,6 +259,48 @@ namespace EO.Controllers.ApiControllers
             };
 
             return Ok(response);
+        }
+
+
+        [Authorize]
+        [HttpPost("events/{eventId}/details")]
+        public async Task<IActionResult> UpsertEventDetails(int eventId, [FromBody] CreateEventDetailsDto dto)
+        {
+            var eventEntity = await _context.Events
+                .Include(e => e.EventDetail)
+                .FirstOrDefaultAsync(e => e.Id == eventId);
+
+            if (eventEntity == null)
+                return NotFound("Event not found");
+
+            if (eventEntity.EventDetail != null)
+            {
+                eventEntity.EventDetail.Title = dto.Title;
+                eventEntity.EventDetail.Description = dto.Description;
+                eventEntity.EventDetail.Venue = dto.Venue;
+                eventEntity.EventDetail.CoverImage = dto.CoverImage;
+                eventEntity.EventDetail.StartDateTime = dto.StartDateTime;
+                eventEntity.EventDetail.EndDateTime = dto.EndDateTime;
+            }
+            else
+            {
+                var detail = new EventDetail
+                {
+                    EventId = eventId,
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    Venue = dto.Venue,
+                    CoverImage = dto.CoverImage,
+                    StartDateTime = dto.StartDateTime,
+                    EndDateTime = dto.EndDateTime
+                };
+
+                _context.Set<EventDetail>().Add(detail);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Event details saved" });
         }
     }
 }

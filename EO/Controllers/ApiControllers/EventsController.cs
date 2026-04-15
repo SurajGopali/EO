@@ -35,16 +35,16 @@ namespace EO.Controllers.ApiControllers
 
                 return new EventDto
                 {
-                 Id = x.Id,
-                 Title = x.Title,
-                 Description = x.Description,
-                 StartTime = x.StartTime,
-                 EndTime = x.EndTime,
-                 Location = x.Location,
-                 Date = x.Date,
-                 Type = x.Type,
-                 IsRegistered = x.IsRegistered,
-                 Image = x.Image,
+                    Id = x.Id,
+                    Title = x.Title,
+                    Description = x.Description,
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime,
+                    Location = x.Location,
+                    Date = x.Date,
+                    Type = x.Type,
+                    IsRegistered = x.IsRegistered,
+                    Image = x.Image,
 
                     RemainingDays = remainingDays > 0
                                     ? (int)Math.Ceiling(remainingDays) : 0,
@@ -77,7 +77,7 @@ namespace EO.Controllers.ApiControllers
                 Type = x.Type,
                 IsRegistered = x.IsRegistered,
                 Image = x.Image,
-                RemainingDays = 0 
+                RemainingDays = 0
             });
 
             return Ok(result);
@@ -145,7 +145,7 @@ namespace EO.Controllers.ApiControllers
         }
 
         [HttpPut("UpdateEvent/{id}")]
-        public async Task<IActionResult> UpdateEvent (int id, [FromBody] EventCreateDto model)
+        public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventCreateDto model)
         {
             var existingEvent = await _context.Events.FindAsync(id);
 
@@ -187,6 +187,61 @@ namespace EO.Controllers.ApiControllers
             {
                 message = "Event Deleted Successfully"
             });
+        }
+
+        [Authorize]
+        [HttpGet("event-details/{id}")]
+        public async Task<IActionResult> GetEventDetails(int id)
+        {
+            var eventData = await _context.Events
+                .Include(e => e.EventDetail)
+                .Include(e => e.Schedules)
+                .Include(e => e.Guests)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (eventData == null)
+                return NotFound();
+
+            var orderedSchedules = eventData.Schedules
+               .OrderBy(s => s.Id)
+               .ToList();
+
+            var response = new EventDetailsDto
+            {
+                Id = eventData.Id.ToString(),
+                Title = orderedSchedules.FirstOrDefault()?.Title,
+                Description = orderedSchedules.FirstOrDefault()?.Description,
+                Venue = eventData.EventDetail?.Venue,
+                CoverImage = eventData.EventDetail?.CoverImage,
+
+                StartDateTime = eventData.EventDetail?.StartDateTime ?? default,
+                EndDateTime = eventData.EventDetail?.EndDateTime ?? default,
+
+                IsRegistered = eventData.IsRegistered ?? false,
+
+                Schedule = eventData.Schedules
+                .OrderBy(s => s.Id)
+                .Select(s => new ScheduleDto
+                {
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
+                    Title = s.Title,
+                    Description = s.Description
+                }).ToList(),
+
+                Guests = eventData.Guests
+                .OrderBy(g => g.Id)
+                .Select(g => new GuestDto
+                {
+                    Id = g.Id.ToString(),
+                    Name = g.Name,
+                    Designation = g.Designation,
+                    Avatar = g.Avatar
+                })
+                .ToList()
+            };
+
+            return Ok(response);
         }
     }
 }

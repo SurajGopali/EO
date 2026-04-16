@@ -1,6 +1,7 @@
 ﻿using EO.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -96,6 +97,31 @@ public class AuthController : ControllerBase
                     expiresIn = 3600
                 }
             }
+        });
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken(TokenRequest request)
+    {
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.RefreshToken == request.RefreshToken);
+
+        if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        {
+            return Unauthorized("Invalid refresh token");
+        }
+
+        var newAccessToken = _tokenService.GenerateAccessToken(user);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+        user.RefreshToken = newRefreshToken;
+
+        await _userManager.UpdateAsync(user);
+
+        return Ok(new
+        {
+            accessToken = newAccessToken,
+            refreshToken = newRefreshToken
         });
     }
 }

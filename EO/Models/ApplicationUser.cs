@@ -47,4 +47,9 @@ namespace EO.Models
         public string Message { get; set; }
         public object Data { get; set; }
     }
+
+    public class TokenRequest
+    {
+        public string RefreshToken { get; set; }
+    }
 }

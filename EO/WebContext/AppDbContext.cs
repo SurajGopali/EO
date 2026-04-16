@@ -14,6 +14,7 @@ namespace EO.WebContext
         public DbSet<EventDetail> EventDetails { get; set; }
         public DbSet<EventSchedule> EventSchedules { get; set; }
         public DbSet<EventGuest> EventGuests { get; set; }
+        public DbSet<EventType> EventTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

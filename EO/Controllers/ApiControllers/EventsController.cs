@@ -25,6 +25,7 @@ namespace EO.Controllers.ApiControllers
             var now = DateTime.UtcNow;
 
             var events = await _context.Events
+                .Include(x => x.EventType)
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.StartTime)
                 .ToListAsync();
@@ -43,7 +44,8 @@ namespace EO.Controllers.ApiControllers
                     EndTime = x.EndTime,
                     Location = x.Location,
                     Date = x.Date,
-                    Type = x.Type,
+                    TypeId = x.EventTypeId,
+                    Type = x.EventType?.Name,
                     IsRegistered = x.IsRegistered,
                     Image = x.Image,
                     RemainingDays = remainingDays > 0
@@ -59,6 +61,98 @@ namespace EO.Controllers.ApiControllers
             });
         }
 
+
+        [Authorize]
+        [HttpGet("event-types")]
+        public async Task<IActionResult> GetEventTypes()
+        {
+            var types = await _context.EventTypes
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            return Ok(types);
+        }
+
+        [Authorize]
+        [HttpGet("filter-events")]
+        public async Task<IActionResult> FilterEvents(
+        [FromQuery] int? eventTypeId,
+        [FromQuery] int? year,
+        [FromQuery] string? range)
+        {
+            var today = DateTime.Now.Date;
+
+            var query = _context.Events
+                .Include(x => x.EventType)
+                .AsQueryable();
+
+           
+            if (eventTypeId.HasValue)
+            {
+                query = query.Where(x => x.EventTypeId == eventTypeId.Value);
+            }
+
+            if (year.HasValue)
+            {
+                query = query.Where(x => x.Date.Year == year.Value);
+            }
+
+            if (!string.IsNullOrEmpty(range))
+            {
+                range = range.ToLower();
+
+                if (range == "today")
+                {
+                    query = query.Where(x => x.Date.Date == today);
+                }
+                else if (range == "week")
+                {
+                    var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+                    var endOfWeek = startOfWeek.AddDays(7);
+
+                    query = query.Where(x =>
+                        x.Date >= startOfWeek &&
+                        x.Date < endOfWeek);
+                }
+                else if (range == "month")
+                {
+                    query = query.Where(x =>
+                        x.Date.Month == today.Month &&
+                        x.Date.Year == today.Year);
+                }
+            }
+
+       
+            var result = await query
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartTime)
+                .Select(x => new EventDto
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Description = x.Description,
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime,
+                    Location = x.Location,
+                    Date = x.Date,
+
+                    TypeId = x.EventTypeId,
+                    Type = x.EventType != null ? x.EventType.Name : null,
+
+                    IsRegistered = x.IsRegistered,
+                    Image = x.Image
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                success = true,
+                count = result.Count,
+                filteredData = result
+            });
+        }
+
+
         [Authorize]
         [HttpGet("TodayEvents")]
         public async Task<IActionResult> GetTodayEvents()
@@ -67,6 +161,7 @@ namespace EO.Controllers.ApiControllers
 
             var events = await _context.Events
                 .Where(x => x.Date.Date == today)
+                .Include(x => x.EventType)
                 .OrderBy(x => x.StartTime)
                 .ToListAsync();
 
@@ -79,7 +174,8 @@ namespace EO.Controllers.ApiControllers
                 EndTime = x.EndTime,
                 Location = x.Location,
                 Date = x.Date,
-                Type = x.Type,
+                TypeId = x.EventTypeId,
+                Type = x.EventType?.Name,
                 IsRegistered = x.IsRegistered,
                 Image = x.Image,
                 RemainingDays = 0
@@ -101,6 +197,7 @@ namespace EO.Controllers.ApiControllers
 
             var events = await _context.Events
                 .Where(x => x.Date.Date > today)
+                .Include(x => x.EventType)
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.StartTime)
                 .ToListAsync();
@@ -116,7 +213,8 @@ namespace EO.Controllers.ApiControllers
                 EndTime = x.EndTime,
                 Location = x.Location,
                 Date = x.Date,
-                Type = x.Type,
+                TypeId = x.EventTypeId,
+                Type = x.EventType?.Name,
                 IsRegistered = x.IsRegistered,
                 Image = x.Image,
                 RemainingDays = (int)Math.Ceiling((x.Date + (x.StartTime ?? TimeSpan.Zero) - now).TotalDays)
@@ -129,7 +227,7 @@ namespace EO.Controllers.ApiControllers
                 upcomingEvents = result
             });
         }
-            
+
         [HttpPost("AddEvent")]
         public async Task<IActionResult> AddEvent([FromBody] EventCreateDto model)
         {
@@ -144,7 +242,7 @@ namespace EO.Controllers.ApiControllers
                 EndTime = model.EndTime,
                 Location = model.Location,
                 Date = model.Date,
-                Type = model.Type,
+                EventTypeId = model.EventTypeId,
                 IsRegistered = model.IsRegistered,
                 Image = model.Image
             };
@@ -174,7 +272,7 @@ namespace EO.Controllers.ApiControllers
             existingEvent.EndTime = model.EndTime;
             existingEvent.Location = model.Location;
             existingEvent.Date = model.Date;
-            existingEvent.Type = model.Type;
+            existingEvent.EventTypeId = model.EventTypeId;
             existingEvent.IsRegistered = model.IsRegistered;
             existingEvent.Image = model.Image;
 

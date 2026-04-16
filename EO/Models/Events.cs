@@ -9,7 +9,8 @@
         public TimeSpan? EndTime { get; set; }
         public string? Location { get; set; }
         public DateTime Date { get; set; }
-        public string? Type { get; set; }
+        public int EventTypeId { get; set; }  
+        public EventType EventType { get; set; }
         public bool? IsRegistered { get; set; }
         public string? Image {  get; set; }
         public EventDetail EventDetail { get; set; }
@@ -17,6 +18,12 @@
         public List<EventGuest> Guests { get; set; }
 
 
+    }
+
+    public class EventType
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 
     public class EventDetail
@@ -67,6 +74,7 @@
         public TimeSpan? EndTime { get; set; }
         public string? Location { get; set; }
         public DateTime Date { get; set; }
+        public int TypeId { get; set; }
         public string? Type { get; set; }
         public bool? IsRegistered { get; set; }
         public string? Image { get; set; }
@@ -80,7 +88,7 @@
         public TimeSpan? EndTime { get; set; }
         public string? Location { get; set; }
         public DateTime Date { get; set; }
-        public string? Type { get; set; }
+        public int EventTypeId { get; set; }
         public bool? IsRegistered { get; set; }
         public string? Image { get; set; }
     }

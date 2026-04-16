@@ -108,7 +108,11 @@ public class AuthController : ControllerBase
 
         if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
         {
-            return Unauthorized("Invalid refresh token");
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Invalid or expired refresh token"
+            });
         }
 
         var newAccessToken = _tokenService.GenerateAccessToken(user);
@@ -120,8 +124,13 @@ public class AuthController : ControllerBase
 
         return Ok(new
         {
-            accessToken = newAccessToken,
-            refreshToken = newRefreshToken
+            success = true,
+            message = "Token refreshed successfully",
+            Tokens = new
+            {
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken
+            }
         });
     }
 }

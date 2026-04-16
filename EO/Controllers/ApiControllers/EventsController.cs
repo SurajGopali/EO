@@ -1,4 +1,5 @@
-﻿using EO.Models;
+﻿using Azure;
+using EO.Models;
 using EO.WebContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -70,7 +71,12 @@ namespace EO.Controllers.ApiControllers
                 .OrderBy(x => x.Name)
                 .ToListAsync();
 
-            return Ok(types);
+            return Ok(new
+            {
+                success = true,
+                message = "Event types fetched successfully",
+                EventTypes = types
+            });
         }
 
         [Authorize]
@@ -356,7 +362,12 @@ namespace EO.Controllers.ApiControllers
                 .ToList()
             };
 
-            return Ok(response);
+            return Ok(new
+            {
+                success = true,
+                message = "Event details fetched successfully",
+                EventDetails = response
+            });
         }
 
 
@@ -398,7 +409,11 @@ namespace EO.Controllers.ApiControllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Event details saved" });
+            return Ok(new
+            {
+                success = true,
+                message = "Event details saved successfully",
+            });
         }
     }
 }

@@ -311,9 +311,12 @@ namespace EO.Controllers.ApiControllers
         }
 
         [Authorize]
-        [HttpGet("event-details/{id}")]
-        public async Task<IActionResult> GetEventDetails(int id)
+        [HttpGet("event-details")]
+        public async Task<IActionResult> GetEventDetails([FromQuery] int id)
         {
+            if (id <= 0)
+                return BadRequest("Invalid event id");
+
             var eventData = await _context.Events
                 .Include(e => e.EventDetail)
                 .Include(e => e.Schedules)
@@ -323,10 +326,6 @@ namespace EO.Controllers.ApiControllers
             if (eventData == null)
                 return NotFound();
 
-            var orderedSchedules = eventData.Schedules
-               .OrderBy(s => s.Id)
-               .ToList();
-
             var response = new EventDetailsDto
             {
                 Id = eventData.Id.ToString(),
@@ -334,32 +333,30 @@ namespace EO.Controllers.ApiControllers
                 Description = eventData.EventDetail?.Description,
                 Venue = eventData.EventDetail?.Venue,
                 CoverImage = eventData.EventDetail?.CoverImage,
-
                 StartDateTime = eventData.EventDetail?.StartDateTime ?? default,
                 EndDateTime = eventData.EventDetail?.EndDateTime ?? default,
-
                 IsRegistered = eventData.IsRegistered ?? false,
 
                 Schedule = eventData.Schedules
-                .OrderBy(s => s.Id)
-                .Select(s => new ScheduleDto
-                {
-                    StartTime = s.StartTime,
-                    EndTime = s.EndTime,
-                    Title = s.Title,
-                    Description = s.Description
-                }).ToList(),
+                    .OrderBy(s => s.Id)
+                    .Select(s => new ScheduleDto
+                    {
+                        StartTime = s.StartTime,
+                        EndTime = s.EndTime,
+                        Title = s.Title,
+                        Description = s.Description
+                    }).ToList(),
 
                 Guests = eventData.Guests
-                .OrderBy(g => g.Id)
-                .Select(g => new GuestDto
-                {
-                    Id = g.Id.ToString(),
-                    Name = g.Name,
-                    Designation = g.Designation,
-                    Avatar = g.Avatar
-                })
-                .ToList()
+                    .OrderBy(g => g.Id)
+                    .Select(g => new GuestDto
+                    {
+                        Id = g.Id.ToString(),
+                        Name = g.Name,
+                        Designation = g.Designation,
+                        Avatar = g.Avatar
+                    })
+                    .ToList()
             };
 
             return Ok(new

@@ -65,6 +65,7 @@ public class UserDetailsController : ControllerBase
 
                 company.CompanyName = request.CompanyDetails.CompanyName;
                 company.Designation = request.CompanyDetails.Designation;
+                company.CompanyRole = request.CompanyDetails.Role;
             }
 
           
@@ -212,5 +213,166 @@ public class UserDetailsController : ControllerBase
                 error = ex.Message
             });
         }
+    }
+
+    [Authorize]
+    [HttpGet("members")]
+    public async Task<IActionResult> GetMembers()
+    {
+        var users = await _userManager.Users.ToListAsync();
+
+        var userIds = users.Select(x => x.Id).ToList();
+
+        var profiles = await _context.UserProfiles
+            .Where(x => userIds.Contains(x.UserId))
+            .ToListAsync();
+
+        var companies = await _context.CompanyDetails
+            .Where(x => userIds.Contains(x.UserId))
+            .ToListAsync();
+
+        var result = users.Select(u =>
+        {
+            var profile = profiles.FirstOrDefault(p => p.UserId == u.Id);
+            var company = companies.FirstOrDefault(c => c.UserId == u.Id);
+
+            return new MemberDto
+            {
+                Id = u.Id,
+                Name = GetFullName(u),        
+                EoRole = u.EoRole,           
+
+                ProfileImage = u.ProfileImage,
+
+                CompanyName = company?.CompanyName,
+                CompanyRole = company?.Designation,
+                Designation = company?.Designation,
+
+                Birthday = profile?.DateOfBirth,
+                Anniversary = profile?.AnniversaryDate
+            };
+        }).ToList();
+
+        return Ok(new
+        {
+            success = true,
+            message = "Members fetched successfully",
+            members = result
+        });
+    }
+
+    private static string GetFullName(ApplicationUser u)
+    {
+        return string.Join(" ", new[]
+        {
+            u.FirstName,
+            u.MiddleName,
+            u.LastName
+        }.Where(x => !string.IsNullOrWhiteSpace(x)));
+    }
+
+
+    [Authorize]
+    [HttpGet("member-details")]
+    public IActionResult GetMemberDetails()
+    {
+        var data = new
+        {
+            id = "mem_001",
+            name = "Neal Caffery",
+            eoRole = "Executive Member",
+            companyName = "Himalayan Tech Solutions",
+            companyRole = "Board Member",
+            designation = "CEO",
+            profileImage =
+                "https://thumbs.dreamstime.com/b/happy-middle-aged-business-man-ceo-executive-sitting-office-portrait-desk-smiling-mature-confident-professional-manager-311125360.jpg",
+            email = "neal@example.com",
+            phone = "+977-9800000001",
+            location = "Kathmandu, Nepal",
+            bio = "Experienced board member with a strong background in leadership, strategy, and corporate governance.",
+
+            joinedDate = "2026-03-10",
+            dob = "1978-04-12",
+
+            socialLinks = new
+            {
+                linkedin = "https://www.linkedin.com/in/neal-caffery",
+                twitter = "https://twitter.com/nealcaffery",
+                facebook = "https://www.facebook.com/neal.caffery",
+                instagram = "https://www.instagram.com/nealcaffery",
+                website = "https://nealcaffery.com"
+            },
+
+            family = new
+            {
+                spouse = new
+                {
+                    id = "mem_002",
+                    name = "Diana Barrigan",
+                    companyRole = "Legal Consultant",
+                    profileImage = "https://randomuser.me/api/portraits/women/65.jpg",
+                    email = "diana@example.com",
+                    phone = "+977-9800000002",
+                    location = "Kathmandu, Nepal",
+                    bio = "Corporate legal consultant specializing in mergers and compliance frameworks.",
+
+                    marriageAnniversary = "2000-03-10",
+                    dob = "1980-09-21",
+
+                    socialLinks = new
+                    {
+                        linkedin = "https://www.linkedin.com/in/Diana-caffery",
+                        twitter = "https://twitter.com/Diana",
+                        facebook = "https://www.facebook.com/Diana.caffery",
+                        instagram = "https://www.instagram.com/Diana",
+                        website = "https://Dianacaffery.com"
+                    },
+
+                    professional = new
+                    {
+                        currentCompany = "Independent Consultant",
+                        position = "Legal Consultant",
+                        experienceYears = 14,
+                        previousRoles = new[]
+                        {
+                        "Senior Legal Advisor - Law Firm XYZ"
+                    },
+                        expertise = new[]
+                        {
+                        "Corporate Law",
+                        "Mergers & Acquisitions",
+                        "Compliance"
+                    }
+                    }
+                },
+
+                children = new[]
+                {
+                new
+                {
+                    name = "Kate Caffery",
+                    dob = "2008-06-14",
+                    education = "Grade 12 Student",
+                    interests = new[] { "Debate", "Music", "Volleyball" },
+                    profileImage = "https://randomuser.me/api/portraits/women/12.jpg"
+                },
+                new
+                {
+                    name = "June Caffery",
+                    dob = "2011-11-03",
+                    education = "Grade 9 Student",
+                    interests = new[] { "Painting", "Chess", "Reading" },
+                    profileImage = "https://randomuser.me/api/portraits/men/15.jpg"
+                }
+            }
+            }
+        };
+
+        return Ok(new
+        {
+            success = true,
+            message = "Member Details",
+            data
+        });
     }
 }

@@ -12,7 +12,6 @@ namespace EO.Models
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public string? EoRole { get; set; }
-        public string? JoinedDate { get; set; }
     }
 
     public class RegisterRequest

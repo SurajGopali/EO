@@ -27,7 +27,8 @@ public class AuthController : ControllerBase
             PhoneNumber = request.MobileNumber,
             FirstName = request.FirstName,
             MiddleName = request.MiddleName,
-            LastName = request.LastName
+            LastName = request.LastName,
+            JoinedDate = DateTime.UtcNow
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);

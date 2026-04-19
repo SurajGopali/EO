@@ -12,6 +12,7 @@ namespace EO.Models
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public string? EoRole { get; set; }
+        public DateTime JoinedDate { get; set; }
     }
 
     public class RegisterRequest
@@ -22,6 +23,7 @@ namespace EO.Models
         public string Email { get; set; }
         public string? MobileNumber { get; set; }
         public string Password { get; set; }
+        public DateTime JoinedDate { get; set; }
     }
     public class LoginRequest
     {

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -22,16 +23,16 @@ public class UserDetailsController : ControllerBase
 
     [Authorize]
     [HttpPost("update-profile")]
-    public async Task<IActionResult> UpsertProfile(CreateProfileRequest request)
+    public async Task<IActionResult> UpsertProfile(UpdateProfileRequest request)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
-            
+         
             var user = await _userManager.FindByIdAsync(request.UserId);
             if (user == null)
-                return NotFound("User not found");
+                return NotFound(new { success = false, message = "User not found" });
 
             var profile = await _context.UserProfiles
                 .FirstOrDefaultAsync(x => x.UserId == request.UserId);
@@ -45,13 +46,18 @@ public class UserDetailsController : ControllerBase
                 await _context.UserProfiles.AddAsync(profile);
             }
 
-            profile.DateOfBirth = request.PersonalDetails?.DateOfBirth;
-            profile.AnniversaryDate = request.PersonalDetails?.AnniversaryDate;
-            profile.Address = request.PersonalDetails?.Address;
-            profile.IsMarried = request.PersonalDetails?.IsMarried ?? false;
+            if (request.PersonalDetails != null)
+            {
+                profile.DateOfBirth = request.PersonalDetails.DateOfBirth;
+                profile.AnniversaryDate = request.PersonalDetails.AnniversaryDate;
+                profile.Address = request.PersonalDetails.Address;
+                profile.IsMarried = request.PersonalDetails.IsMarried;
+                profile.Bio = request.PersonalDetails.Bio;
+            }
 
             await _context.SaveChangesAsync();
 
+       
             if (request.CompanyDetails != null)
             {
                 var company = await _context.CompanyDetails
@@ -59,7 +65,10 @@ public class UserDetailsController : ControllerBase
 
                 if (company == null)
                 {
-                    company = new CompanyDetails { UserId = request.UserId };
+                    company = new CompanyDetails
+                    {
+                        UserId = request.UserId
+                    };
                     await _context.CompanyDetails.AddAsync(company);
                 }
 
@@ -68,7 +77,7 @@ public class UserDetailsController : ControllerBase
                 company.CompanyRole = request.CompanyDetails.Role;
             }
 
-          
+         
             if (request.SocialLinks != null)
             {
                 var social = await _context.UserSocialLinks
@@ -76,7 +85,10 @@ public class UserDetailsController : ControllerBase
 
                 if (social == null)
                 {
-                    social = new UserSocialLinks { UserId = request.UserId };
+                    social = new UserSocialLinks
+                    {
+                        UserId = request.UserId
+                    };
                     await _context.UserSocialLinks.AddAsync(social);
                 }
 
@@ -87,8 +99,7 @@ public class UserDetailsController : ControllerBase
                 social.Website = request.SocialLinks.Website;
             }
 
-         
-            var spouse = await _context.Spouses
+            Spouse? spouse = await _context.Spouses
                 .FirstOrDefaultAsync(x => x.UserProfileId == profile.Id);
 
             if (profile.IsMarried && request.Spouse != null)
@@ -102,21 +113,20 @@ public class UserDetailsController : ControllerBase
                     });
                 }
 
-                spouse = await _context.Spouses
-                    .FirstOrDefaultAsync(x => x.UserProfileId == profile.Id);
-
                 if (spouse == null)
                 {
                     spouse = new Spouse
                     {
                         UserProfileId = profile.Id,
-                        Name = request.Spouse.Name,  
+                        Name = request.Spouse.Name,
                         Phone = request.Spouse.Phone,
                         Email = request.Spouse.Email,
-                        DateOfBirth = request.Spouse.DateOfBirth
+                        DateOfBirth = request.Spouse.DateOfBirth,
+                        ProfileImage = request.Spouse.ProfileImage
                     };
 
                     await _context.Spouses.AddAsync(spouse);
+                    await _context.SaveChangesAsync(); 
                 }
                 else
                 {
@@ -124,9 +134,8 @@ public class UserDetailsController : ControllerBase
                     spouse.Phone = request.Spouse.Phone;
                     spouse.Email = request.Spouse.Email;
                     spouse.DateOfBirth = request.Spouse.DateOfBirth;
+                    spouse.ProfileImage = request.Spouse.ProfileImage;
                 }
-                await _context.Spouses.AddAsync(spouse);
-                await _context.SaveChangesAsync();
 
                 if (request.Spouse.SocialLinks != null)
                 {
@@ -148,56 +157,81 @@ public class UserDetailsController : ControllerBase
                     spouseSocial.X = request.Spouse.SocialLinks.X;
                     spouseSocial.Website = request.Spouse.SocialLinks.Website;
                 }
+
+                if (request.Spouse.Professional != null)
+                {
+                    var prof = await _context.Set<SpouseProfessionalDetails>()
+                        .FirstOrDefaultAsync(x => x.SpouseId == spouse.Id);
+
+                    if (prof == null)
+                    {
+                        prof = new SpouseProfessionalDetails
+                        {
+                            SpouseId = spouse.Id
+                        };
+                        await _context.AddAsync(prof);
+                    }
+
+                    prof.CurrentCompany = request.Spouse.Professional.CurrentCompany;
+                    prof.Position = request.Spouse.Professional.Position;
+                    prof.ExperienceYears = request.Spouse.Professional.ExperienceYears;
+                    prof.PreviousRoles = request.Spouse.Professional.PreviousRoles != null
+                        ? string.Join(",", request.Spouse.Professional.PreviousRoles)
+                        : null;
+
+                    prof.Expertise = request.Spouse.Professional.Expertise != null
+                        ? string.Join(",", request.Spouse.Professional.Expertise)
+                        : null;
+                }
             }
             else if (spouse != null)
             {
                 _context.Spouses.Remove(spouse);
             }
 
-           
-            if (request.Children != null)
+            if (request.Children != null && request.Children.Any())
             {
-                foreach (var childDto in request.Children)
+                foreach (var child in request.Children)
                 {
-                    if (childDto.Id.HasValue)
+                    if (child.Id.HasValue)
                     {
-                        var existingChild = await _context.Children
+                        var existing = await _context.Children
                             .FirstOrDefaultAsync(x =>
-                                x.Id == childDto.Id.Value &&
+                                x.Id == child.Id &&
                                 x.UserProfileId == profile.Id);
 
-                        if (existingChild != null)
+                        if (existing != null)
                         {
-                            existingChild.Name = childDto.Name;
-                            existingChild.School = childDto.School;
-                            existingChild.Grade = childDto.Grade;
-                            existingChild.DateOfBirth = childDto.DateOfBirth;
+                            existing.Name = child.Name;
+                            existing.School = child.School;
+                            existing.Grade = child.Grade;
+                            existing.DateOfBirth = child.DateOfBirth;
+                            existing.ProfileImage = child.ProfileImage;
                         }
                     }
                     else
                     {
-                        var newChild = new Child
+                        await _context.Children.AddAsync(new Child
                         {
                             UserProfileId = profile.Id,
-                            Name = childDto.Name,
-                            School = childDto.School,
-                            Grade = childDto.Grade,
-                            DateOfBirth = childDto.DateOfBirth
-                        };
-
-                        await _context.Children.AddAsync(newChild);
+                            Name = child.Name,
+                            School = child.School,
+                            Grade = child.Grade,
+                            DateOfBirth = child.DateOfBirth,
+                            ProfileImage = child.ProfileImage
+                        });
                     }
                 }
             }
 
-           
+        
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
             return Ok(new
             {
                 success = true,
-                message = "Profile Updated successful",
+                message = "Profile updated successfully",
                 userId = request.UserId,
                 profileId = profile.Id
             });
@@ -215,11 +249,21 @@ public class UserDetailsController : ControllerBase
         }
     }
 
+
     [Authorize]
     [HttpGet("members")]
-    public async Task<IActionResult> GetMembers()
+    public async Task<IActionResult> GetMembers([FromQuery] bool New = false)
     {
         var users = await _userManager.Users.ToListAsync();
+
+        if (New)
+        {
+            var oneMonthAgo = DateTime.UtcNow.AddMonths(-1);
+
+            users = users
+                .Where(u => u.JoinedDate != null && u.JoinedDate >= oneMonthAgo)
+                .ToList();
+        }
 
         var userIds = users.Select(x => x.Id).ToList();
 
@@ -239,24 +283,25 @@ public class UserDetailsController : ControllerBase
             return new MemberDto
             {
                 Id = u.Id,
-                Name = GetFullName(u),        
-                EoRole = u.EoRole,           
+                Name = GetFullName(u),
+                EoRole = u.EoRole,
+                JoinedDate = u.JoinedDate,
 
                 ProfileImage = u.ProfileImage,
 
                 CompanyName = company?.CompanyName,
-                CompanyRole = company?.Designation,
+                CompanyRole = company?.CompanyRole,
                 Designation = company?.Designation,
 
                 Birthday = profile?.DateOfBirth,
-                Anniversary = profile?.AnniversaryDate
+                Anniversary = profile?.AnniversaryDate,
             };
         }).ToList();
 
         return Ok(new
         {
             success = true,
-            message = "Members fetched successfully",
+            message = New ? "New members" : "All members",
             members = result
         });
     }
@@ -274,105 +319,226 @@ public class UserDetailsController : ControllerBase
 
     [Authorize]
     [HttpGet("member-details")]
-    public IActionResult GetMemberDetails()
+    public async Task<IActionResult> GetMemberDetails([FromQuery] string id)
     {
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                success = false,
+                message = "User not found"
+
+            });
+        }
+
+        var profile = await _context.UserProfiles
+       .FirstOrDefaultAsync(x => x.UserId == id);
+
+        if (profile == null)
+        {
+            return Ok(new
+            {
+                success = true,
+                message = "Member found (no profile yet)",
+                data = new
+                {
+                    id = user.Id,
+                    name = GetFullName(user),
+                    eoRole = user.EoRole
+                }
+            });
+        }
+
+        var company = await _context.CompanyDetails
+            .FirstOrDefaultAsync(x => x.UserId == id);
+
+        var social = await _context.UserSocialLinks
+            .FirstOrDefaultAsync(x => x.UserId == id);
+
+        var spouse = await _context.Spouses
+            .Include(x => x.SocialLinks)
+            .Include(x => x.ProfessionalDetails)
+            .FirstOrDefaultAsync(x => x.UserProfileId == profile.Id);
+
+        var children = await _context.Children
+            .Where(x => x.UserProfileId == profile.Id)
+            .ToListAsync();
+
         var data = new
         {
-            id = "mem_001",
-            name = "Neal Caffery",
-            eoRole = "Executive Member",
-            companyName = "Himalayan Tech Solutions",
-            companyRole = "Board Member",
-            designation = "CEO",
-            profileImage =
-                "https://thumbs.dreamstime.com/b/happy-middle-aged-business-man-ceo-executive-sitting-office-portrait-desk-smiling-mature-confident-professional-manager-311125360.jpg",
-            email = "neal@example.com",
-            phone = "+977-9800000001",
-            location = "Kathmandu, Nepal",
-            bio = "Experienced board member with a strong background in leadership, strategy, and corporate governance.",
+            id = user.Id,
+            name = GetFullName(user),
+            eoRole = user.EoRole,
+            companyName = company.CompanyName,
+            companyRole = company.CompanyRole,
+            designation = company.Designation,
+            profileImage = user.ProfileImage,
+            email = user.Email,
+            phone = user.PhoneNumber,
+            location = profile.Address,
+            bio = profile?.Bio,
+            joinedDate = user.JoinedDate,
+            dob = profile?.DateOfBirth,
 
-            joinedDate = "2026-03-10",
-            dob = "1978-04-12",
-
-            socialLinks = new
+            socialLinks = social == null ? null : new
             {
-                linkedin = "https://www.linkedin.com/in/neal-caffery",
-                twitter = "https://twitter.com/nealcaffery",
-                facebook = "https://www.facebook.com/neal.caffery",
-                instagram = "https://www.instagram.com/nealcaffery",
-                website = "https://nealcaffery.com"
+                linkedin = social.LinkedIn,
+                twitter = social.X,
+                facebook = social.Facebook,
+                instagram = social.Instagram,
+                website = social.Website
             },
 
             family = new
             {
-                spouse = new
+                spouse = spouse == null ? null : new
                 {
-                    id = "mem_002",
-                    name = "Diana Barrigan",
-                    companyRole = "Legal Consultant",
-                    profileImage = "https://randomuser.me/api/portraits/women/65.jpg",
-                    email = "diana@example.com",
-                    phone = "+977-9800000002",
-                    location = "Kathmandu, Nepal",
-                    bio = "Corporate legal consultant specializing in mergers and compliance frameworks.",
+                    id = spouse.Id,
+                    name = spouse.Name,
+                    companyRole = spouse.ProfessionalDetails?.Position,
+                    profileImage = spouse?.ProfileImage,
+                    email = spouse?.Email,
+                    phone = spouse.Phone,
 
-                    marriageAnniversary = "2000-03-10",
-                    dob = "1980-09-21",
+                    marriageAnniverssary = profile?.AnniversaryDate,
+                    dob = spouse?.DateOfBirth,
 
-                    socialLinks = new
+                    socialLinks = spouse?.SocialLinks == null ? null : new
                     {
-                        linkedin = "https://www.linkedin.com/in/Diana-caffery",
-                        twitter = "https://twitter.com/Diana",
-                        facebook = "https://www.facebook.com/Diana.caffery",
-                        instagram = "https://www.instagram.com/Diana",
-                        website = "https://Dianacaffery.com"
+                        linkedin = spouse.SocialLinks.LinkedIn,
+                        twitter = spouse.SocialLinks.X,
+                        facebook = spouse.SocialLinks.Facebook,
+                        instagram = spouse.SocialLinks.Instagram,
+                        website = spouse.SocialLinks.Website
                     },
 
-                    professional = new
-                    {
-                        currentCompany = "Independent Consultant",
-                        position = "Legal Consultant",
-                        experienceYears = 14,
-                        previousRoles = new[]
-                        {
-                        "Senior Legal Advisor - Law Firm XYZ"
-                    },
-                        expertise = new[]
-                        {
-                        "Corporate Law",
-                        "Mergers & Acquisitions",
-                        "Compliance"
-                    }
-                    }
-                },
 
-                children = new[]
-                {
-                new
-                {
-                    name = "Kate Caffery",
-                    dob = "2008-06-14",
-                    education = "Grade 12 Student",
-                    interests = new[] { "Debate", "Music", "Volleyball" },
-                    profileImage = "https://randomuser.me/api/portraits/women/12.jpg"
-                },
-                new
-                {
-                    name = "June Caffery",
-                    dob = "2011-11-03",
-                    education = "Grade 9 Student",
-                    interests = new[] { "Painting", "Chess", "Reading" },
-                    profileImage = "https://randomuser.me/api/portraits/men/15.jpg"
+                    professional = spouse?.ProfessionalDetails == null ? null  : new
+                    {
+                        currentCompany = spouse.ProfessionalDetails.CurrentCompany,
+                        position = spouse.ProfessionalDetails.Position,
+                        experienceYear = spouse.ProfessionalDetails.ExperienceYears,
+
+                        previousRoles = string.IsNullOrEmpty(spouse?.ProfessionalDetails?.PreviousRoles)
+                    ? new List<string>()
+                    : spouse.ProfessionalDetails.PreviousRoles
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .ToList(),
+
+                        expertise = string.IsNullOrEmpty(spouse?.ProfessionalDetails?.Expertise)
+                    ? new List<string>()
+                    : spouse.ProfessionalDetails.Expertise
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .ToList()
+                    }
+                  
                 }
-            }
-            }
+            },
+
+            children = children.Select(c => new
+            {
+                name = c.Name,
+                dob = c.DateOfBirth,
+                education = c.Grade,
+                interests = new List<string>(),
+                profileImage = ""
+            })
         };
 
         return Ok(new
         {
             success = true,
             message = "Member Details",
-            data
+            memberDetail = data
+        });
+    }
+
+    [Authorize]
+    [HttpGet("anniversaries")]
+    public async Task<IActionResult> GetAnniversaries()
+    {
+        var today = DateTime.UtcNow;
+
+        var data = await (
+            from profile in _context.UserProfiles
+            join user in _userManager.Users on profile.UserId equals user.Id
+            join spouse in _context.Spouses on profile.Id equals spouse.UserProfileId
+            where profile.IsMarried == true && profile.AnniversaryDate != null
+            select new
+            {
+                name1 = user.FirstName + " " + user.LastName,
+                name2 = spouse.Name,
+                anniversaryDate = profile.AnniversaryDate,
+                phoneNo = user.PhoneNumber,
+                profileImage1 = user.ProfileImage,
+                profileImage2 = spouse.ProfileImage
+            }
+        ).ToListAsync();
+
+        var result = data.Select(x =>
+        {
+            var years = today.Year - x.anniversaryDate.Value.Year;
+
+            if (today.Date < x.anniversaryDate.Value.AddYears(years).Date)
+                years--;
+
+            return new
+            {
+                name1 = x.name1,
+                name2 = x.name2,
+                years = years,
+                date = x.anniversaryDate.Value.ToString("MMM dd"),
+                phoneNo = x.phoneNo,
+                profileImage1 = x.profileImage1,
+                profileImage2 = x.profileImage2
+            };
+        }).ToList();
+
+        return Ok(new
+        {
+            success = true,
+            message = "Anniversaries fetched successfully",
+            data = result
+        });
+    }
+
+    [Authorize]
+    [HttpGet("birthdays")]
+    public async Task<IActionResult> GetBirthdays()
+    {
+        var today = DateTime.UtcNow;
+
+        var data = await (
+            from profile in _context.UserProfiles
+            join user in _userManager.Users on profile.UserId equals user.Id
+            where profile.DateOfBirth != null
+            select new
+            {
+                name = user.FirstName + " " + user.LastName,
+                dob = profile.DateOfBirth,
+                phoneNo = user.PhoneNumber,
+                profileImage = user.ProfileImage
+            }
+        ).ToListAsync();
+
+        var result = data.Select(x => new
+        {
+            name = x.name,
+            date = x.dob.Value.ToString("MMM dd"),
+            phoneNo = x.phoneNo,
+            profileImage = x.profileImage
+        }).ToList();
+
+        return Ok(new
+        {
+            success = true,
+            message = "Birthdays fetched successfully",
+            data = result
         });
     }
 }

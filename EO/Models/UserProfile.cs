@@ -8,6 +8,7 @@
         public DateTime? AnniversaryDate { get; set; }
         public string? Address { get; set; }
         public bool IsMarried { get; set; }
+        public string? Bio { get; set; }
         public ApplicationUser User { get; set; }
     }
 
@@ -56,6 +57,7 @@
         public DateTime? DateOfBirth { get; set; }
         public string? Phone { get; set; }
         public string? Email { get; set; }
+        public string? ProfileImage { get; set; }
         public SpouseSocialLinks? SocialLinks { get; set; }
         public SpouseProfessionalDetails? ProfessionalDetails { get; set; }
     }
@@ -122,6 +124,7 @@
         public DateTime? AnniversaryDate { get; set; }
         public string Address { get; set; }
         public bool IsMarried { get; set; }
+        public string? Bio { get; set; }
     }
 
     public class CompanyDetailsDto
@@ -145,6 +148,7 @@
         public DateTime? DateOfBirth { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
+        public string? ProfileImage { get; set; }
         public SocialLinksDto SocialLinks { get; set; }
         public SpouseProfessionalDto Professional { get; set; }
     }
@@ -169,6 +173,7 @@
         public DateTime? Birthday { get; set; }
         public DateTime? Anniversary { get; set; }
         public string ProfileImage { get; set; }
+        public DateTime JoinedDate { get; set; }
     }
 
 }

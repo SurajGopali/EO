@@ -173,7 +173,12 @@ namespace EO.Controllers.ApiControllers
                 }
             };
 
-            return Ok(interestedGroups);
+            return Ok(new
+            {
+                success = true,
+                message = "Interested Groups Fetched Successfully",
+                InterestedGroups = interestedGroups
+            });
         }
     }
 }

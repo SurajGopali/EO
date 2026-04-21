@@ -135,7 +135,12 @@ namespace EO.Controllers.ApiControllers
                 }
             };
 
-            return Ok(forums);
+            return Ok(new
+            {
+                success = true,
+                message = "Forums Fetched Successfully",
+                Forums = forums
+            });
         }
     }
 }

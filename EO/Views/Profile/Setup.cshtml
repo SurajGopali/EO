@@ -1,0 +1,284 @@
+﻿@model EO.Models.UpdateProfileRequest
+
+<style>
+    .wizard-container {
+        max-width: 800px;
+        margin: auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .step {
+        display: none;
+    }
+
+        .step.active {
+            display: block;
+        }
+
+    .btn-group {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    label {
+        font-weight: 500;
+        margin-top: 10px;
+        display: block;
+    }
+
+    .progress-bar {
+        height: 6px;
+        background: #eee;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .progress {
+        height: 100%;
+        width: 0%;
+        background: #4f46e5;
+        transition: 0.3s;
+    }
+
+    button {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: #4f46e5;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+    }
+</style>
+
+<div class="wizard-container">
+
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <form id="profileForm">
+
+        <!-- STEP 1 -->
+        <div class="step active" data-step="1">
+            <h3>Personal Details</h3>
+
+            <label>Date of Birth</label>
+            <input name="PersonalDetails.DateOfBirth" type="date" />
+
+            <label>Anniversary Date</label>
+            <input name="PersonalDetails.AnniversaryDate" type="date" />
+
+            <label>Address</label>
+            <input name="PersonalDetails.Address" />
+
+            <label>Bio</label>
+            <textarea name="PersonalDetails.Bio"></textarea>
+
+            <label>
+                <input id="isMarried" name="PersonalDetails.IsMarried" type="checkbox" />
+                Married
+            </label>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step" data-step="2">
+            <h3>Company Details</h3>
+
+            <input name="CompanyDetails.CompanyName" placeholder="Company Name" />
+            <input name="CompanyDetails.Designation" placeholder="Designation" />
+            <input name="CompanyDetails.Role" placeholder="Role" />
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step" data-step="3">
+            <h3>Social Links</h3>
+
+            <input name="SocialLinks.Facebook" placeholder="Facebook" />
+            <input name="SocialLinks.Instagram" placeholder="Instagram" />
+            <input name="SocialLinks.LinkedIn" placeholder="LinkedIn" />
+            <input name="SocialLinks.X" placeholder="X" />
+            <input name="SocialLinks.Website" placeholder="Website" />
+        </div>
+
+        <!-- STEP 4 (Spouse) -->
+        <div class="step" data-step="4" id="spouseStep">
+            <h3>Spouse Details</h3>
+
+            <input name="Spouse.Name" placeholder="Name" />
+            <input name="Spouse.Phone" placeholder="Phone" />
+            <input name="Spouse.Email" placeholder="Email" />
+            <input name="Spouse.DateOfBirth" type="date" />
+
+            <h4>Social</h4>
+            <input name="Spouse.SocialLinks.Facebook" placeholder="Facebook" />
+            <input name="Spouse.SocialLinks.Instagram" placeholder="Instagram" />
+            <input name="Spouse.SocialLinks.LinkedIn" placeholder="LinkedIn" />
+
+            <h4>Professional</h4>
+            <input name="Spouse.Professional.CurrentCompany" placeholder="Company" />
+            <input name="Spouse.Professional.Position" placeholder="Position" />
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="step" data-step="5">
+            <h3>Children</h3>
+
+            <div id="childrenContainer">
+                <input name="Children[0].Name" placeholder="Name" />
+                <input name="Children[0].School" placeholder="School" />
+            </div>
+
+            <button type="button" class="btn-secondary" onclick="addChild()">+ Add Child</button>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="step" data-step="6">
+            <h3>Review & Submit</h3>
+            <p>Check your information before submitting.</p>
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="btn-group">
+            <button type="button" class="btn-secondary" onclick="prevStep()">Previous</button>
+
+            <button type="button" class="btn-primary" onclick="nextStep()" id="nextBtn">
+                Next
+            </button>
+
+            <button type="button" class="btn-primary" onclick="submitForm()" id="submitBtn" style="display:none">
+                Submit
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    let step = 1;
+    let childIndex = 1;
+
+    const totalSteps = 6;
+
+    function updateProgress() {
+        const progress = ((step - 1) / (totalSteps - 1)) * 100;
+        document.getElementById("progress").style.width = progress + "%";
+    }
+
+    function showStep(s) {
+        document.querySelectorAll(".step").forEach(x => x.classList.remove("active"));
+        document.querySelector(`[data-step="${s}"]`).classList.add("active");
+
+        const married = document.getElementById("isMarried").checked;
+        const spouseStep = document.getElementById("spouseStep");
+
+        // skip spouse if not married
+        if (!married && s === 4) {
+            step = 5;
+            showStep(step);
+            return;
+        }
+
+        document.getElementById("submitBtn").style.display = (s === 6) ? "inline-block" : "none";
+        document.getElementById("nextBtn").style.display = (s === 6) ? "none" : "inline-block";
+
+        updateProgress();
+    }
+
+    function nextStep() {
+        const married = document.getElementById("isMarried").checked;
+
+        step++;
+
+        if (!married && step === 4) step = 5;
+
+        if (step > totalSteps) step = totalSteps;
+
+        showStep(step);
+    }
+
+    function prevStep() {
+        step--;
+
+        const married = document.getElementById("isMarried").checked;
+
+        if (!married && step === 4) step = 3;
+
+        if (step < 1) step = 1;
+
+        showStep(step);
+    }
+
+    document.getElementById("isMarried").addEventListener("change", function () {
+        showStep(step);
+    });
+
+    function addChild() {
+        const container = document.getElementById("childrenContainer");
+
+        container.insertAdjacentHTML("beforeend", `
+            <input name="Children[${childIndex}].Name" placeholder="Name" />
+            <input name="Children[${childIndex}].School" placeholder="School" />
+        `);
+
+        childIndex++;
+    }
+
+    async function submitForm() {
+        const form = document.getElementById("profileForm");
+        const data = new FormData(form);
+
+        let obj = {};
+
+        data.forEach((value, key) => {
+            set(obj, key, value);
+        });
+
+        const res = await fetch("/Profile/Submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(obj)
+        });
+
+        if (res.ok) {
+            window.location.href = "/";
+        } else {
+            alert("Failed to submit profile");
+        }
+    }
+
+    function set(obj, path, value) {
+        const keys = path.split(".");
+        let current = obj;
+
+        keys.forEach((k, i) => {
+            if (i === keys.length - 1) {
+                current[k] = value;
+            } else {
+                current[k] = current[k] || {};
+                current = current[k];
+            }
+        });
+    }
+
+    showStep(step);
+</script>

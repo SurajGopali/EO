@@ -1,5 +1,10 @@
 ﻿using EO.Models;
+using EO.Services.Profile;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -8,32 +13,52 @@ namespace EO.Controllers
 {
     public class ProfileController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IProfileService _profileService;
 
-        public ProfileController(IHttpClientFactory httpClientFactory)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMemberService _memberService;
+        public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, IMemberService memberService)
         {
-            _httpClientFactory = httpClientFactory;
+            _profileService = profileService;
+            _userManager = userManager;
+            _memberService = memberService;
         }
 
+        [Authorize]
         [HttpGet]
-        public IActionResult Setup()
+        public async Task<IActionResult> Setup(string? id)
         {
-            var model = new UpdateProfileRequest
-            {
-                PersonalDetails = new PersonalDetailsDto(),
-                CompanyDetails = new CompanyDetailsDto(),
-                SocialLinks = new SocialLinksDto(),
-                Spouse = new SpouseDto
-                {
-                    SocialLinks = new SocialLinksDto(),
-                    Professional = new SpouseProfessionalDto()
-                },
-                Children = new List<ChildDto>()
-            };
+            var user = await _userManager.GetUserAsync(User);
 
-            ViewBag.Step = 1;
-            return View(model);
+            if (user == null)
+                return Unauthorized();
+
+            var userId = string.IsNullOrEmpty(id) ? user.Id : id;
+
+            var profile = await _profileService.GetProfileAsync(userId);
+
+            if (profile == null)
+            {
+                return View(new UpdateProfileRequest
+                {
+                    UserId = userId, 
+                    PersonalDetails = new(),
+                    CompanyDetails = new(),
+                    SocialLinks = new(),
+                    Spouse = new SpouseDto
+                    {
+                        SocialLinks = new(),
+                        Professional = new()
+                    },
+                    Children = new()
+                });
+            }
+
+            profile.UserId = userId; 
+
+            return View(profile);
         }
+
 
         [HttpPost]
         public IActionResult Next([FromBody] int step)
@@ -47,34 +72,69 @@ namespace EO.Controllers
             return Json(new { step = step - 1 });
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Submit([FromBody] UpdateProfileRequest request)
         {
-            var token = Request.Cookies["accessToken"];
+            if (request == null)
+                return BadRequest("Request is null");
 
-            if (string.IsNullOrEmpty(token))
-                return Unauthorized("User not logged in");
+            var actor = await _userManager.GetUserAsync(User);
 
-            var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+            if (actor == null)
+                return Unauthorized();
 
-            var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            var targetUserId = string.IsNullOrEmpty(request.UserId)
+                ? actor.Id
+                : request.UserId;
 
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync(
-                "https://localhost:7236/api/profile/update-profile",
-                content
-            );
-
-            if (!response.IsSuccessStatusCode)
-                return BadRequest(await response.Content.ReadAsStringAsync());
+            await _profileService.UpsertProfileAsync(request, targetUserId);
 
             return Ok(new { success = true });
+        }
+
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Members(bool New = false)
+        {
+            var members = await _memberService.GetMembersAsync(New);
+
+            return View(members);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> MemberDetails(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+
+            var member = await _memberService.GetMemberDetailAsync(id);
+
+            if (member == null)
+                return NotFound();
+
+            return View(member);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> ToggleMemberStatus(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+                return NotFound();
+
+            user.IsActive = !user.IsActive;
+
+            await _userManager.UpdateAsync(user);
+
+            return RedirectToAction("Members");
         }
     }
 }

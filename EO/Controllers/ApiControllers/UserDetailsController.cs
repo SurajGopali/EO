@@ -1,4 +1,5 @@
 ﻿using EO.Models;
+using EO.Services.Profile;
 using EO.WebContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,243 +13,31 @@ public class UserDetailsController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AppDbContext _context;
+    private readonly IProfileService _profileService;
 
     public UserDetailsController(
         UserManager<ApplicationUser> userManager,
-        AppDbContext context)
+        AppDbContext context,
+        IProfileService profileService)
     {
         _userManager = userManager;
         _context = context;
+        _profileService = profileService;
     }
 
     [Authorize]
     [HttpPost("update-profile")]
     public async Task<IActionResult> UpsertProfile(UpdateProfileRequest request)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-        try
-        {
-         
-            var user = await _userManager.FindByIdAsync(request.UserId);
-            if (user == null)
-                return NotFound(new { success = false, message = "User not found" });
+        var result = await _profileService.UpsertProfileAsync(request, userId);
 
-            var profile = await _context.UserProfiles
-                .FirstOrDefaultAsync(x => x.UserId == request.UserId);
+        if (!result.Success)
+            return BadRequest(result);
 
-            if (profile == null)
-            {
-                profile = new UserProfile
-                {
-                    UserId = request.UserId
-                };
-                await _context.UserProfiles.AddAsync(profile);
-            }
-
-            if (request.PersonalDetails != null)
-            {
-                profile.DateOfBirth = request.PersonalDetails.DateOfBirth;
-                profile.AnniversaryDate = request.PersonalDetails.AnniversaryDate;
-                profile.Address = request.PersonalDetails.Address;
-                profile.IsMarried = request.PersonalDetails.IsMarried;
-                profile.Bio = request.PersonalDetails.Bio;
-            }
-
-            await _context.SaveChangesAsync();
-
-       
-            if (request.CompanyDetails != null)
-            {
-                var company = await _context.CompanyDetails
-                    .FirstOrDefaultAsync(x => x.UserId == request.UserId);
-
-                if (company == null)
-                {
-                    company = new CompanyDetails
-                    {
-                        UserId = request.UserId
-                    };
-                    await _context.CompanyDetails.AddAsync(company);
-                }
-
-                company.CompanyName = request.CompanyDetails.CompanyName;
-                company.Designation = request.CompanyDetails.Designation;
-                company.CompanyRole = request.CompanyDetails.Role;
-            }
-
-         
-            if (request.SocialLinks != null)
-            {
-                var social = await _context.UserSocialLinks
-                    .FirstOrDefaultAsync(x => x.UserId == request.UserId);
-
-                if (social == null)
-                {
-                    social = new UserSocialLinks
-                    {
-                        UserId = request.UserId
-                    };
-                    await _context.UserSocialLinks.AddAsync(social);
-                }
-
-                social.Facebook = request.SocialLinks.Facebook;
-                social.Instagram = request.SocialLinks.Instagram;
-                social.LinkedIn = request.SocialLinks.LinkedIn;
-                social.X = request.SocialLinks.X;
-                social.Website = request.SocialLinks.Website;
-            }
-
-            Spouse? spouse = await _context.Spouses
-                .FirstOrDefaultAsync(x => x.UserProfileId == profile.Id);
-
-            if (profile.IsMarried && request.Spouse != null)
-            {
-                if (string.IsNullOrWhiteSpace(request.Spouse.Name))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Spouse name is required"
-                    });
-                }
-
-                if (spouse == null)
-                {
-                    spouse = new Spouse
-                    {
-                        UserProfileId = profile.Id,
-                        Name = request.Spouse.Name,
-                        Phone = request.Spouse.Phone,
-                        Email = request.Spouse.Email,
-                        DateOfBirth = request.Spouse.DateOfBirth,
-                        ProfileImage = request.Spouse.ProfileImage
-                    };
-
-                    await _context.Spouses.AddAsync(spouse);
-                    await _context.SaveChangesAsync(); 
-                }
-                else
-                {
-                    spouse.Name = request.Spouse.Name;
-                    spouse.Phone = request.Spouse.Phone;
-                    spouse.Email = request.Spouse.Email;
-                    spouse.DateOfBirth = request.Spouse.DateOfBirth;
-                    spouse.ProfileImage = request.Spouse.ProfileImage;
-                }
-
-                if (request.Spouse.SocialLinks != null)
-                {
-                    var spouseSocial = await _context.SpouseSocialLinks
-                        .FirstOrDefaultAsync(x => x.SpouseId == spouse.Id);
-
-                    if (spouseSocial == null)
-                    {
-                        spouseSocial = new SpouseSocialLinks
-                        {
-                            SpouseId = spouse.Id
-                        };
-                        await _context.SpouseSocialLinks.AddAsync(spouseSocial);
-                    }
-
-                    spouseSocial.Facebook = request.Spouse.SocialLinks.Facebook;
-                    spouseSocial.Instagram = request.Spouse.SocialLinks.Instagram;
-                    spouseSocial.LinkedIn = request.Spouse.SocialLinks.LinkedIn;
-                    spouseSocial.X = request.Spouse.SocialLinks.X;
-                    spouseSocial.Website = request.Spouse.SocialLinks.Website;
-                }
-
-                if (request.Spouse.Professional != null)
-                {
-                    var prof = await _context.Set<SpouseProfessionalDetails>()
-                        .FirstOrDefaultAsync(x => x.SpouseId == spouse.Id);
-
-                    if (prof == null)
-                    {
-                        prof = new SpouseProfessionalDetails
-                        {
-                            SpouseId = spouse.Id
-                        };
-                        await _context.AddAsync(prof);
-                    }
-
-                    prof.CurrentCompany = request.Spouse.Professional.CurrentCompany;
-                    prof.Position = request.Spouse.Professional.Position;
-                    prof.ExperienceYears = request.Spouse.Professional.ExperienceYears;
-                    prof.PreviousRoles = request.Spouse.Professional.PreviousRoles != null
-                        ? string.Join(",", request.Spouse.Professional.PreviousRoles)
-                        : null;
-
-                    prof.Expertise = request.Spouse.Professional.Expertise != null
-                        ? string.Join(",", request.Spouse.Professional.Expertise)
-                        : null;
-                }
-            }
-            else if (spouse != null)
-            {
-                _context.Spouses.Remove(spouse);
-            }
-
-            if (request.Children != null && request.Children.Any())
-            {
-                foreach (var child in request.Children)
-                {
-                    if (child.Id.HasValue)
-                    {
-                        var existing = await _context.Children
-                            .FirstOrDefaultAsync(x =>
-                                x.Id == child.Id &&
-                                x.UserProfileId == profile.Id);
-
-                        if (existing != null)
-                        {
-                            existing.Name = child.Name;
-                            existing.School = child.School;
-                            existing.Grade = child.Grade;
-                            existing.DateOfBirth = child.DateOfBirth;
-                            existing.ProfileImage = child.ProfileImage;
-                        }
-                    }
-                    else
-                    {
-                        await _context.Children.AddAsync(new Child
-                        {
-                            UserProfileId = profile.Id,
-                            Name = child.Name,
-                            School = child.School,
-                            Grade = child.Grade,
-                            DateOfBirth = child.DateOfBirth,
-                            ProfileImage = child.ProfileImage
-                        });
-                    }
-                }
-            }
-
-        
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-
-            return Ok(new
-            {
-                success = true,
-                message = "Profile updated successfully",
-                userId = request.UserId,
-                profileId = profile.Id
-            });
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-
-            return BadRequest(new
-            {
-                success = false,
-                message = "Update failed",
-                error = ex.Message
-            });
-        }
+        return Ok(result);
     }
-
 
     [Authorize]
     [HttpGet("members")]
@@ -330,27 +119,11 @@ public class UserDetailsController : ControllerBase
             {
                 success = false,
                 message = "User not found"
-
             });
         }
 
         var profile = await _context.UserProfiles
-       .FirstOrDefaultAsync(x => x.UserId == id);
-
-        if (profile == null)
-        {
-            return Ok(new
-            {
-                success = true,
-                message = "Member found (no profile yet)",
-                data = new
-                {
-                    id = user.Id,
-                    name = GetFullName(user),
-                    eoRole = user.EoRole
-                }
-            });
-        }
+            .FirstOrDefaultAsync(x => x.UserId == id);
 
         var company = await _context.CompanyDetails
             .FirstOrDefaultAsync(x => x.UserId == id);
@@ -358,96 +131,106 @@ public class UserDetailsController : ControllerBase
         var social = await _context.UserSocialLinks
             .FirstOrDefaultAsync(x => x.UserId == id);
 
-        var spouse = await _context.Spouses
-            .Include(x => x.SocialLinks)
-            .Include(x => x.ProfessionalDetails)
-            .FirstOrDefaultAsync(x => x.UserProfileId == profile.Id);
+        // -----------------------------
+        // SAFE: profile-dependent data
+        // -----------------------------
+        Spouse spouse = null;
+        List<Child> children = new();
 
-        var children = await _context.Children
-            .Where(x => x.UserProfileId == profile.Id)
-            .ToListAsync();
-
-        var data = new
+        if (profile != null)
         {
-            id = user.Id,
-            name = GetFullName(user),
-            eoRole = user.EoRole,
-            companyName = company.CompanyName,
-            companyRole = company.CompanyRole,
-            designation = company.Designation,
-            profileImage = user.ProfileImage,
-            email = user.Email,
-            phone = user.PhoneNumber,
-            location = profile.Address,
-            bio = profile?.Bio,
-            joinedDate = user.JoinedDate,
-            dob = profile?.DateOfBirth,
+            spouse = await _context.Spouses
+                .Include(x => x.SocialLinks)
+                .Include(x => x.ProfessionalDetails)
+                .FirstOrDefaultAsync(x => x.UserProfileId == profile.Id);
 
-            socialLinks = social == null ? null : new
+            children = await _context.Children
+                .Where(x => x.UserProfileId == profile.Id)
+                .ToListAsync();
+        }
+
+        // -----------------------------
+        // SAFE DTO BUILD
+        // -----------------------------
+        var data = new MemberDetailDto
+        {
+            Id = user.Id,
+            Name = GetFullName(user),
+            EoRole = user.EoRole,
+
+            Email = user.Email,
+            Phone = user.PhoneNumber,
+            ProfileImage = user.ProfileImage,
+
+            CompanyName = company?.CompanyName,
+            CompanyRole = company?.CompanyRole,
+            Designation = company?.Designation,
+
+            Location = profile?.Address,
+            Bio = profile?.Bio,
+            JoinedDate = user.JoinedDate,
+            Dob = profile?.DateOfBirth,
+
+            // ---------------- SOCIAL ----------------
+            SocialLinks = social == null ? null : new SocialDto
             {
-                linkedin = social.LinkedIn,
-                twitter = social.X,
-                facebook = social.Facebook,
-                instagram = social.Instagram,
-                website = social.Website
+                Linkedin = social.LinkedIn,
+                Twitter = social.X,
+                Facebook = social.Facebook,
+                Instagram = social.Instagram,
+                Website = social.Website
             },
 
-            family = new
+            // ---------------- SPOUSE ----------------
+            Spouse = spouse == null ? null : new SpouseDto
             {
-                spouse = spouse == null ? null : new
+                Name = spouse.Name,
+                DateOfBirth = spouse.DateOfBirth,
+                Phone = spouse.Phone,
+                Email = spouse.Email,
+                ProfileImage = spouse.ProfileImage,
+
+                SocialLinks = spouse.SocialLinks == null ? null : new SocialLinksDto
                 {
-                    id = spouse.Id,
-                    name = spouse.Name,
-                    companyRole = spouse.ProfessionalDetails?.Position,
-                    profileImage = spouse?.ProfileImage,
-                    email = spouse?.Email,
-                    phone = spouse.Phone,
+                    Facebook = spouse.SocialLinks.Facebook,
+                    Instagram = spouse.SocialLinks.Instagram,
+                    LinkedIn = spouse.SocialLinks.LinkedIn,
+                    X = spouse.SocialLinks.X,
+                    Website = spouse.SocialLinks.Website
+                },
 
-                    marriageAnniverssary = profile?.AnniversaryDate,
-                    dob = spouse?.DateOfBirth,
+                Professional = spouse.ProfessionalDetails == null ? null : new SpouseProfessionalDto
+                {
+                    CurrentCompany = spouse.ProfessionalDetails.CurrentCompany,
+                    Position = spouse.ProfessionalDetails.Position,
+                    ExperienceYears = spouse.ProfessionalDetails.ExperienceYears,
 
-                    socialLinks = spouse?.SocialLinks == null ? null : new
-                    {
-                        linkedin = spouse.SocialLinks.LinkedIn,
-                        twitter = spouse.SocialLinks.X,
-                        facebook = spouse.SocialLinks.Facebook,
-                        instagram = spouse.SocialLinks.Instagram,
-                        website = spouse.SocialLinks.Website
-                    },
+                    PreviousRoles = string.IsNullOrEmpty(spouse.ProfessionalDetails.PreviousRoles)
+                        ? new List<string>()
+                        : spouse.ProfessionalDetails.PreviousRoles
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .ToList(),
 
-
-                    professional = spouse?.ProfessionalDetails == null ? null  : new
-                    {
-                        currentCompany = spouse.ProfessionalDetails.CurrentCompany,
-                        position = spouse.ProfessionalDetails.Position,
-                        experienceYear = spouse.ProfessionalDetails.ExperienceYears,
-
-                        previousRoles = string.IsNullOrEmpty(spouse?.ProfessionalDetails?.PreviousRoles)
-                    ? new List<string>()
-                    : spouse.ProfessionalDetails.PreviousRoles
-                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(x => x.Trim())
-                        .ToList(),
-
-                        expertise = string.IsNullOrEmpty(spouse?.ProfessionalDetails?.Expertise)
-                    ? new List<string>()
-                    : spouse.ProfessionalDetails.Expertise
-                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(x => x.Trim())
-                        .ToList()
-                    }
-                  
+                    Expertise = string.IsNullOrEmpty(spouse.ProfessionalDetails.Expertise)
+                        ? new List<string>()
+                        : spouse.ProfessionalDetails.Expertise
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .ToList()
                 }
             },
 
-            children = children.Select(c => new
+            // ---------------- CHILDREN ----------------
+            Children = children?.Select(c => new ChildDto
             {
-                name = c.Name,
-                dob = c.DateOfBirth,
-                education = c.Grade,
-                interests = new List<string>(),
-                profileImage = ""
-            })
+                Id = c.Id,
+                Name = c.Name,
+                School = c.School,
+                Grade = c.Grade,
+                DateOfBirth = c.DateOfBirth,
+                ProfileImage = c.ProfileImage
+            }).ToList() ?? new List<ChildDto>()
         };
 
         return Ok(new

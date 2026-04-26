@@ -18,8 +18,8 @@
 
         public string UserId { get; set; }
 
-        public string CompanyName { get; set; }
-        public string Designation { get; set; }
+        public string? CompanyName { get; set; }
+        public string? Designation { get; set; }
         public string? CompanyRole { get; set; }
 
         public ApplicationUser User { get; set; }
@@ -53,7 +53,7 @@
     {
         public int Id { get; set; }
         public int UserProfileId { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string? Phone { get; set; }
         public string? Email { get; set; }
@@ -79,7 +79,7 @@
     {
         public int Id { get; set; }
         public int UserProfileId { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public string? School { get; set; }
         public string? Grade { get; set; }
         public DateTime? DateOfBirth { get; set; }
@@ -158,9 +158,8 @@
         public string CurrentCompany { get; set; }
         public string Position { get; set; }
         public int? ExperienceYears { get; set; }
-
-        public List<string> PreviousRoles { get; set; }
-        public List<string> Expertise { get; set; }
+        public List<string>? PreviousRoles { get; set; }
+        public List<string>? Expertise { get; set; }
     }
     public class MemberDto
     {
@@ -174,6 +173,40 @@
         public DateTime? Anniversary { get; set; }
         public string ProfileImage { get; set; }
         public DateTime JoinedDate { get; set; }
+        public bool IsActive { get; set; }
     }
 
+    public class MemberDetailDto
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string EoRole { get; set; }
+
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string ProfileImage { get; set; }
+
+        public string CompanyName { get; set; }
+        public string CompanyRole { get; set; }
+        public string Designation { get; set; }
+
+        public string Location { get; set; }
+        public string Bio { get; set; }
+        public DateTime? JoinedDate { get; set; }
+        public DateTime? Dob { get; set; }
+
+        public SocialDto SocialLinks { get; set; }
+        public SpouseDto Spouse { get; set; }
+
+        public List<ChildDto> Children { get; set; } = new();
+    }
+
+    public class SocialDto
+    {
+        public string Linkedin { get; set; }
+        public string Twitter { get; set; }
+        public string Facebook { get; set; }
+        public string Instagram { get; set; }
+        public string Website { get; set; }
+    }
 }

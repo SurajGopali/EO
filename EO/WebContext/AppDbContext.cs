@@ -15,6 +15,7 @@ namespace EO.WebContext
         public DbSet<UserSocialLinks> UserSocialLinks { get; set; }
         public DbSet<Spouse> Spouses { get; set; }
         public DbSet<SpouseSocialLinks> SpouseSocialLinks { get; set; }
+        public DbSet<SpouseProfessionalDetails> SpouseProfessionalDetails { get; set; }
         public DbSet<Child> Children { get; set; }
         public DbSet<Events> Events { get; set; }
 

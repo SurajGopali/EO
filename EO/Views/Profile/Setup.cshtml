@@ -1,63 +1,111 @@
 ﻿@model EO.Models.UpdateProfileRequest
 
 <style>
-    .wizard-container {
-        max-width: 800px;
-        margin: auto;
-        background: #fff;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    body {
+        background: #f5f7fb;
+        font-family: Arial, sans-serif;
     }
 
+    .wizard-container {
+        max-width: 850px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 14px;
+        box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+    }
     .step {
         display: none;
+        animation: fade 0.25s ease-in-out;
     }
 
-        .step.active {
-            display: block;
-        }
-
-    .btn-group {
-        margin-top: 20px;
-        display: flex;
-        justify-content: space-between;
+    .step.active {
+        display: block;
     }
 
+  @@keyframes fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
     input, textarea {
         width: 100%;
-        padding: 10px;
+        padding: 10px 12px;
         margin: 8px 0;
-        border-radius: 8px;
+        border-radius: 10px;
         border: 1px solid #ddd;
+        outline: none;
+        transition: 0.2s;
+        font-size: 14px;
+    }
+
+    input:focus, textarea:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 2px rgba(79,70,229,0.15);
+    }
+
+    textarea {
+        min-height: 80px;
+        resize: vertical;
     }
 
     label {
         font-weight: 500;
-        margin-top: 10px;
+        margin-top: 8px;
         display: block;
+        color: #333;
+    }
+
+    h3 {
+        margin-bottom: 15px;
+        color: #222;
+    }
+
+    h4 {
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #444;
+        font-size: 16px;
+    }
+
+    hr {
+        margin: 20px 0;
+        border: none;
+        border-top: 1px solid #eee;
     }
 
     .progress-bar {
         height: 6px;
-        background: #eee;
+        background: #eaeaea;
         border-radius: 10px;
         overflow: hidden;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
 
     .progress {
         height: 100%;
         width: 0%;
-        background: #4f46e5;
-        transition: 0.3s;
+        background: linear-gradient(90deg, #4f46e5, #6366f1);
+        transition: 0.3s ease;
+    }
+
+    .btn-group {
+        margin-top: 25px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
     }
 
     button {
         padding: 10px 16px;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        transform: translateY(-1px);
     }
 
     .btn-primary {
@@ -65,10 +113,140 @@
         color: white;
     }
 
+    .btn-primary:hover {
+        background: #4338ca;
+    }
+
     .btn-secondary {
         background: #e5e7eb;
     }
+
+    .btn-secondary:hover {
+        background: #d1d5db;
+    }
+
+    .step > div,
+    .step input,
+    .step textarea {
+        margin-bottom: 10px;
+    }
+
+    #childrenContainer div {
+        background: #fafafa;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #eee;
+    }
+
+    input[type="checkbox"] {
+        width: auto;
+        margin-right: 8px;
+        transform: scale(1.1);
+    }
+
+    @@media (max-width: 600px) {
+        .wizard-container {
+            margin: 15px;
+            padding: 20px;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .tag-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.tag-item input {
+    flex: 1;
+}
+
+.tag-item button {
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.review-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.review-card {
+    background: #ffffff;
+    border: 1px solid #eee;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+.review-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #111;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.review-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 14px;
+}
+
+.review-row:last-child {
+    border-bottom: none;
+}
+
+.review-label {
+    color: #666;
+}
+
+.review-value {
+    font-weight: 500;
+    color: #222;
+    text-align: right;
+    max-width: 55%;
+    word-break: break-word;
+}
+
+.review-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 14px;
+}
+
+.review-list li {
+    margin-bottom: 4px;
+}
+
+.section-badge {
+    font-size: 12px;
+    padding: 2px 8px;
+    background: #eef2ff;
+    color: #4f46e5;
+    border-radius: 999px;
+}
 </style>
+
 
 <div class="wizard-container">
 
@@ -83,175 +261,743 @@
             <h3>Personal Details</h3>
 
             <label>Date of Birth</label>
-            <input name="PersonalDetails.DateOfBirth" type="date" />
-
-            <label>Anniversary Date</label>
-            <input name="PersonalDetails.AnniversaryDate" type="date" />
+            <input name="PersonalDetails.DateOfBirth"
+                   type="date"
+                   value="@Model?.PersonalDetails?.DateOfBirth?.ToString("yyyy-MM-dd")" />
 
             <label>Address</label>
-            <input name="PersonalDetails.Address" />
+            <input name="PersonalDetails.Address"
+                   value="@Model?.PersonalDetails?.Address" />
 
             <label>Bio</label>
-            <textarea name="PersonalDetails.Bio"></textarea>
+            <textarea name="PersonalDetails.Bio">@Model?.PersonalDetails?.Bio</textarea>
 
-            <label>
-                <input id="isMarried" name="PersonalDetails.IsMarried" type="checkbox" />
-                Married
-            </label>
+            <input type="checkbox"
+                   id="isMarried"
+                   name="PersonalDetails.IsMarried"
+            @(Model?.PersonalDetails?.IsMarried == true ? "checked" : "") />
+
+            <label for="isMarried">Married</label>
+
+            <label>Anniversary Date</label>
+            <input id="anniversaryField"
+                   name="PersonalDetails.AnniversaryDate"
+                   type="date"
+                   value="@Model?.PersonalDetails?.AnniversaryDate?.ToString("yyyy-MM-dd")" />
         </div>
 
         <!-- STEP 2 -->
         <div class="step" data-step="2">
             <h3>Company Details</h3>
 
-            <input name="CompanyDetails.CompanyName" placeholder="Company Name" />
-            <input name="CompanyDetails.Designation" placeholder="Designation" />
-            <input name="CompanyDetails.Role" placeholder="Role" />
+            <label>Company Name</label>
+            <input name="CompanyDetails.CompanyName"
+                   value="@Model?.CompanyDetails?.CompanyName" />
+
+            <label>Designation</label>
+            <input name="CompanyDetails.Designation"
+                   value="@Model?.CompanyDetails?.Designation" />
+
+            <label>Role</label>
+            <input name="CompanyDetails.Role"
+                   value="@Model?.CompanyDetails?.Role" />
         </div>
 
         <!-- STEP 3 -->
         <div class="step" data-step="3">
             <h3>Social Links</h3>
 
-            <input name="SocialLinks.Facebook" placeholder="Facebook" />
-            <input name="SocialLinks.Instagram" placeholder="Instagram" />
-            <input name="SocialLinks.LinkedIn" placeholder="LinkedIn" />
-            <input name="SocialLinks.X" placeholder="X" />
-            <input name="SocialLinks.Website" placeholder="Website" />
+            <label>Facebook</label>
+            <input name="SocialLinks.Facebook" value="@Model?.SocialLinks?.Facebook" />
+
+            <label>Instagram</label>
+            <input name="SocialLinks.Instagram" value="@Model?.SocialLinks?.Instagram" />
+
+            <label>LinkedIn</label>
+            <input name="SocialLinks.LinkedIn" value="@Model?.SocialLinks?.LinkedIn" />
+
+            <label>X</label>
+            <input name="SocialLinks.X" value="@Model?.SocialLinks?.X" />
+
+            <label>Website</label>
+            <input name="SocialLinks.Website" value="@Model?.SocialLinks?.Website" />
         </div>
 
-        <!-- STEP 4 (Spouse) -->
-        <div class="step" data-step="4" id="spouseStep">
+        <!-- STEP 4 — SPOUSE -->
+        <div class="step" data-step="4">
             <h3>Spouse Details</h3>
 
-            <input name="Spouse.Name" placeholder="Name" />
-            <input name="Spouse.Phone" placeholder="Phone" />
-            <input name="Spouse.Email" placeholder="Email" />
-            <input name="Spouse.DateOfBirth" type="date" />
+            <label>Name</label>
+            <input name="Spouse.Name" value="@Model?.Spouse?.Name" />
 
-            <h4>Social</h4>
-            <input name="Spouse.SocialLinks.Facebook" placeholder="Facebook" />
-            <input name="Spouse.SocialLinks.Instagram" placeholder="Instagram" />
-            <input name="Spouse.SocialLinks.LinkedIn" placeholder="LinkedIn" />
+            <label>Phone</label>
+            <input name="Spouse.Phone" value="@Model?.Spouse?.Phone" />
 
-            <h4>Professional</h4>
-            <input name="Spouse.Professional.CurrentCompany" placeholder="Company" />
-            <input name="Spouse.Professional.Position" placeholder="Position" />
-        </div>
+            <label>Email</label>
+            <input name="Spouse.Email" value="@Model?.Spouse?.Email" />
 
-        <!-- STEP 5 -->
-        <div class="step" data-step="5">
-            <h3>Children</h3>
+            <label>Date of Birth</label>
+            <input name="Spouse.DateOfBirth"
+                   type="date"
+                   value="@Model?.Spouse?.DateOfBirth?.ToString("yyyy-MM-dd")" />
 
-            <div id="childrenContainer">
-                <input name="Children[0].Name" placeholder="Name" />
-                <input name="Children[0].School" placeholder="School" />
+            <label>Profile Image</label>
+            <input name="Spouse.ProfileImage"
+                   value="@Model?.Spouse?.ProfileImage" />
+
+            <hr />
+
+            <h4>Spouse Social Links</h4>
+
+            <label>Facebook</label>
+            <input name="Spouse.SocialLinks.Facebook"
+                   value="@Model?.Spouse?.SocialLinks?.Facebook" />
+
+            <label>Instagram</label>
+            <input name="Spouse.SocialLinks.Instagram"
+                   value="@Model?.Spouse?.SocialLinks?.Instagram" />
+
+            <label>LinkedIn</label>
+            <input name="Spouse.SocialLinks.LinkedIn"
+                   value="@Model?.Spouse?.SocialLinks?.LinkedIn" />
+
+            <label>X</label>
+            <input name="Spouse.SocialLinks.X"
+                   value="@Model?.Spouse?.SocialLinks?.X" />
+
+            <label>Website</label>
+            <input name="Spouse.SocialLinks.Website"
+                   value="@Model?.Spouse?.SocialLinks?.Website" />
+
+            <hr />
+
+            <h4>Spouse Professional</h4>
+
+            <label>Current Company</label>
+            <input name="Spouse.Professional.CurrentCompany"
+                   value="@Model?.Spouse?.Professional?.CurrentCompany" />
+
+            <label>Position</label>
+            <input name="Spouse.Professional.Position"
+                   value="@Model?.Spouse?.Professional?.Position" />
+
+            <label>Experience Years</label>
+            <input name="Spouse.Professional.ExperienceYears"
+                   value="@Model?.Spouse?.Professional?.ExperienceYears" />
+
+            <label>Previous Roles</label>
+
+<div id="previousRolesContainer">
+    @if (Model?.Spouse?.Professional?.PreviousRoles != null && Model.Spouse.Professional.PreviousRoles.Any())
+    {
+        foreach (var role in Model.Spouse.Professional.PreviousRoles)
+        {
+            <div class="tag-item">
+                <input name="Spouse.Professional.PreviousRoles" value="@role" />
+                <button type="button" onclick="removeTag(this)">x</button>
             </div>
-
-            <button type="button" class="btn-secondary" onclick="addChild()">+ Add Child</button>
+        }
+    }
+    else
+    {
+        <div class="tag-item">
+            <input name="Spouse.Professional.PreviousRoles" />
+            <button type="button" onclick="removeTag(this)">x</button>
         </div>
+    }
+</div>
+
+<button type="button" onclick="addPreviousRole()">+ Add Role</button>
+
+            <label>Expertise</label>
+
+<div id="expertiseContainer">
+    @if (Model?.Spouse?.Professional?.Expertise != null && Model.Spouse.Professional.Expertise.Any())
+    {
+        foreach (var exp in Model.Spouse.Professional.Expertise)
+        {
+            <div class="tag-item">
+                <input name="Spouse.Professional.Expertise" value="@exp" />
+                <button type="button" onclick="removeTag(this)">x</button>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="tag-item">
+            <input name="Spouse.Professional.Expertise" />
+            <button type="button" onclick="removeTag(this)">x</button>
+        </div>
+    }
+</div>
+
+<button type="button" onclick="addExpertise()">+ Add Expertise</button>
+        </div>
+
+
+        <!-- STEP 5 - CHILDREN -->
+        <div class="step" data-step="5">
+    <h3>Children</h3>
+
+    <div id="childrenContainer">
+
+        @if (Model?.Children != null && Model.Children.Any())
+        {
+            for (int i = 0; i < Model.Children.Count; i++)
+            {
+                <div class="child-item">
+                    <input type="hidden" name="Children[@i].Id" value="@Model.Children[i].Id" />
+
+                    <label>Name</label>
+                    <input name="Children[@i].Name" value="@Model.Children[i].Name" />
+
+                    <label>School</label>
+                    <input name="Children[@i].School" value="@Model.Children[i].School" />
+
+                    <label>Grade</label>
+                    <input name="Children[@i].Grade" value="@Model.Children[i].Grade" />
+
+                    <label>Date of Birth</label>
+                    <input type="date"
+                           name="Children[@i].DateOfBirth"
+                           value="@Model.Children[i].DateOfBirth?.ToString("yyyy-MM-dd")" />
+
+                    <label>Profile Image</label>
+                    <input name="Children[@i].ProfileImage"
+                           value="@Model.Children[i].ProfileImage" />
+
+                    <button type="button" onclick="removeChildItem(this)">Remove</button>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="child-item">
+                <input type="hidden" name="Children[0].Id" value="" />
+
+                <label>Name</label>
+                <input name="Children[0].Name" />
+
+                <label>School</label>
+                <input name="Children[0].School" />
+
+                <label>Grade</label>
+                <input name="Children[0].Grade" />
+
+                <label>Date of Birth</label>
+                <input type="date" name="Children[0].DateOfBirth" />
+
+                <label>Profile Image</label>
+                <input name="Children[0].ProfileImage" />
+
+                <button type="button" onclick="removeChild(this)">Remove</button>
+            </div>
+        }
+
+    </div>
+
+    <button type="button" onclick="addChild()">+ Add Child</button>
+</div>
 
         <!-- STEP 6 -->
-        <div class="step" data-step="6">
-            <h3>Review & Submit</h3>
-            <p>Check your information before submitting.</p>
-        </div>
+       <div class="step" data-step="6">
+    <h3>Review Your Profile</h3>
 
-        <!-- BUTTONS -->
+    <div id="reviewContainer" class="review-grid"></div>
+</div>
+
         <div class="btn-group">
-            <button type="button" class="btn-secondary" onclick="prevStep()">Previous</button>
-
-            <button type="button" class="btn-primary" onclick="nextStep()" id="nextBtn">
-                Next
-            </button>
-
-            <button type="button" class="btn-primary" onclick="submitForm()" id="submitBtn" style="display:none">
-                Submit
-            </button>
+            <button type="button" onclick="prevStep()">Previous</button>
+            <button type="button" id="nextBtn" onclick="nextStep()">Next</button>
+            <button type="button" id="submitBtn" onclick="submitForm()" style="display:none">Submit</button>
         </div>
 
     </form>
 </div>
 
+<script src="~/js/profile-wizard.js"></script>
+
 <script>
     let step = 1;
-    let childIndex = 1;
-
+    let childIndex = 0;
     const totalSteps = 6;
+
+    const STEP = {
+        PERSONAL: 1,
+        COMPANY: 2,
+        SOCIAL: 3,
+        SPOUSE: 4,
+        CHILDREN: 5,
+        REVIEW: 6
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        toggleAnniversary();
+        showStep(step);
+        childIndex = document.querySelectorAll(".child-item").length || 0;
+    });
+
+    // ---------------- STEP CONTROL ----------------
+
+    function isMarried() {
+        return document.getElementById("isMarried").checked;
+    }
+
+    function getNextStep(current) {
+        const married = isMarried();
+
+        if (!married) {
+            if (current === STEP.SOCIAL) return STEP.REVIEW;
+            if (current === STEP.REVIEW) return STEP.REVIEW;
+        }
+
+        return current + 1;
+    }
+
+    function getPrevStep(current) {
+        const married = isMarried();
+
+        if (!married) {
+            if (current === STEP.REVIEW) return STEP.SOCIAL;
+            if (current === STEP.CHILDREN) return STEP.SOCIAL;
+        }
+
+        return current - 1;
+    }
+
+    function showStep(s) {
+
+        const married = isMarried();
+
+        if (!married && s === STEP.SPOUSE) {
+            step = STEP.SOCIAL;
+            return showStep(step);
+        }
+
+        if (!married && s === STEP.CHILDREN) {
+            step = STEP.REVIEW;
+            return showStep(step);
+        }
+
+        document.querySelectorAll(".step").forEach(x => x.classList.remove("active"));
+
+        const active = document.querySelector(`[data-step="${s}"]`);
+        if (active) active.classList.add("active");
+
+         if (s === STEP.REVIEW) {
+        buildReview();   // ⭐ IMPORTANT
+    }
+        document.getElementById("submitBtn").style.display = (s === STEP.REVIEW) ? "inline-block" : "none";
+        document.getElementById("nextBtn").style.display = (s === STEP.REVIEW) ? "none" : "inline-block";
+
+        updateProgress();
+    }
+
+    function nextStep() {
+        step = getNextStep(step);
+        if (step > totalSteps) step = totalSteps;
+        showStep(step);
+    }
+
+    function prevStep() {
+        step = getPrevStep(step);
+        if (step < 1) step = 1;
+        showStep(step);
+    }
 
     function updateProgress() {
         const progress = ((step - 1) / (totalSteps - 1)) * 100;
         document.getElementById("progress").style.width = progress + "%";
     }
 
-    function showStep(s) {
-        document.querySelectorAll(".step").forEach(x => x.classList.remove("active"));
-        document.querySelector(`[data-step="${s}"]`).classList.add("active");
+    // ---------------- MARRIED ----------------
 
-        const married = document.getElementById("isMarried").checked;
-        const spouseStep = document.getElementById("spouseStep");
-
-        // skip spouse if not married
-        if (!married && s === 4) {
-            step = 5;
-            showStep(step);
-            return;
-        }
-
-        document.getElementById("submitBtn").style.display = (s === 6) ? "inline-block" : "none";
-        document.getElementById("nextBtn").style.display = (s === 6) ? "none" : "inline-block";
-
-        updateProgress();
-    }
-
-    function nextStep() {
-        const married = document.getElementById("isMarried").checked;
-
-        step++;
-
-        if (!married && step === 4) step = 5;
-
-        if (step > totalSteps) step = totalSteps;
-
-        showStep(step);
-    }
-
-    function prevStep() {
-        step--;
-
-        const married = document.getElementById("isMarried").checked;
-
-        if (!married && step === 4) step = 3;
-
-        if (step < 1) step = 1;
-
-        showStep(step);
-    }
-
-    document.getElementById("isMarried").addEventListener("change", function () {
+    document.getElementById("isMarried").addEventListener("change", () => {
+        toggleAnniversary();
         showStep(step);
     });
+
+    function toggleAnniversary() {
+        const field = document.getElementById("anniversaryField");
+        const label = field.previousElementSibling;
+
+        if (isMarried()) {
+            label.style.display = "block";
+            field.style.display = "block";
+        } else {
+            label.style.display = "none";
+            field.style.display = "none";
+            field.value = "";
+        }
+    }
+
+    // ---------------- CHILDREN ----------------
 
     function addChild() {
         const container = document.getElementById("childrenContainer");
 
-        container.insertAdjacentHTML("beforeend", `
-            <input name="Children[${childIndex}].Name" placeholder="Name" />
-            <input name="Children[${childIndex}].School" placeholder="School" />
-        `);
+        const index = Date.now();
 
-        childIndex++;
+        container.insertAdjacentHTML("beforeend", `
+            <div class="child-item">
+
+                <input type="hidden" name="Children[${index}].Id" value="" />
+
+                <label>Name</label>
+                <input name="Children[${index}].Name" />
+
+                <label>School</label>
+                <input name="Children[${index}].School" />
+
+                <label>Grade</label>
+                <input name="Children[${index}].Grade" />
+
+                <label>Date of Birth</label>
+                <input type="date" name="Children[${index}].DateOfBirth" />
+
+                <label>Profile Image</label>
+                <input name="Children[${index}].ProfileImage" />
+
+                <button type="button" onclick="removeChildItem(this)">Remove</button>
+
+            </div>
+        `);
     }
 
-    async function submitForm() {
-        const form = document.getElementById("profileForm");
-        const data = new FormData(form);
+    function removeChildItem(btn) {
+        const row = btn.closest(".child-item");
+        if (row) row.remove();
+    }
 
-        let obj = {};
+    function getChildren() {
+        if (!isMarried()) return [];
 
-        data.forEach((value, key) => {
-            set(obj, key, value);
+        const rows = document.querySelectorAll(".child-item");
+        let list = [];
+
+        rows.forEach(row => {
+
+            const id = row.querySelector('[name*=".Id"]')?.value?.trim();
+            const name = row.querySelector('[name*=".Name"]')?.value?.trim();
+            const school = row.querySelector('[name*=".School"]')?.value?.trim();
+            const grade = row.querySelector('[name*=".Grade"]')?.value?.trim();
+            const dob = row.querySelector('[name*=".DateOfBirth"]')?.value;
+            const image = row.querySelector('[name*=".ProfileImage"]')?.value?.trim();
+
+            const isEmpty = !name && !school && !grade && !dob && !image;
+
+            if (isEmpty) return;
+
+            list.push({
+                id: id ? parseInt(id) : null,
+                name: name || null,
+                school: school || null,
+                grade: grade || null,
+                dateOfBirth: dob || null,
+                profileImage: image || null
+            });
         });
+
+        return list;
+    }
+
+    // ---------------- TAG SYSTEM (PREVIOUS ROLES + EXPERTISE) ----------------
+
+function addPreviousRole() {
+    const container = document.getElementById("previousRolesContainer");
+
+    container.insertAdjacentHTML("beforeend", `
+        <div class="tag-item">
+            <input name="Spouse.Professional.PreviousRoles" />
+            <button type="button" onclick="removeTag(this)">x</button>
+        </div>
+    `);
+}
+
+function addExpertise() {
+    const container = document.getElementById("expertiseContainer");
+
+    container.insertAdjacentHTML("beforeend", `
+        <div class="tag-item">
+            <input name="Spouse.Professional.Expertise" />
+            <button type="button" onclick="removeTag(this)">x</button>
+        </div>
+    `);
+}
+
+function removeTag(btn) {
+    const item = btn.closest(".tag-item");
+    if (item) item.remove();
+}
+
+    // ---------------- HELPERS ----------------
+
+    function getValue(name) {
+        const el = document.querySelector(`[name="${name}"]`);
+        return el ? el.value || null : null;
+    }
+
+    function getList(name) {
+        return Array.from(document.querySelectorAll(`[name="${name}"]`))
+            .map(x => x.value?.trim())
+            .filter(x => x && x.length > 0);
+    }
+
+
+    function renderChildrenReview() {
+    const rows = document.querySelectorAll(".child-item");
+
+    if (!rows.length) {
+        return `
+            <div class="review-row">
+                <div class="review-label">Children</div>
+                <div class="review-value">No children added</div>
+            </div>
+        `;
+    }
+
+    let html = "";
+
+    rows.forEach((row, index) => {
+
+        const name = row.querySelector('[name*=".Name"]')?.value;
+        const school = row.querySelector('[name*=".School"]')?.value;
+        const grade = row.querySelector('[name*=".Grade"]')?.value;
+        const dob = row.querySelector('[name*=".DateOfBirth"]')?.value;
+        const image = row.querySelector('[name*=".ProfileImage"]')?.value;
+
+        if (!name && !school && !grade && !dob && !image) return;
+
+        html += `
+            <div style="
+                border: 1px solid #eee;
+                border-radius: 12px;
+                padding: 12px;
+                margin-bottom: 12px;
+                background: #fafafa;
+            ">
+
+                <div style="font-weight:600; margin-bottom:8px; color:#4f46e5;">
+                    Child ${index + 1}
+                </div>
+
+                <div class="review-row">
+                    <div class="review-label">Name</div>
+                    <div class="review-value">${name || "-"}</div>
+                </div>
+
+                <div class="review-row">
+                    <div class="review-label">School</div>
+                    <div class="review-value">${school || "-"}</div>
+                </div>
+
+                <div class="review-row">
+                    <div class="review-label">Grade</div>
+                    <div class="review-value">${grade || "-"}</div>
+                </div>
+
+                <div class="review-row">
+                    <div class="review-label">Date of Birth</div>
+                    <div class="review-value">${dob || "-"}</div>
+                </div>
+
+                <div class="review-row">
+                    <div class="review-label">Profile Image</div>
+                    <div class="review-value">${image ? `<a href="${image}" target="_blank">View</a>` : "-"}</div>
+                </div>
+
+            </div>
+        `;
+    });
+
+    return html;
+}
+
+    // ----------- REVIEW ----------------
+    function buildReview() {
+
+    const married = isMarried();
+
+    const html = `
+        <div class="review-card">
+            <div class="review-title">
+                <span class="section-badge">Personal</span> Personal Details
+            </div>
+
+            <div class="review-row"><div class="review-label">Date of Birth</div><div class="review-value">${getValue("PersonalDetails.DateOfBirth") || "-"}</div></div>
+            <div class="review-row"><div class="review-label">Address</div><div class="review-value">${getValue("PersonalDetails.Address") || "-"}</div></div>
+            <div class="review-row"><div class="review-label">Bio</div><div class="review-value">${getValue("PersonalDetails.Bio") || "-"}</div></div>
+            <div class="review-row"><div class="review-label">Married</div><div class="review-value">${married ? "Yes" : "No"}</div></div>
+            <div class="review-row"><div class="review-label">Anniversary</div><div class="review-value">${getValue("PersonalDetails.AnniversaryDate") || "-"}</div></div>
+        </div>
+
+        <div class="review-card">
+            <div class="review-title">
+                <span class="section-badge">Work</span> Company Details
+            </div>
+
+            <div class="review-row"><div class="review-label">Company</div><div class="review-value">${getValue("CompanyDetails.CompanyName") || "-"}</div></div>
+            <div class="review-row"><div class="review-label">Designation</div><div class="review-value">${getValue("CompanyDetails.Designation") || "-"}</div></div>
+            <div class="review-row"><div class="review-label">Role</div><div class="review-value">${getValue("CompanyDetails.Role") || "-"}</div></div>
+        </div>
+
+        <div class="review-card">
+            <div class="review-title">
+                <span class="section-badge">Social</span> Social Links
+            </div>
+
+            <div class="review-row"><div class="review-label">Facebook</div><div class="review-value">${getValue("SocialLinks.Facebook") || "-"}</div></div>
+            <div class="review-row"><div class="review-label">Instagram</div><div class="review-value">${getValue("SocialLinks.Instagram") || "-"}</div></div>
+            <div class="review-row"><div class="review-label">LinkedIn</div><div class="review-value">${getValue("SocialLinks.LinkedIn") || "-"}</div></div>
+            <div class="review-row"><div class="review-label">X</div><div class="review-value">${getValue("SocialLinks.X") || "-"}</div></div>
+            <div class="review-row"><div class="review-label">Website</div><div class="review-value">${getValue("SocialLinks.Website") || "-"}</div></div>
+        </div>
+
+        ${married ? `
+<div class="review-card">
+    <div class="review-title">
+        <span class="section-badge">Family</span> Spouse Profile
+    </div>
+
+    <h4 style="margin-top:10px;">Basic Details</h4>
+
+    <div class="review-row">
+        <div class="review-label">Name</div>
+        <div class="review-value">${getValue("Spouse.Name") || "-"}</div>
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">Phone</div>
+        <div class="review-value">${getValue("Spouse.Phone") || "-"}</div>
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">Email</div>
+        <div class="review-value">${getValue("Spouse.Email") || "-"}</div>
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">Date of Birth</div>
+        <div class="review-value">${getValue("Spouse.DateOfBirth") || "-"}</div>
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">Profile Image</div>
+        <div class="review-value">
+            ${getValue("Spouse.ProfileImage")
+                ? `<a href="${getValue("Spouse.ProfileImage")}" target="_blank">View</a>`
+                : "-"}
+        </div>
+    </div>
+
+    <hr />
+
+    <h4>Social Links</h4>
+
+    <div class="review-row"><div class="review-label">Facebook</div><div class="review-value">${getValue("Spouse.SocialLinks.Facebook") || "-"}</div></div>
+    <div class="review-row"><div class="review-label">Instagram</div><div class="review-value">${getValue("Spouse.SocialLinks.Instagram") || "-"}</div></div>
+    <div class="review-row"><div class="review-label">LinkedIn</div><div class="review-value">${getValue("Spouse.SocialLinks.LinkedIn") || "-"}</div></div>
+    <div class="review-row"><div class="review-label">X</div><div class="review-value">${getValue("Spouse.SocialLinks.X") || "-"}</div></div>
+    <div class="review-row"><div class="review-label">Website</div><div class="review-value">${getValue("Spouse.SocialLinks.Website") || "-"}</div></div>
+
+    <hr />
+
+    <h4>Professional Details</h4>
+
+    <div class="review-row"><div class="review-label">Company</div><div class="review-value">${getValue("Spouse.Professional.CurrentCompany") || "-"}</div></div>
+    <div class="review-row"><div class="review-label">Position</div><div class="review-value">${getValue("Spouse.Professional.Position") || "-"}</div></div>
+    <div class="review-row"><div class="review-label">Experience</div><div class="review-value">${getValue("Spouse.Professional.ExperienceYears") || "-"} years</div></div>
+
+    <div class="review-row">
+        <div class="review-label">Previous Roles</div>
+        <div class="review-value">
+            <ul class="review-list">
+                ${getList("Spouse.Professional.PreviousRoles").map(x => `<li>${x}</li>`).join("")}
+            </ul>
+        </div>
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">Expertise</div>
+        <div class="review-value">
+            <ul class="review-list">
+                ${getList("Spouse.Professional.Expertise").map(x => `<li>${x}</li>`).join("")}
+            </ul>
+        </div>
+    </div>
+</div>
+` : ""}
+
+        <div class="review-card">
+            <div class="review-title">
+                <span class="section-badge">Kids</span> Children
+            </div>
+
+            ${renderChildrenReview()}
+        </div>
+    `;
+
+    document.getElementById("reviewContainer").innerHTML = html;
+}
+
+    // ---------------- SUBMIT ----------------
+
+    async function submitForm() {
+
+        const married = isMarried();
+
+        const obj = {
+            userId: "@Model.UserId",
+
+            personalDetails: {
+                dateOfBirth: getValue("PersonalDetails.DateOfBirth"),
+                anniversaryDate: getValue("PersonalDetails.AnniversaryDate"),
+                address: getValue("PersonalDetails.Address"),
+                bio: getValue("PersonalDetails.Bio"),
+                isMarried: married
+            },
+
+            companyDetails: {
+                companyName: getValue("CompanyDetails.CompanyName"),
+                designation: getValue("CompanyDetails.Designation"),
+                role: getValue("CompanyDetails.Role")
+            },
+
+            socialLinks: {
+                facebook: getValue("SocialLinks.Facebook"),
+                instagram: getValue("SocialLinks.Instagram"),
+                linkedIn: getValue("SocialLinks.LinkedIn"),
+                x: getValue("SocialLinks.X"),
+                website: getValue("SocialLinks.Website")
+            },
+
+            spouse: married ? {
+                name: getValue("Spouse.Name"),
+                phone: getValue("Spouse.Phone"),
+                email: getValue("Spouse.Email"),
+                dateOfBirth: getValue("Spouse.DateOfBirth"),
+                profileImage: getValue("Spouse.ProfileImage"),
+
+                socialLinks: {
+                    facebook: getValue("Spouse.SocialLinks.Facebook"),
+                    instagram: getValue("Spouse.SocialLinks.Instagram"),
+                    linkedIn: getValue("Spouse.SocialLinks.LinkedIn"),
+                    x: getValue("Spouse.SocialLinks.X"),
+                    website: getValue("Spouse.SocialLinks.Website")
+                },
+
+                professional: {
+                    currentCompany: getValue("Spouse.Professional.CurrentCompany"),
+                    position: getValue("Spouse.Professional.Position"),
+                    experienceYears: getValue("Spouse.Professional.ExperienceYears"),
+
+                    previousRoles: getList("Spouse.Professional.PreviousRoles"),
+                    expertise: getList("Spouse.Professional.Expertise")
+                }
+            } : null,
+
+            children: getChildren()
+        };
 
         const res = await fetch("/Profile/Submit", {
             method: "POST",
@@ -262,23 +1008,7 @@
         if (res.ok) {
             window.location.href = "/";
         } else {
-            alert("Failed to submit profile");
+            alert("Failed");
         }
     }
-
-    function set(obj, path, value) {
-        const keys = path.split(".");
-        let current = obj;
-
-        keys.forEach((k, i) => {
-            if (i === keys.length - 1) {
-                current[k] = value;
-            } else {
-                current[k] = current[k] || {};
-                current = current[k];
-            }
-        });
-    }
-
-    showStep(step);
 </script>

@@ -1,10 +1,13 @@
 using EO.Models;
+using EO.Services;
+using EO.Services.Profile;
 using EO.WebContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +18,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddHttpClient();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IMemberService, MemberService>();
 
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -38,6 +42,14 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+
+builder.Services.AddHttpClient();
 
 builder.Services.AddAuthentication()
     .AddJwtBearer(options =>
@@ -96,6 +108,19 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGet("/", context =>
+{
+    if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+    {
+        context.Response.Redirect("/Home/Index");
+    }
+    else
+    {
+        context.Response.Redirect("/Identity/Account/Login");
+    }
+
+    return Task.CompletedTask;
+});
 
 app.MapRazorPages();
 

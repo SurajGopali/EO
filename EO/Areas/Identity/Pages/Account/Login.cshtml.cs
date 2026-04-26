@@ -82,6 +82,12 @@ namespace EO.Areas.Identity.Pages.Account
                 return Page();
             }
 
+            if (!user.IsActive)
+            {
+                ModelState.AddModelError(string.Empty, "⚠ Your account is deactivated. Contact admin.");
+                return Page();
+            }
+
             await _signInManager.SignInAsync(user, Input.RememberMe);
 
             var accessToken = _tokenService.GenerateAccessToken(user);

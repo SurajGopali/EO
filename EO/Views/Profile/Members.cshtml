@@ -1,0 +1,98 @@
+﻿@model List<EO.Models.MemberDto>
+
+@{
+    ViewData["Title"] = "Members";
+}
+
+<h3 class="mb-3">Members</h3>
+
+<div class="mb-3">
+    <a class="btn btn-outline-primary btn-sm"
+           asp-action="Members"
+           asp-route-New="false">
+        All
+    </a>
+
+    <a class="btn btn-outline-success btn-sm"
+           asp-action="Members"
+           asp-route-New="true">
+        New
+    </a>
+</div>
+
+<hr />
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Company</th>
+                <th>Designation</th>
+                <th>Joined</th>
+                <th style="width:220px;">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model?.Any() == true)
+            {
+                foreach (var m in Model)
+                {
+                    <tr>
+                        <td>@m.Name</td>
+                        <td>@m.EoRole</td>
+                        <td>@m.CompanyName</td>
+                        <td>@m.Designation</td>
+                        <td>@m.JoinedDate.ToString("yyyy-MM-dd")</td>
+
+                        <td>
+                            <!-- VIEW -->
+                            <a class="btn btn-sm btn-primary"
+                                   href="/Profile/MemberDetails/@m.Id">
+                                View
+                            </a>
+
+                            <!-- EDIT -->
+                            <a class="btn btn-sm btn-warning"
+                                   href="/Profile/Setup/@m.Id">
+                                Edit
+                            </a>
+
+                            <!-- REMOVE (SOFT DELETE) -->
+                            <form asp-controller="Profile"
+                                  asp-action="ToggleMemberStatus"
+                                  method="post"
+                                  style="display:inline">
+
+                                <input type="hidden" name="id" value="@m.Id" />
+
+                                @if (m.IsActive)
+                                {
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        Deactivate
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        Activate
+                                    </button>
+                                }
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted">
+                        No members found
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

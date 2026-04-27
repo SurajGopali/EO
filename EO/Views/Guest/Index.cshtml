@@ -1,0 +1,53 @@
+﻿@model List<EO.Models.Guests>
+
+@{
+    ViewData["Title"] = "Guests";
+}
+
+<h3 class="mb-3">Guests</h3>
+
+<a class="btn btn-primary mb-3" asp-action="Create">
+    + Add Guest
+</a>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Avatar</th>
+            <th>Name</th>
+            <th>Designation</th>
+            <th width="200px">Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var g in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(g.Avatar))
+                    {
+                        <img src="@g.Avatar" width="50" height="50" style="border-radius:50%" />
+                    }
+                </td>
+
+                <td>@g.Name</td>
+                <td>@g.Designation</td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@g.Id" class="btn btn-sm btn-warning">
+                        Edit
+                    </a>
+
+                    <form asp-action="Delete" asp-route-id="@g.Id" method="post" style="display:inline;">
+                        <button type="submit"
+                                class="btn btn-sm btn-danger"
+                                onclick="return confirm('Delete this guest?')">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

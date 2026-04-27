@@ -163,6 +163,18 @@
                         <span class="text">Members</span>
                     </a>
                 }
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <a asp-controller="Event" asp-action="Index">
+                        <span class="text">Events</span>
+                    </a>
+                }
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <a asp-controller="Guest" asp-action="Index">
+                        <span class="text">Guests</span>
+                    </a>
+                }
 
             </aside>
         }

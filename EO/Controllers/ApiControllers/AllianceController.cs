@@ -23,7 +23,7 @@ namespace EO.Controllers.ApiControllers
             _context = context;
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet]
         public async Task<IActionResult> GetAllianceData()
         {

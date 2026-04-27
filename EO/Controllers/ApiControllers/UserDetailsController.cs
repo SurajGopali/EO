@@ -25,7 +25,7 @@ public class UserDetailsController : ControllerBase
         _profileService = profileService;
     }
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "Jwt")]
     [HttpPost("update-profile")]
     public async Task<IActionResult> UpsertProfile(UpdateProfileRequest request)
     {
@@ -39,7 +39,7 @@ public class UserDetailsController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "Jwt")]
     [HttpGet("members")]
     public async Task<IActionResult> GetMembers([FromQuery] bool New = false)
     {
@@ -106,7 +106,7 @@ public class UserDetailsController : ControllerBase
     }
 
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "Jwt")]
     [HttpGet("member-details")]
     public async Task<IActionResult> GetMemberDetails([FromQuery] string id)
     {
@@ -241,7 +241,7 @@ public class UserDetailsController : ControllerBase
         });
     }
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "Jwt")]
     [HttpGet("anniversaries")]
     public async Task<IActionResult> GetAnniversaries()
     {
@@ -290,7 +290,7 @@ public class UserDetailsController : ControllerBase
         });
     }
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "Jwt")]
     [HttpGet("birthdays")]
     public async Task<IActionResult> GetBirthdays()
     {

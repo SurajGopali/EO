@@ -19,7 +19,7 @@ namespace EO.Controllers.ApiControllers
             _context = context;
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("GetAllEvents")]
         public async Task<IActionResult> GetAllEvents()
         {
@@ -63,7 +63,7 @@ namespace EO.Controllers.ApiControllers
         }
 
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("event-types")]
         public async Task<IActionResult> GetEventTypes()
         {
@@ -79,7 +79,7 @@ namespace EO.Controllers.ApiControllers
             });
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("filter-events")]
         public async Task<IActionResult> FilterEvents(
         [FromQuery] int? eventTypeId,
@@ -159,7 +159,7 @@ namespace EO.Controllers.ApiControllers
         }
 
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("TodayEvents")]
         public async Task<IActionResult> GetTodayEvents()
         {
@@ -195,7 +195,7 @@ namespace EO.Controllers.ApiControllers
             });
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("UpcomingEvents")]
         public async Task<IActionResult> GetUpcomingEvents()
         {
@@ -310,7 +310,7 @@ namespace EO.Controllers.ApiControllers
             });
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("event-details")]
         public async Task<IActionResult> GetEventDetails([FromQuery] int id)
         {
@@ -368,7 +368,7 @@ namespace EO.Controllers.ApiControllers
         }
 
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpPost("events/{eventId}/details")]
         public async Task<IActionResult> UpsertEventDetails(int eventId, [FromBody] CreateEventDetailsDto dto)
         {

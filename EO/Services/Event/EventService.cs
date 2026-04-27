@@ -150,6 +150,7 @@ public class EventService : IEventService
             .Include(x => x.EventDetail)
             .Include(x => x.Schedules)
             .Include(x => x.Guests)
+                .ThenInclude(x => x.Guest)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (e == null)
@@ -178,16 +179,7 @@ public class EventService : IEventService
                 EndTime = s.EndTime
             }).ToList(),
 
-            Guests = e.Guests
-    .Where(x => x.Guest != null)   // 🔥 safety check
-    .Select(x => new GuestDto
-    {
-        Id = x.Guest.Id.ToString(),
-        Name = x.Guest.Name,
-        Designation = x.Guest.Designation,
-        Avatar = x.Guest.Avatar
-    })
-    .ToList()
+            GuestIds = e.Guests.Select(g => g.GuestId).ToList()
         };
     }
 
@@ -195,19 +187,20 @@ public class EventService : IEventService
     {
         var e = await _context.Events
             .Include(x => x.EventDetail)
-            .Include(x => x.Schedules)
-            .Include(x => x.Guests)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (e == null || dto?.Event == null)
             return;
 
-        // =====================
-        // EVENT DETAILS
-        // =====================
+        // =========================
+        // EVENT DETAIL (INSERT / UPDATE)
+        // =========================
         if (e.EventDetail == null)
         {
-            e.EventDetail = new EventDetail { EventId = id };
+            e.EventDetail = new EventDetail
+            {
+                EventId = id
+            };
             _context.EventDetails.Add(e.EventDetail);
         }
 
@@ -218,43 +211,90 @@ public class EventService : IEventService
         e.EventDetail.StartDateTime = dto.Event.StartDateTime;
         e.EventDetail.EndDateTime = dto.Event.EndDateTime;
 
-        // =====================
-        // SCHEDULES (REPLACE)
-        // =====================
-        _context.EventSchedules.RemoveRange(e.Schedules);
+        // =========================
+        // SCHEDULE (SMART SYNC)
+        // =========================
+        var existingSchedules = await _context.EventSchedules
+            .Where(x => x.EventId == id)
+            .ToListAsync();
 
+        var dtoScheduleIds = dto.Schedule?
+            .Where(x => x.Id > 0)
+            .Select(x => x.Id)
+            .ToList() ?? new List<int>();
+
+        // DELETE removed schedules
+        var toDeleteSchedules = existingSchedules
+     .Where(x => !dtoScheduleIds.Contains(x.Id))
+     .ToList();
+
+        _context.EventSchedules.RemoveRange(toDeleteSchedules); 
+
+        // INSERT / UPDATE schedules
         if (dto.Schedule != null)
         {
             foreach (var s in dto.Schedule)
             {
-                _context.EventSchedules.Add(new EventSchedule
+                if (s.Id > 0)
                 {
-                    EventId = id,
-                    Title = s.Title,
-                    Description = s.Description,
-                    StartTime = s.StartTime,
-                    EndTime = s.EndTime
-                });
+                    // UPDATE
+                    var existing = existingSchedules.FirstOrDefault(x => x.Id == s.Id);
+
+                    if (existing != null)
+                    {
+                        existing.Title = s.Title;
+                        existing.Description = s.Description;
+                        existing.StartTime = s.StartTime;
+                        existing.EndTime = s.EndTime;
+                    }
+                }
+                else
+                {
+                    // INSERT
+                    _context.EventSchedules.Add(new EventSchedule
+                    {
+                        EventId = id,
+                        Title = s.Title,
+                        Description = s.Description,
+                        StartTime = s.StartTime,
+                        EndTime = s.EndTime
+                    });
+                }
             }
         }
 
-        // =====================
-        // GUESTS (FIXED PROPER MANY-TO-MANY)
-        // =====================
-        _context.EventGuests.RemoveRange(e.Guests);
+        // =========================
+        // GUESTS (MANY TO MANY SYNC)
+        // =========================
+        var existingGuests = await _context.EventGuests
+            .Where(x => x.EventId == id)
+            .ToListAsync();
 
-        if (dto.GuestIds != null && dto.GuestIds.Any())
-        {
-            foreach (var guestId in dto.GuestIds)
+        var dtoGuestIds = dto.GuestIds ?? new List<int>();
+
+        // DELETE removed guests
+        var toDeleteGuests = existingGuests
+            .Where(x => !dtoGuestIds.Contains(x.GuestId))
+            .ToList();
+
+        _context.EventGuests.RemoveRange(toDeleteGuests);
+
+        // ADD new guests
+        var existingGuestIds = existingGuests.Select(x => x.GuestId).ToList();
+
+        var newGuests = dtoGuestIds
+            .Where(x => !existingGuestIds.Contains(x))
+            .Select(x => new EventGuest
             {
-                _context.EventGuests.Add(new EventGuest
-                {
-                    EventId = id,
-                    GuestId = guestId
-                });
-            }
-        }
+                EventId = id,
+                GuestId = x
+            });
 
+        await _context.EventGuests.AddRangeAsync(newGuests);
+
+        // =========================
+        // SAVE ALL CHANGES
+        // =========================
         await _context.SaveChangesAsync();
     }
 

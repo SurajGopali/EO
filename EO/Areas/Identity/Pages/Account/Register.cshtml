@@ -1,104 +1,468 @@
-﻿@page
+@page
 @model RegisterModel
 
 @{
+    Layout = null;
     ViewData["Title"] = "Register";
 }
 
-<h1>@ViewData["Title"]</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EO</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account</h2>
-            <hr />
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background-color: #f5f5f3;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow-x: hidden;
+        z-index: 0;
+    }
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    /* Subtle grid background */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url('../../assets/loginBackground.png');
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        pointer-events: none;
+        z-index: -1;
+    }
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.FirstName" class="form-control" placeholder="First Name" />
-                <label>First Name</label>
-                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+    /* Soft ambient blobs */
+    body::after {
+        content: '';
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(200,200,210,0.25) 0%, transparent 70%);
+        top: -150px;
+        right: -150px;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .login-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+
+    .login-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 48px 44px;
+        width: 100%;
+        max-width: 520px; /* Slightly wider for the register form */
+        box-shadow:
+            0 1px 2px rgba(0,0,0,0.04),
+            0 4px 12px rgba(0,0,0,0.06),
+            0 20px 40px rgba(0,0,0,0.08);
+        animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @@keyframes fadeUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @@keyframes cardIn {
+        from { opacity: 0; transform: scale(0.96) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* ── Branding ── */
+    .brand-area {
+        text-align: center;
+        margin-bottom: 24px;
+        animation: fadeUp 0.5s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .brand-logo svg, .brand-logo img {
+        width: 208px;
+        height: auto;
+        fill: #fff;
+        object-fit: contain;
+    }
+
+    .brand-name {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #888;
+        margin-top: 4px;
+    }
+
+    /* ── Heading ── */
+    .login-heading {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0d0d0d;
+        text-align: center;
+        margin-bottom: 8px;
+        animation: fadeUp 0.5s 0.15s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    /* ── Tabs ── */
+    .tabs-nav {
+        display: flex;
+        gap: 8px;
+        background: #f3f3f1;
+        border-radius: 999px;
+        padding: 4px;
+        margin-bottom: 24px;
+        animation: fadeUp 0.5s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .tab-btn {
+        flex: 1;
+        padding: 10px 0;
+        text-align: center;
+        background: transparent;
+        border: none;
+        border-radius: 999px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #888;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+
+    .tab-btn.active {
+        background: #fff;
+        color: #111;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    /* ── Validation ── */
+    .validation-summary {
+        background: #fff5f5;
+        border: 1px solid #fed7d7;
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 18px;
+        font-size: 13px;
+        color: #c53030;
+    }
+
+    /* ── Form Fields ── */
+    .form-row {
+        display: flex;
+        gap: 12px;
+    }
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 7px;
+        letter-spacing: 0.01em;
+    }
+
+    .input-wrap {
+        position: relative;
+    }
+
+    .field-input {
+        width: 100%;
+        padding: 12px 18px;
+        background: #fff;
+        border: 1.5px solid #e5e5e2;
+        border-radius: 999px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        color: #111;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        appearance: none;
+    }
+
+    .field-input::placeholder {
+        color: #bbb;
+    }
+
+    .field-input:focus {
+        border-color: #111;
+        box-shadow: 0 0 0 3px rgba(17,17,17,0.07);
+    }
+
+    .field-error {
+        font-size: 12px;
+        color: #e53e3e;
+        margin-top: 5px;
+        padding-left: 14px;
+        display: block;
+    }
+
+    /* ── Login Button ── */
+    .btn-login {
+        display: block;
+        width: 100%;
+        padding: 14px 20px;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+        margin-top: 10px;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+    }
+
+    .btn-login:hover {
+        background: #2a2a2a;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+    .btn-external {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 13px 20px;
+        background: #f3f3f1;
+        border: 1.5px solid #e8e8e5;
+        border-radius: 999px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        color: #222;
+        cursor: pointer;
+        transition: background 0.18s, border-color 0.18s, transform 0.15s;
+        margin-bottom: 12px;
+    }
+
+    .btn-external:hover {
+        background: #ebebea;
+        border-color: #d4d4d0;
+        transform: translateY(-1px);
+    }
+
+    /* ── Register Prompt ── */
+    .register-prompt {
+        text-align: center;
+        font-size: 13.5px;
+        color: #888;
+    }
+
+    .register-prompt a {
+        color: #111;
+        font-weight: 700;
+        text-decoration: none;
+        transition: opacity 0.15s;
+    }
+
+    .register-prompt a:hover {
+        opacity: 0.6;
+    }
+
+    /* ── Responsive ── */
+    @@media (max-width: 520px) {
+        .login-card {
+            padding: 36px 24px;
+            border-radius: 20px;
+        }
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card">
+
+        <!-- Branding -->
+        <div class="brand-area">
+            <div class="brand-logo">
+              <img src="~/assets/EO_icon.png" alt="EO" />
             </div>
+            <div class="brand-name">EO</div>
+        </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.MiddleName" class="form-control" placeholder="Middle Name" />
-                <label>Middle Name</label>
-            </div>
+        <!-- Heading -->
+        <h1 class="login-heading">Create Account</h1>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.LastName" class="form-control" placeholder="Last Name" />
-                <label>Last Name</label>
-                <span asp-validation-for="Input.LastName" class="text-danger"></span>
-            </div>
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav">
+            <button type="button" class="tab-btn active" onclick="switchTab('local')">New Account</button>
+            <button type="button" class="tab-btn" onclick="switchTab('external')">External Login</button>
+        </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
-                <label>Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
+        <!-- Tab 1: Local Registration -->
+        <div id="tab-local" class="tab-content active">
+            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.MobileNumber" class="form-control" placeholder="Mobile Number" />
-                <label>Mobile Number</label>
-                <span asp-validation-for="Input.MobileNumber" class="text-danger"></span>
-            </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Input.FirstName" class="field-label">First Name</label>
+                        <div class="input-wrap">
+                            <input asp-for="Input.FirstName" class="field-input" placeholder="First Name" />
+                        </div>
+                        <span asp-validation-for="Input.FirstName" class="field-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Input.MiddleName" class="field-label">Middle Name</label>
+                        <div class="input-wrap">
+                            <input asp-for="Input.MiddleName" class="field-input" placeholder="Middle Name" />
+                        </div>
+                    </div>
+                </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.EoRole" class="form-control" placeholder="Eo Role" />
-                <label>Eo Role</label>
-                <span asp-validation-for="Input.EoRole" class="text-danger"></span>
-            </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Input.LastName" class="field-label">Last Name</label>
+                        <div class="input-wrap">
+                            <input asp-for="Input.LastName" class="field-input" placeholder="Last Name" />
+                        </div>
+                        <span asp-validation-for="Input.LastName" class="field-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Input.EoRole" class="field-label">Eo Role</label>
+                        <div class="input-wrap">
+                            <input asp-for="Input.EoRole" class="field-input" placeholder="Eo Role" />
+                        </div>
+                        <span asp-validation-for="Input.EoRole" class="field-error"></span>
+                    </div>
+                </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" placeholder="Password" />
-                <label>Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="Input.Email" class="field-label">Email</label>
+                    <div class="input-wrap">
+                        <input asp-for="Input.Email" class="field-input" autocomplete="username" placeholder="name@example.com" />
+                    </div>
+                    <span asp-validation-for="Input.Email" class="field-error"></span>
+                </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="Confirm Password" />
-                <label>Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="Input.MobileNumber" class="field-label">Mobile Number</label>
+                    <div class="input-wrap">
+                        <input asp-for="Input.MobileNumber" class="field-input" placeholder="Mobile Number" />
+                    </div>
+                    <span asp-validation-for="Input.MobileNumber" class="field-error"></span>
+                </div>
 
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">
-                Register
-            </button>
+                <div class="form-group">
+                    <label asp-for="Input.Password" class="field-label">Password</label>
+                    <div class="input-wrap">
+                        <input asp-for="Input.Password" class="field-input" autocomplete="new-password" placeholder="Password" />
+                    </div>
+                    <span asp-validation-for="Input.Password" class="field-error"></span>
+                </div>
 
-            <div class="mt-3">
-                <p>
-                    Already have an account?
-                    <a asp-page="./Login">Login</a>
-                </p>
-            </div>
-        </form>
-    </div>
+                <div class="form-group">
+                    <label asp-for="Input.ConfirmPassword" class="field-label">Confirm Password</label>
+                    <div class="input-wrap">
+                        <input asp-for="Input.ConfirmPassword" class="field-input" autocomplete="new-password" placeholder="Confirm Password" />
+                    </div>
+                    <span asp-validation-for="Input.ConfirmPassword" class="field-error"></span>
+                </div>
 
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>External Login</h3>
-            <hr />
+                <button id="registerSubmit" type="submit" class="btn-login">
+                    Register
+                </button>
+            </form>
+        </div>
+
+        <!-- Tab 2: External Login -->
+        <div id="tab-external" class="tab-content">
             @if ((Model.ExternalLogins?.Count ?? 0) == 0)
             {
-                <p>No external providers configured.</p>
+                <p style="text-align: center; color: #888; font-size: 14px; margin-top: 20px; margin-bottom: 30px;">
+                    No external providers configured.
+                </p>
             }
             else
             {
-                <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" style="margin-top: 10px;">
                     @foreach (var provider in Model.ExternalLogins)
                     {
-                        <button type="submit" class="btn btn-outline-primary mb-2"
-                                name="provider" value="@provider.Name">
-                            @provider.DisplayName
+                        <button type="submit" class="btn-external" name="provider" value="@provider.Name">
+                            Continue with @provider.DisplayName
                         </button>
                     }
                 </form>
             }
-        </section>
+        </div>
+
+        <!-- Login Prompt -->
+        <p class="register-prompt" style="margin-top: 10px;">
+            Already have an account? <a asp-page="./Login">Login</a>
+        </p>
+
     </div>
 </div>
 
-@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
-}
+
+    <script>
+        function switchTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Update contents
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+    </script>
+</body>
+</html>

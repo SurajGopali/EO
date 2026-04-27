@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Members";
 }
+<link href="~/css/table.css" rel="stylesheet">
+
 
 <h3 class="mb-3">Members</h3>
 
@@ -10,7 +12,7 @@
     <a class="btn btn-outline-primary btn-sm"
            asp-action="Members"
            asp-route-New="false">
-        All
+        All list
     </a>
 
     <a class="btn btn-outline-success btn-sm"
@@ -22,77 +24,67 @@
 
 <hr />
 
-<div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Company</th>
-                <th>Designation</th>
-                <th>Joined</th>
-                <th style="width:220px;">Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @if (Model?.Any() == true)
-            {
-                foreach (var m in Model)
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="custom-table align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Roles</th>
+                    <th>Company</th>
+                    <th>Designation</th>
+                    <th>Joined</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.Any() == true)
+                {
+                    foreach (var m in Model)
+                    {
+                        <tr class="@(m.IsActive ? "" : "row-inactive")">
+                            <td class="fw-bold">@m.Name</td>
+                            <td><span class="badge-role">@m.EoRole</span></td>
+                            <td>@m.CompanyName</td>
+                            <td class="text-muted-custom">@m.Designation</td>
+                            <td>@m.JoinedDate.ToString("MMM dd, yyyy")</td>
+                            <td class="text-end">
+                                <div class="action-buttons">
+                                    <a class="btn-action btn-view" href="/Profile/MemberDetails/@m.Id" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                  <a class="btn-action btn-edit" href="/Profile/Setup/@m.Id" title="Edit">
+                                         <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form asp-controller="Profile" asp-action="ToggleMemberStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@m.Id" />
+                                        @if (m.IsActive)
+                                        {
+                                            <button type="submit" class="btn-action btn-deactivate" title="Deactivate">
+                                                <i class="bi bi-person-x"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn-action btn-activate" title="Activate">
+                                                <i class="bi bi-person-check"></i>
+                                            </button>
+                                        }
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td>@m.Name</td>
-                        <td>@m.EoRole</td>
-                        <td>@m.CompanyName</td>
-                        <td>@m.Designation</td>
-                        <td>@m.JoinedDate.ToString("yyyy-MM-dd")</td>
-
-                        <td>
-                            <!-- VIEW -->
-                            <a class="btn btn-sm btn-primary"
-                                   href="/Profile/MemberDetails/@m.Id">
-                                View
-                            </a>
-
-                            <!-- EDIT -->
-                            <a class="btn btn-sm btn-warning"
-                                   href="/Profile/Setup/@m.Id">
-                                Edit
-                            </a>
-
-                            <!-- REMOVE (SOFT DELETE) -->
-                            <form asp-controller="Profile"
-                                  asp-action="ToggleMemberStatus"
-                                  method="post"
-                                  style="display:inline">
-
-                                <input type="hidden" name="id" value="@m.Id" />
-
-                                @if (m.IsActive)
-                                {
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        Deactivate
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button type="submit" class="btn btn-sm btn-success">
-                                        Activate
-                                    </button>
-                                }
-                            </form>
+                        <td colspan="6" class="empty-state">
+                            No members found in the records.
                         </td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="6" class="text-center text-muted">
-                        No members found
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>

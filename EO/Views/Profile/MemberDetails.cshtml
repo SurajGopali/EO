@@ -1,260 +1,145 @@
-﻿@model EO.Models.MemberDetailDto
+
 
 @{
     ViewData["Title"] = "Member Details";
 }
 
-<style>
-    .profile-card {
-        background: #fff;
-        border-radius: 12px;
-        padding: 20px;
-        border: 1px solid #eee;
-        margin-bottom: 20px;
-    }
+@model EO.Models.MemberDetailDto
 
-    .profile-header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
+<link href="~/css/memeberDetail.css" rel="stylesheet" />
 
-    .profile-avatar {
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        overflow: hidden;
-        background: #e9ecef;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 32px;
-        font-weight: 600;
-        color: #555;
-    }
-
-    .section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #888;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-    }
-
-    .info-box {
-        background: #fff;
-        border: 1px solid #eee;
-        border-radius: 10px;
-        padding: 15px;
-        height: 100%;
-    }
-
-    .info-item {
-        margin-bottom: 8px;
-    }
-
-        .info-item b {
-            display: inline-block;
-            width: 120px;
-            color: #666;
-        }
-
-    .child-card {
-        background: #fff;
-        border: 1px solid #eee;
-        border-radius: 10px;
-        padding: 10px;
-        margin-bottom: 10px;
-    }
-</style>
-
-<h3 class="mb-4">Member Details</h3>
-
-<!-- PROFILE HEADER -->
-<div class="profile-card">
-    <div class="profile-header">
-
-        <div class="profile-avatar">
-            @if (!string.IsNullOrEmpty(Model.ProfileImage))
-            {
-                <img src="@Model.ProfileImage" style="width:100%;height:100%;object-fit:cover;" />
-            }
-            else
-            {
-                @Model.Name?.Substring(0, 1).ToUpper()
-            }
-        </div>
-
-        <div>
-            <h4 class="mb-1">@Model.Name</h4>
-            <div class="text-muted">@Model.EoRole</div>
-            <div class="text-muted small">
-                Joined: @Model.JoinedDate?.ToString("yyyy-MM-dd")
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<div class="row g-3">
-
-    <!-- PERSONAL -->
-    <div class="col-md-6">
-        <div class="info-box">
-            <div class="section-title">Personal</div>
-
-            <div class="info-item"><b>Email:</b> @Model.Email</div>
-            <div class="info-item"><b>Phone:</b> @Model.Phone</div>
-            <div class="info-item"><b>DOB:</b> @Model.Dob?.ToString("yyyy-MM-dd")</div>
-            <div class="info-item"><b>Location:</b> @Model.Location</div>
-            <div class="info-item"><b>Bio:</b> @Model.Bio</div>
-        </div>
-    </div>
-
-    <!-- COMPANY -->
-    <div class="col-md-6">
-        <div class="info-box">
-            <div class="section-title">Company</div>
-
-            <div class="info-item"><b>Company:</b> @Model.CompanyName</div>
-            <div class="info-item"><b>Role:</b> @Model.CompanyRole</div>
-            <div class="info-item"><b>Designation:</b> @Model.Designation</div>
-        </div>
-    </div>
-
-    <!-- SOCIAL -->
-    @if (Model.SocialLinks != null)
-    {
-        <div class="col-md-6">
-            <div class="info-box">
-                <div class="section-title">Social</div>
-
-                <div class="info-item"><b>LinkedIn:</b> @Model.SocialLinks.Linkedin</div>
-                <div class="info-item"><b>Twitter:</b> @Model.SocialLinks.Twitter</div>
-                <div class="info-item"><b>Facebook:</b> @Model.SocialLinks.Facebook</div>
-                <div class="info-item"><b>Instagram:</b> @Model.SocialLinks.Instagram</div>
-                <div class="info-item"><b>Website:</b> @Model.SocialLinks.Website</div>
-            </div>
-        </div>
-    }
-
-    <!-- SPOUSE -->
-    @if (Model.Spouse != null)
-    {
-        <div class="col-md-6">
-            <div class="info-box">
-
-                <div class="section-title">Spouse</div>
-
-                <!-- PROFILE HEADER -->
-                <div class="d-flex align-items-center gap-3 mb-3">
-
-                    <div style="width:70px;height:70px;border-radius:50%;overflow:hidden;background:#e9ecef;display:flex;align-items:center;justify-content:center;">
-                        @if (!string.IsNullOrEmpty(Model.Spouse.ProfileImage))
-                        {
-                            <img src="@Model.Spouse.ProfileImage"
-                                 style="width:100%;height:100%;object-fit:cover;" />
-                        }
-                        else
-                        {
-                            <span style="font-size:20px;font-weight:600;">
-                                @Model.Spouse.Name?.Substring(0, 1).ToUpper()
-                            </span>
-                        }
-                    </div>
-
-                    <div>
-                        <div><b>@Model.Spouse.Name</b></div>
-                        <div class="text-muted small">@Model.Spouse.Email</div>
-                        <div class="text-muted small">@Model.Spouse.Phone</div>
-                    </div>
-
+<div class="profile-dashboard">
+    <div class="row g-0">
+        <div class="col-md-3 profile-sidebar">
+            <div class="sidebar-content">
+                <div class="profile-image-container">
+                    @if (!string.IsNullOrEmpty(Model.ProfileImage))
+                    {
+                        <img src="@Model.ProfileImage" alt="@Model.Name" />
+                    }
+                    else
+                    {
+                        <div class="photo-placeholder">@Model.Name?.Substring(0, 1)</div>
+                    }
                 </div>
 
-                <div class="info-item"><b>DOB:</b> @Model.Spouse.DateOfBirth?.ToString("yyyy-MM-dd")</div>
+                <div class="sidebar-section">
+                    <h6 class="sidebar-label">WORK</h6>
+                    <div class="work-entry">
+                        <span class="company-name">@Model.CompanyName</span>
+                        <span class="tag-blue">Primary</span>
+                    </div>
+                </div>
 
-                <hr />
+                <hr class="sidebar-divider" />
 
-                <!-- PROFESSIONAL -->
-                @if (Model.Spouse.Professional != null)
-                {
-                    <div class="section-title">Professional</div>
-
-                    <div class="info-item"><b>Company:</b> @Model.Spouse.Professional.CurrentCompany</div>
-                    <div class="info-item"><b>Position:</b> @Model.Spouse.Professional.Position</div>
-                    <div class="info-item"><b>Experience:</b> @Model.Spouse.Professional.ExperienceYears yrs</div>
-
-                    <!-- PREVIOUS ROLES -->
-                    <div class="info-item">
-                        <b>Previous Roles:</b>
-
-                        @if (Model.Spouse.Professional.PreviousRoles != null && Model.Spouse.Professional.PreviousRoles.Any())
+                <div class="sidebar-section">
+                    <h6 class="sidebar-label">SKILLS</h6>
+                    <ul class="skills-list">
+                        @if (Model.Spouse?.Professional?.Expertise != null)
                         {
-                            <ul class="mb-1">
-                                @foreach (var role in Model.Spouse.Professional.PreviousRoles)
+                            @foreach (var rawSkill in Model.Spouse.Professional.Expertise)
+                            {
+                                var cleanSkill = rawSkill.Replace("\"", "").Replace("[", "").Replace("]", "").Trim();
+                                if (!string.IsNullOrWhiteSpace(cleanSkill))
                                 {
-                                    <li>@role</li>
+                                    <li>@cleanSkill</li>
                                 }
-                            </ul>
+                            }
                         }
                         else
                         {
-                            <span>-</span>
+                            <li>Strategy</li>
+                            <li>Project Management</li>
                         }
-                    </div>
-
-                    <div class="info-item">
-                        <b>Expertise:</b>
-
-                        @if (Model.Spouse.Professional.Expertise != null && Model.Spouse.Professional.Expertise.Any())
-                        {
-                            <div>
-                                @foreach (var item in Model.Spouse.Professional.Expertise)
-                                {
-                                    <span class="badge bg-secondary me-1">@item</span>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <span>-</span>
-                        }
-                    </div>
-                }
-
-                <hr />
-
-                <!-- SOCIAL -->
-                @if (Model.Spouse.SocialLinks != null)
-                {
-                    <div class="section-title">Social</div>
-
-                    <div class="info-item"><b>LinkedIn:</b> @Model.Spouse.SocialLinks.LinkedIn</div>
-                    <div class="info-item"><b>Twitter:</b> @Model.Spouse.SocialLinks.X</div>
-                    <div class="info-item"><b>Facebook:</b> @Model.Spouse.SocialLinks.Facebook</div>
-                    <div class="info-item"><b>Instagram:</b> @Model.Spouse.SocialLinks.Instagram</div>
-                    <div class="info-item"><b>Website:</b> @Model.Spouse.SocialLinks.Website</div>
-                }
-
+                    </ul>
+                </div>
             </div>
         </div>
-    }
+
+        <div class="col-md-9 profile-main">
+            <div class="main-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h1 class="user-name">@Model.Name <span class="location-text"><i class="fa-solid fa-location-dot"></i> @Model.Location</span></h1>
+                        <p class="user-subtitle">@Model.EoRole</p>
+                    </div>
+                    <div class="ratings-section">
+                        <span class="rating-score">8.6</span>
+                        <div class="stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-tabs mt-4">
+                    <button class="tab-item active" onclick="switchTab(event, 'personal')">Personal</button>
+                    <button class="tab-item" onclick="switchTab(event, 'company')">Company</button>
+                    <button class="tab-item" onclick="switchTab(event, 'social')">Social</button>
+                    <button class="tab-item" onclick="switchTab(event, 'spouse')">Spouse</button>
+                    <button class="tab-item" onclick="switchTab(event, 'children')">Children</button>
+                </div>
+            </div>
+
+            <div class="tab-content-area">
+                
+                <section id="personal" class="info-pane active">
+                    <h5 class="section-heading">Contact Information</h5>
+                    <div class="info-row"><div class="info-label">Phone:</div><div class="info-value link-style">@Model.Phone</div></div>
+                    <div class="info-row"><div class="info-label">Email:</div><div class="info-value link-style">@Model.Email</div></div>
+                    
+                    <h5 class="section-heading mt-4">Basic Information</h5>
+                    <div class="info-row"><div class="info-label">Birthday:</div><div class="info-value">@Model.Dob?.ToString("MMMM dd, yyyy")</div></div>
+                    <div class="info-row"><div class="info-label">Gender:</div><div class="info-value">Male</div></div>
+                </section>
+
+                <section id="company" class="info-pane">
+                    <h5 class="section-heading">Professional Details</h5>
+                    <div class="info-row"><div class="info-label">Company:</div><div class="info-value">@Model.CompanyName</div></div>
+                    <div class="info-row"><div class="info-label">Role:</div><div class="info-value">@Model.CompanyRole</div></div>
+                    <div class="info-row"><div class="info-label">Designation:</div><div class="info-value">@Model.Designation</div></div>
+                </section>
+
+                <section id="social" class="info-pane">
+                    <h5 class="section-heading">Social Presence</h5>
+                    <div class="info-row"><div class="info-label">LinkedIn:</div><div class="info-value link-style">@Model.SocialLinks?.Linkedin</div></div>
+                    <div class="info-row"><div class="info-label">Website:</div><div class="info-value link-style">@Model.SocialLinks?.Website</div></div>
+                    <div class="info-row"><div class="info-label">Twitter:</div><div class="info-value link-style">@Model.SocialLinks?.Twitter</div></div>
+                </section>
+
+                <section id="spouse" class="info-pane">
+                    @if (Model.Spouse != null) {
+                        <h5 class="section-heading">Spouse Information</h5>
+                        <div class="info-row"><div class="info-label">Name:</div><div class="info-value">@Model.Spouse.Name</div></div>
+                        <div class="info-row"><div class="info-label">Profession:</div><div class="info-value">@Model.Spouse.Professional?.Position</div></div>
+                    } else { <p class="text-muted">No spouse data available.</p> }
+                </section>
+
+                <section id="children" class="info-pane">
+                    <h5 class="section-heading">Children</h5>
+                    @if (Model.Children?.Any() == true) {
+                        @foreach (var child in Model.Children) {
+                            <div class="info-row mb-3"><div class="info-label">@child.Name:</div><div class="info-value">@child.School (Grade @child.Grade)</div></div>
+                        }
+                    } else { <p class="text-muted">No children data available.</p> }
+                </section>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- CHILDREN -->
-@if (Model.Children != null && Model.Children.Any() && !string.IsNullOrEmpty(Model.Id))
-{
-    <div class="mt-4">
-        <h5>Children</h5>
-
-        @foreach (var child in Model.Children)
-        {
-            <div class="child-card">
-                <div><b>@child.Name</b></div>
-                <div>DOB: @child.DateOfBirth?.ToString("yyyy-MM-dd")</div>
-                <div>School: @child.School</div>
-                <div>Grade: @child.Grade</div>
-            </div>
-        }
-    </div>
-}
+<script>
+    function switchTab(evt, tabName) {
+        var i, tabContent, tabLinks;
+        tabContent = document.getElementsByClassName("info-pane");
+        for (i = 0; i < tabContent.length; i++) { tabContent[i].classList.remove("active"); }
+        tabLinks = document.getElementsByClassName("tab-item");
+        for (i = 0; i < tabLinks.length; i++) { tabLinks[i].classList.remove("active"); }
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+</script>

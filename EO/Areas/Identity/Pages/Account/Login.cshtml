@@ -1,78 +1,468 @@
-﻿@page
+@page
 @model LoginModel
 
 @{
+    Layout = null;
     ViewData["Title"] = "Log in";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EO</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+   
 
-        <div class="col-md-5">
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-            <div class="card shadow p-4">
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background-color: #f5f5f3;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        z-index: 0;
+    }
 
-                <h3 class="text-center mb-4">Login</h3>
+    /* Subtle grid background */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url('../../assets/loginBackground.png');
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        pointer-events: none;
+        z-index: -1;
+    }
 
-                <form method="post">
+    /* Soft ambient blobs */
+    body::after {
+        content: '';
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(200,200,210,0.25) 0%, transparent 70%);
+        top: -150px;
+        right: -150px;
+        pointer-events: none;
+        z-index: 0;
+    }
 
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    .login-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+    }
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Input.Email"></label>
-                        <input asp-for="Input.Email"
-                               class="form-control"
-                               placeholder="Enter email"
-                               autocomplete="username" />
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
-                    </div>
+    .login-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 48px 44px;
+        width: 100%;
+        max-width: 460px;
+        box-shadow:
+            0 1px 2px rgba(0,0,0,0.04),
+            0 4px 12px rgba(0,0,0,0.06),
+            0 20px 40px rgba(0,0,0,0.08);
+        animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Input.Password"></label>
-                        <input asp-for="Input.Password"
-                               class="form-control"
-                               type="password"
-                               placeholder="Enter password"
-                               autocomplete="current-password" />
-                        <span asp-validation-for="Input.Password" class="text-danger"></span>
-                    </div>
+   
 
-                    <div class="form-check mb-3">
-                        <input asp-for="Input.RememberMe" class="form-check-input" />
-                        <label asp-for="Input.RememberMe" class="form-check-label">
-                            Remember me
-                        </label>
-                    </div>
+    /* ── Branding ── */
+    .brand-area {
+        text-align: center;
+        margin-bottom: 28px;
+        animation: fadeUp 0.5s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+    }
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        Log in
-                    </button>
+    /* .brand-logo {
+        width: 152px;
+        height: 52px;
+        background: #111;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    } */
 
-                </form>
+    .brand-logo svg, .brand-logo img {
+        width: 208px;
+        height: auto;
+        fill: #fff;
+        object-fit: contain;
+    }
 
-                <hr />
+    .brand-name {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #888;
+    }
 
-                <div class="text-center">
+    /* ── Heading ── */
+    .login-heading {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0d0d0d;
+        text-align: center;
+        margin-bottom: 8px;
+        animation: fadeUp 0.5s 0.15s cubic-bezier(0.22,1,0.36,1) both;
+    }
 
-                    <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">
-                        Create new account
-                    </a>
+    .login-subtitle {
+        text-align: center;
+        font-size: 14px;
+        color: #888;
+        line-height: 1.6;
+        margin-bottom: 28px;
+        animation: fadeUp 0.5s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+    }
 
-                    <br />
+    /* ── Google Button ── */
+    .btn-google {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 13px 20px;
+        background: #f3f3f1;
+        border: 1.5px solid #e8e8e5;
+        border-radius: 999px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color: #222;
+        cursor: pointer;
+        transition: background 0.18s, border-color 0.18s, transform 0.15s;
+        text-decoration: none;
+        margin-bottom: 24px;
+        animation: fadeUp 0.5s 0.25s cubic-bezier(0.22,1,0.36,1) both;
+    }
 
-                    <a asp-page="./ForgotPassword">
-                        Forgot password?
-                    </a>
+    .btn-google:hover {
+        background: #ebebea;
+        border-color: #d4d4d0;
+        transform: translateY(-1px);
+    }
 
+    .btn-google:active {
+        transform: translateY(0);
+    }
+
+    .google-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    /* ── Divider ── */
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        animation: fadeUp 0.5s 0.3s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .divider-line {
+        flex: 1;
+        height: 1px;
+        background: #e8e8e5;
+    }
+
+    .divider-text {
+        font-size: 12px;
+        color: #aaa;
+        white-space: nowrap;
+        font-weight: 400;
+    }
+
+    /* ── Validation ── */
+    .validation-summary {
+        background: #fff5f5;
+        border: 1px solid #fed7d7;
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 18px;
+        font-size: 13px;
+        color: #c53030;
+    }
+
+    /* ── Form Fields ── */
+    .form-group {
+        margin-bottom: 18px;
+        animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.33s; }
+    .form-group:nth-child(2) { animation-delay: 0.37s; }
+
+    .field-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 7px;
+        letter-spacing: 0.01em;
+    }
+
+    .input-wrap {
+        position: relative;
+    }
+
+    .field-input {
+        width: 100%;
+        padding: 13px 20px;
+        background: #fff;
+        border: 1.5px solid #e5e5e2;
+        border-radius: 999px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        color: #111;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        appearance: none;
+    }
+
+    .field-input::placeholder {
+        color: #bbb;
+    }
+
+    .field-input:focus {
+        border-color: #111;
+        box-shadow: 0 0 0 3px rgba(17,17,17,0.07);
+    }
+
+    .field-input.has-icon {
+        padding-right: 52px;
+    }
+
+    .input-icon {
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #aaa;
+        display: flex;
+        align-items: center;
+        transition: color 0.15s;
+    }
+
+    .input-icon:hover {
+        color: #555;
+    }
+
+    .field-error {
+        font-size: 12px;
+        color: #e53e3e;
+        margin-top: 5px;
+        padding-left: 14px;
+    }
+
+    /* ── Forgot Password ── */
+    .forgot-wrap {
+        text-align: right;
+        margin-top: -8px;
+        margin-bottom: 24px;
+        animation: fadeUp 0.5s 0.41s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .forgot-link {
+        font-size: 13px;
+        font-weight: 600;
+        color: #111;
+        text-decoration: none;
+        transition: opacity 0.15s;
+    }
+
+    .forgot-link:hover {
+        opacity: 0.6;
+    }
+
+    /* ── Login Button ── */
+    .btn-login {
+        display: block;
+        width: 100%;
+        padding: 14px 20px;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+        animation: fadeUp 0.5s 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .btn-login:hover {
+        background: #2a2a2a;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+    /* ── Register Prompt ── */
+    .register-prompt {
+        text-align: center;
+        font-size: 13.5px;
+        color: #888;
+        animation: fadeUp 0.5s 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .register-prompt a {
+        color: #111;
+        font-weight: 700;
+        text-decoration: none;
+        transition: opacity 0.15s;
+    }
+
+    .register-prompt a:hover {
+        opacity: 0.6;
+    }
+
+    
+    /* ── Responsive ── */
+    @@media (max-width: 520px) {
+        .login-card {
+            padding: 36px 24px;
+            border-radius: 20px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card">
+            
+        <!-- Branding -->
+        <div class="brand-area">
+            <div class="brand-logo">
+              <img src="~/assets/EO_icon.png" alt="EO" />
+            </div>
+            <div class="brand-name">EO</div>
+        </div>
+
+        <!-- Heading -->
+        <h1 class="login-heading">Welcome to EO</h1>
+        <!-- <p class="login-subtitle">
+            Sign in to your account to continue<br/>
+            where you left off.
+        </p> -->
+
+
+
+        <!-- Divider -->
+        <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-line"></div>
+        </div>
+
+        <!-- Form -->
+        <form method="post">
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label asp-for="Input.Email" class="field-label">Email</label>
+                <div class="input-wrap">
+                    <input asp-for="Input.Email"
+                           class="field-input"
+                           placeholder="Enter Your Email"
+                           autocomplete="username" />
                 </div>
-
+                <span asp-validation-for="Input.Email" class="field-error"></span>
             </div>
 
-        </div>
+            <!-- Password -->
+            <div class="form-group">
+                <label asp-for="Input.Password" class="field-label">Password</label>
+                <div class="input-wrap">
+                    <input asp-for="Input.Password"
+                           id="passwordInput"
+                           class="field-input has-icon"
+                           type="password"
+                           placeholder="Enter Your Password"
+                           autocomplete="current-password" />
+                    <span class="input-icon" id="togglePassword" title="Show/hide password">
+                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </span>
+                </div>
+                <span asp-validation-for="Input.Password" class="field-error"></span>
+            </div>
+
+            <!-- Forgot Password -->
+            <div class="forgot-wrap">
+                <a asp-page="./ForgotPassword" class="forgot-link">Forgot Password?</a>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-login">Login</button>
+
+        </form>
+
+        <!-- Register -->
+        <p class="register-prompt">
+            Don't have an Account? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register</a>
+        </p>
 
     </div>
 </div>
 
-@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
-}
+
+    <script>
+        const toggle = document.getElementById('togglePassword');
+        const input  = document.getElementById('passwordInput');
+        const icon   = document.getElementById('eyeIcon');
+
+        const eyeOpen   = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
+        const eyeClosed = `<line x1="1" y1="1" x2="23" y2="23"></line><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>`;
+
+        let visible = false;
+
+        toggle.addEventListener('click', () => {
+            visible = !visible;
+            input.type = visible ? 'text' : 'password';
+            icon.innerHTML = visible ? eyeClosed : eyeOpen;
+        });
+    </script>
+</body>
+</html>

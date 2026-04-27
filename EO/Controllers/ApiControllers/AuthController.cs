@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly TokenService _tokenService;
+    private readonly ITokenService _tokenService;
 
     public AuthController(UserManager<ApplicationUser> userManager,
-                          TokenService tokenService)
+                          ITokenService tokenService)
     {
         _userManager = userManager;
         _tokenService = tokenService;

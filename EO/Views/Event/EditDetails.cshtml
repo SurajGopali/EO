@@ -1,0 +1,209 @@
+﻿@model EO.Models.UpdateEventDetailFullDto
+
+@{
+    ViewData["Title"] = "Edit Event";
+
+    var start = Model.Event.StartDateTime == default
+        ? DateTime.Now
+        : Model.Event.StartDateTime;
+
+    var end = Model.Event.EndDateTime == default
+        ? DateTime.Now
+        : Model.Event.EndDateTime;
+
+    var scheduleCount = Model.Schedule?.Count ?? 0;
+}
+
+<div class="container mt-4">
+
+    <div class="card p-4 shadow-sm">
+
+        <h3 class="mb-3">Update Event</h3>
+
+        <form asp-action="EditDetails" asp-route-id="@Model.EventId" method="post">
+
+            <input type="hidden" asp-for="EventId" />
+
+            <!-- ================= EVENT DETAILS ================= -->
+            <h5 class="mb-3">Event Details</h5>
+
+            <label>Title</label>
+            <input class="form-control" asp-for="Event.Title" />
+
+            <label>Description</label>
+            <textarea class="form-control" asp-for="Event.Description"></textarea>
+
+            <label>Venue</label>
+            <input class="form-control" asp-for="Event.Venue" />
+
+            <label>Cover Image</label>
+            <input class="form-control" asp-for="Event.CoverImage" />
+
+            <label>Start DateTime</label>
+            <input type="datetime-local"
+                   class="form-control"
+                   name="Event.StartDateTime"
+                   value="@start.ToString("yyyy-MM-ddTHH:mm")" />
+
+            <label>End DateTime</label>
+            <input type="datetime-local"
+                   class="form-control"
+                   name="Event.EndDateTime"
+                   value="@end.ToString("yyyy-MM-ddTHH:mm")" />
+
+            <hr />
+
+            <!-- ================= SCHEDULE ================= -->
+            <h5>Schedule</h5>
+
+            <div id="scheduleContainer">
+
+                @if (Model.Schedule != null && Model.Schedule.Count > 0)
+                {
+                    for (int i = 0; i < Model.Schedule.Count; i++)
+                    {
+                        <div class="border p-3 mb-2 rounded schedule-item">
+
+                            <input type="hidden" name="Schedule[@i].Id" value="@Model.Schedule[i].Id" />
+
+                            <label>Title</label>
+                            <input class="form-control"
+                                   name="Schedule[@i].Title"
+                                   value="@Model.Schedule[i].Title" />
+
+                            <label>Description</label>
+                            <input class="form-control"
+                                   name="Schedule[@i].Description"
+                                   value="@Model.Schedule[i].Description" />
+
+                            <label>Start Time</label>
+                            <input type="time"
+                                   class="form-control"
+                                   name="Schedule[@i].StartTime"
+                                   value="@Model.Schedule[i].StartTime" />
+
+                            <label>End Time</label>
+                            <input type="time"
+                                   class="form-control"
+                                   name="Schedule[@i].EndTime"
+                                   value="@Model.Schedule[i].EndTime" />
+
+                            <button type="button"
+                                    class="btn btn-danger btn-sm mt-2"
+                                    onclick="removeSchedule(this)">
+                                Remove
+                            </button>
+
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No schedules</p>
+                }
+
+            </div>
+
+            <button type="button" class="btn btn-success mt-2" onclick="addSchedule()">
+                + Add Schedule
+            </button>
+
+            <hr />
+
+            <!-- ================= GUESTS ================= -->
+            <h5>Guests</h5>
+
+            @if (ViewBag.AllGuests != null)
+            {
+                var selectedIds = ViewBag.SelectedGuestIds as List<int> ?? new List<int>();
+
+                foreach (var guest in ViewBag.AllGuests)
+                {
+                    var selected = selectedIds.Contains(guest.Id);
+
+                    <div class="form-check">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               name="GuestIds"
+                               value="@guest.Id"
+                        @(selected ? "checked" : "") />
+
+                        <label class="form-check-label">
+                            @guest.Name (@guest.Designation)
+                        </label>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">No guests available</p>
+            }
+
+            <br />
+
+            <button type="submit" class="btn btn-primary">
+                Save Changes
+            </button>
+
+            <a asp-action="Details"
+                   asp-route-id="@Model.EventId"
+                   class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- ================= JS ================= -->
+<script>
+    let scheduleIndex = @scheduleCount;
+
+    function addSchedule() {
+        const container = document.getElementById("scheduleContainer");
+
+        const html = `
+        <div class="border p-3 mb-2 rounded schedule-item">
+
+            <input type="hidden" name="Schedule[${scheduleIndex}].Id" value="0" />
+
+            <label>Title</label>
+            <input class="form-control" name="Schedule[${scheduleIndex}].Title" />
+
+            <label>Description</label>
+            <input class="form-control" name="Schedule[${scheduleIndex}].Description" />
+
+            <label>Start Time</label>
+            <input type="time" class="form-control" name="Schedule[${scheduleIndex}].StartTime" />
+
+            <label>End Time</label>
+            <input type="time" class="form-control" name="Schedule[${scheduleIndex}].EndTime" />
+
+            <button type="button"
+                    class="btn btn-danger btn-sm mt-2"
+                    onclick="removeSchedule(this)">
+                Remove
+            </button>
+
+        </div>`;
+
+        container.insertAdjacentHTML("beforeend", html);
+        scheduleIndex++;
+    }
+
+       function removeSchedule(btn) {
+        const item = btn.closest(".schedule-item");
+
+        // mark deleted flag
+        const idInput = item.querySelector('input[name*=".Id"]');
+
+        if (idInput && idInput.value > 0) {
+            // set a special value to identify deletion
+            idInput.value = -1;
+        }
+
+        // actually remove from DOM (IMPORTANT)
+        item.remove();
+    }
+</script>

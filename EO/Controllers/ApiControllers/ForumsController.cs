@@ -22,7 +22,7 @@ namespace EO.Controllers.ApiControllers
             _context = context;
         }
 
-        [Authorize]
+        [Authorize  ]
         [HttpGet]
         public IActionResult GetForums()
         {

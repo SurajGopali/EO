@@ -1,0 +1,65 @@
+﻿@model List<EO.Models.Guests>
+
+@{
+    ViewData["Title"] = "Manage Event Guests";
+    var eventId = ViewBag.EventId;
+    var assigned = ViewBag.AssignedGuestIds as List<int>;
+}
+
+<h3>Assign Guests to Event</h3>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Avatar</th>
+            <th>Name</th>
+            <th>Designation</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var g in Model)
+        {
+            bool isAssigned = assigned.Contains(g.Id);
+
+            <tr>
+                <td>
+                    <img src="@g.Avatar" width="40" height="40" style="border-radius:50%" />
+                </td>
+
+                <td>@g.Name</td>
+                <td>@g.Designation</td>
+
+                <td>
+                    @if (isAssigned)
+                    {
+                        <form asp-action="Remove" method="post" style="display:inline;">
+                            <input type="hidden" name="eventId" value="@eventId" />
+                            <input type="hidden" name="guestId" value="@g.Id" />
+
+                            <button class="btn btn-danger btn-sm">
+                                Remove
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Add" method="post" style="display:inline;">
+                            <input type="hidden" name="eventId" value="@eventId" />
+                            <input type="hidden" name="guestId" value="@g.Id" />
+
+                            <button class="btn btn-success btn-sm">
+                                Add
+                            </button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-controller="Event" asp-action="Edit" asp-route-id="@eventId" class="btn btn-secondary">
+    Back to Event
+</a>

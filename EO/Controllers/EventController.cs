@@ -18,45 +18,51 @@ namespace EO.Controllers
             _context = context;
         }
 
+        // =========================
+        // LIST EVENTS
+        // =========================
         public async Task<IActionResult> Index()
         {
             var events = await _eventService.GetEventsAsync();
             return View(events);
         }
 
+        // =========================
+        // DETAILS
+        // =========================
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            if (id <= 0)
-                return BadRequest();
+            if (id <= 0) return BadRequest();
 
             var data = await _eventService.GetEventDetailsAsync(id);
 
-            if (data == null)
-                return NotFound();
+            if (data == null) return NotFound();
 
             return View(data);
         }
 
-
+        // =========================
+        // EDIT FULL EVENT (DETAILS + SCHEDULE + USERS)
+        // =========================
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> EditDetails(int id)
         {
             var model = await _eventService.GetFullEventForEditAsync(id);
 
-            if (model == null)
-                return NotFound();
+            if (model == null) return NotFound();
 
-            var allGuests = await _context.Guests.ToListAsync();
-            ViewBag.AllGuests = allGuests;
+            // USERS (AspNetUsers instead of Guests table)
+            var allUsers = await _context.Users.ToListAsync();
+            ViewBag.AllUsers = allUsers;
 
-            var selectedGuestIds = await _context.EventGuests
+            var selectedUserIds = await _context.EventGuests
                 .Where(x => x.EventId == id)
-                .Select(x => x.GuestId)
+                .Select(x => x.UserId)
                 .ToListAsync();
 
-            ViewBag.SelectedGuestIds = selectedGuestIds;
+            ViewBag.SelectedUserIds = selectedUserIds;
 
             return View(model);
         }
@@ -70,6 +76,9 @@ namespace EO.Controllers
             return RedirectToAction("Details", new { id });
         }
 
+        // =========================
+        // BASIC EVENT EDIT
+        // =========================
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -77,17 +86,12 @@ namespace EO.Controllers
             var eventTypes = await _context.EventTypes.ToListAsync();
             ViewBag.EventTypes = eventTypes;
 
-       
             if (id == 0)
-            {
                 return View(new EventUpdateDto());
-            }
 
-         
             var model = await _eventService.GetEventForEditAsync(id);
 
-            if (model == null)
-                return NotFound();
+            if (model == null) return NotFound();
 
             return View(model);
         }
@@ -100,7 +104,9 @@ namespace EO.Controllers
             return RedirectToAction("Index");
         }
 
-
+        // =========================
+        // DELETE
+        // =========================
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
@@ -108,6 +114,5 @@ namespace EO.Controllers
             await _eventService.DeleteEventAsync(id);
             return RedirectToAction("Index");
         }
-
     }
 }

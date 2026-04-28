@@ -95,6 +95,7 @@
         public string Grade { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string? ProfileImage { get; set; }
+        public IFormFile? ProfileImageFile { get; set; }
 
     }
 
@@ -149,6 +150,7 @@
         public string Phone { get; set; }
         public string Email { get; set; }
         public string? ProfileImage { get; set; }
+        public IFormFile? ProfileImageFile { get; set; }
         public SocialLinksDto SocialLinks { get; set; }
         public SpouseProfessionalDto Professional { get; set; }
     }
@@ -172,6 +174,7 @@
         public DateTime? Birthday { get; set; }
         public DateTime? Anniversary { get; set; }
         public string ProfileImage { get; set; }
+        public IFormFile? ProfileImageFile { get; set; }
         public DateTime JoinedDate { get; set; }
         public bool IsActive { get; set; }
     }
@@ -185,6 +188,7 @@
         public string Email { get; set; }
         public string Phone { get; set; }
         public string ProfileImage { get; set; }
+        public IFormFile? ProfileImageFile { get; set; }
 
         public string CompanyName { get; set; }
         public string CompanyRole { get; set; }

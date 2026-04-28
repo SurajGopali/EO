@@ -14,6 +14,16 @@ namespace EO.Models
         public string? EoRole { get; set; }
         public DateTime JoinedDate { get; set; }
         public bool IsActive { get; set; } = true;
+        public CompanyDetails? CompanyDetails { get; set; }
+        public string FullName
+        {
+            get
+            {
+                return $"{FirstName} {MiddleName} {LastName}"
+                    .Replace("  ", " ")
+                    .Trim();
+            }
+        }
     }
 
     public class RegisterRequest
@@ -34,7 +44,7 @@ namespace EO.Models
 
     public class UserResponse
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string FirstName { get; set; }
         public string? MiddleName { get; set; }
         public string LastName { get; set; }
@@ -56,4 +66,8 @@ namespace EO.Models
     {
         public string RefreshToken { get; set; }
     }
+
+
+
+
 }

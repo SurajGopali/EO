@@ -21,12 +21,12 @@ namespace EO.WebContext
 
         public DbSet<EventDetail> EventDetails { get; set; }
         public DbSet<EventSchedule> EventSchedules { get; set; }
-        public DbSet<Guests> Guests { get; set; }
         public DbSet<EventGuest> EventGuests { get; set; }
         public DbSet<EventType> EventTypes { get; set; }
         public DbSet<Alliance> Alliances { get; set; }
         public DbSet<AlliancePerk> AlliancePerks { get; set; }
         public DbSet<AllianceType> AllianceTypes { get; set; }
+        public DbSet<Perk> Perks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -46,6 +46,24 @@ namespace EO.WebContext
                 .HasOne(g => g.Event)
                 .WithMany(e => e.Guests)
                 .HasForeignKey(g => g.EventId);
+
+            modelBuilder.Entity<AlliancePerk>()
+                .HasKey(x => new { x.AllianceId, x.PerkId });
+
+            modelBuilder.Entity<AlliancePerk>()
+                .HasOne(x => x.Alliance)
+                .WithMany(x => x.AlliancePerks)
+                .HasForeignKey(x => x.AllianceId);
+
+            modelBuilder.Entity<AlliancePerk>()
+                .HasOne(x => x.Perk)
+                .WithMany(x => x.AlliancePerks)
+                .HasForeignKey(x => x.PerkId);
+
+            modelBuilder.Entity<CompanyDetails>()
+                .HasOne(c => c.User)
+                .WithOne(u => u.CompanyDetails)
+                .HasForeignKey<CompanyDetails>(c => c.UserId);
         }
     }
 }

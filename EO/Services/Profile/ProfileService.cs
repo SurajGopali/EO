@@ -1,4 +1,5 @@
 ﻿using EO.Models;
+using EO.Services.Common;
 using EO.Services.Profile;
 using EO.WebContext;
 using Microsoft.AspNetCore.Identity;
@@ -8,11 +9,13 @@ public class ProfileService : IProfileService
 {
     private readonly AppDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ICommonService _commonService;
 
-    public ProfileService(AppDbContext context, UserManager<ApplicationUser> userManager)
+    public ProfileService(AppDbContext context, UserManager<ApplicationUser> userManager,ICommonService commonService)
     {
         _context = context;
         _userManager = userManager;
+        _commonService = commonService;
     }
 
     public async Task<ServiceResponse> UpsertProfileAsync(UpdateProfileRequest request, string userId)
@@ -315,4 +318,5 @@ public class ProfileService : IProfileService
             }).ToList()
         };
     }
+
 }

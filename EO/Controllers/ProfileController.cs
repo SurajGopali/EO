@@ -1,4 +1,5 @@
 ﻿using EO.Models;
+using EO.Services.Common;
 using EO.Services.Profile;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -17,11 +18,13 @@ namespace EO.Controllers
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMemberService _memberService;
-        public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, IMemberService memberService)
+        private readonly ICommonService _commonService;
+        public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, IMemberService memberService, ICommonService commonService)
         {
             _profileService = profileService;
             _userManager = userManager;
             _memberService = memberService;
+            _commonService = commonService;
         }
 
         [Authorize]
@@ -37,11 +40,17 @@ namespace EO.Controllers
 
             var profile = await _profileService.GetProfileAsync(userId);
 
+            var fullName = $"{user.FirstName} {user.MiddleName} {user.LastName}"
+                .Replace("  ", " ")
+                .Trim();
+
+            ViewData["FullName"] = fullName;
+
             if (profile == null)
             {
                 return View(new UpdateProfileRequest
                 {
-                    UserId = userId, 
+                    UserId = userId,
                     PersonalDetails = new(),
                     CompanyDetails = new(),
                     SocialLinks = new(),
@@ -54,7 +63,7 @@ namespace EO.Controllers
                 });
             }
 
-            profile.UserId = userId; 
+            profile.UserId = userId;
 
             return View(profile);
         }
@@ -74,21 +83,59 @@ namespace EO.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Submit([FromBody] UpdateProfileRequest request)
+        public async Task<IActionResult> Submit(
+        [FromForm] string data,
+        [FromForm] IFormFile? SpouseProfileImageFile,
+        [FromForm] List<IFormFile> ChildrenFiles)
         {
-            if (request == null)
-                return BadRequest("Request is null");
+            if (string.IsNullOrEmpty(data))
+                return BadRequest("Invalid request");
 
             var actor = await _userManager.GetUserAsync(User);
-
             if (actor == null)
                 return Unauthorized();
+
+            var request = JsonSerializer.Deserialize<UpdateProfileRequest>(
+                data,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+            if (request == null)
+                return BadRequest("Invalid JSON payload");
 
             var targetUserId = string.IsNullOrEmpty(request.UserId)
                 ? actor.Id
                 : request.UserId;
 
-            await _profileService.UpsertProfileAsync(request, targetUserId);
+            if (SpouseProfileImageFile != null && request.Spouse != null)
+            {
+                request.Spouse.ProfileImage =
+                    await _commonService.SaveFileAsync(
+                        SpouseProfileImageFile,
+                        "spouse",
+                        targetUserId);
+            }
+
+            for (int i = 0; i < request.Children.Count; i++)
+            {
+                var file = ChildrenFiles.ElementAtOrDefault(i);
+
+                if (file != null && file.Length > 0)
+                {
+                    request.Children[i].ProfileImage =
+                        await _commonService.SaveFileAsync(
+                            file,
+                            "children",
+                            targetUserId);
+                }
+            }
+
+            var result = await _profileService.UpsertProfileAsync(request, targetUserId);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
 
             return Ok(new { success = true });
         }

@@ -1,11 +1,11 @@
 ﻿using EO.Models;
 
-namespace EO.Services.EventGuest
+namespace EO.Services.EventGuests
 {
     public interface IEventGuestService
     {
-        Task AddGuestToEventAsync(int eventId, int guestId);
-        Task RemoveGuestFromEventAsync(int eventId, int guestId);
-        Task<List<Guests>> GetGuestsByEventIdAsync(int eventId);
+        Task AddGuestToEventAsync(int eventId, string userId);
+        Task RemoveGuestFromEventAsync(int eventId, string userId);
+        Task<List<EventGuestDto>> GetGuestsByEventIdAsync(int eventId);
     }
 }

@@ -16,9 +16,9 @@ html {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+html, body {
+  height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -26,6 +26,24 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app-layout {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  background: var(--app-layout-bg);
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 /* Theme variables */
@@ -83,4 +101,39 @@ body {
 
 [data-theme="dark"] .text-muted {
   color: #aaa !important;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    height: 100%;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+    width: 240px;
+  }
+
+  .main-content {
+    width: 100%;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    margin-bottom: 50px;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
 }

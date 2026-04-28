@@ -1,8 +1,313 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+<link href="~/css/homepage.css" rel="stylesheet">
+
+  <div class="page-header">
+    <div class="greeting-block">
+      <div class="greeting-sub">Welcome back</div>
+      <div class="greeting-name">Good morning, Alex 👋</div>
+      <div class="greeting-date" id="liveDate"></div>
+      
+  </div>
+  <div class="weather-block">
+        <div class="weather-icon">☀️</div>
+        <div class="weather-info">
+          <div class="temp-row">
+            <span class="temp-val">24°C</span>
+            <span class="temp-desc">Sunny</span>
+          </div>
+      <div class="weather-loc">Lalitpur, Nepal</div>
+    </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div class="stats-row" id="statsRow"></div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="left-col">
+      <div class="section-hdr">
+        <div class="section-title">Upcoming Events</div>
+        <span class="section-link">View all →</span>
+      </div>
+      <div class="events-grid" id="eventsList"></div>
+    </div>
+    <div class="right-col">
+      <!-- Birthdays -->
+     <div class="panel">
+  <div class="section-hdr">
+    <div class="section-title">Birthdays 🎂</div>
+    <span class="section-link">See all</span>
+  </div>
+
+  <div class="carousel-wrap">
+    <button class="c-arrow left" id="bdayPrev">
+  <i class="bi bi-chevron-left"></i>
+</button>
+
+    <div class="c-overflow">
+      <div class="c-track" id="bdayTrack"></div>
+    </div>
+
+    <button class="c-arrow right" id="bdayNext">
+  <i class="bi bi-chevron-right"></i>
+</button>
+
+  </div>
+
+  <div class="c-dots" id="bdayDots"></div>
 </div>
+      <!-- New in Circle -->
+     <div class="panel">
+  <div class="section-hdr">
+    <div class="section-title">New in Circle ✨</div>
+    <span class="section-link">See all</span>
+  </div>
+
+  <div class="carousel-wrap">
+
+    <button class="c-arrow left" id="membersPrev">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <div class="c-overflow">
+      <div class="m-track" id="membersTrack"></div>
+    </div>
+
+    <button class="c-arrow right" id="membersNext">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+
+  </div>
+
+  <div class="c-dots" id="memberDots"></div>
+</div>
+    </div>
+  </div>
+
+  <!-- What's Ahead -->
+  <div class="whats-ahead-section">
+    <div class="section-hdr">
+      <div class="section-title">What's Ahead</div>
+    </div>
+    <div class="ahead-grid" id="whatsAhead"></div>
+  </div>
+
+
+<script>
+
+const DATA = {
+  stats:[
+    {num:"12",label:"Events This Month"},
+    {num:"5",label:"Registered"},
+  ],
+  events:[
+    {
+      title:"Executive Strategy Meeting",
+      desc:"Quarterly leadership alignment on growth targets and roadmap.",
+      date:"May 16, 2025",time:"10:00 AM",days:19,
+      location:"Boardroom 3A, HQ Tower",
+      status:"Registered",badge:"badge-green",
+      img:"https://images.unsplash.com/photo-1552664730-d307ca884978?w=700&h=420&fit=crop"
+    },
+    {
+      title:"Investment Review Session",
+      desc:"Deep-dive portfolio analysis with finance and strategy teams.",
+      date:"May 22, 2025",time:"2:00 PM",days:25,
+      location:"Virtual · Zoom Link",
+      status:"Open",badge:"badge-orange",reg:true,
+      img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=700&h=420&fit=crop"
+    },
+    {
+      title:"Annual Team Retreat",
+      desc:"Two-day offsite for bonding, planning, and creative workshops.",
+      date:"Jun 5, 2025",time:"9:00 AM",days:39,
+      location:"Lakeview Resort, Pokhara",
+      status:"Open",badge:"badge-orange",reg:true,
+      img:"https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=700&h=420&fit=crop"
+    }
+  ],
+  birthdays:[
+    {name:"Priya Sharma",role:"Product Lead",date:"May 12",avatar:"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face"},
+    {name:"Jordan Lee",role:"Engineering",date:"May 17",avatar:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=face"},
+    {name:"Amara Osei",role:"Design",date:"May 21",avatar:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=120&h=120&fit=crop&crop=face"},
+    {name:"Carlos Ruiz",role:"Finance",date:"May 28",avatar:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face"},
+    {name:"Mei Zhang",role:"Operations",date:"Jun 3",avatar:"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&h=120&fit=crop&crop=face"},
+    {name:"Ethan Brooks",role:"Marketing",date:"Jun 9",avatar:"https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&h=120&fit=crop&crop=face"}
+  ],
+  whatsAhead:[
+    {day:"08",month:"May",title:"Board Pre-meeting Briefing",sub:"Executive floor · 45 min",tag:"Internal"},
+    {day:"15",month:"May",title:"Q2 Financial Review",sub:"Finance Dept · 2 hrs",tag:"Finance"},
+    {day:"16",month:"May",title:"Executive Strategy Meeting",sub:"Boardroom 3A · All day",tag:"Event"},
+    {day:"20",month:"May",title:"New Hire Onboarding Batch",sub:"HR Campus · Morning",tag:"HR"},
+    {day:"22",month:"May",title:"Investment Review Session",sub:"Virtual · Zoom",tag:"Event"},
+    {day:"30",month:"May",title:"Product Roadmap Sync",sub:"Design Studio · 1.5 hrs",tag:"Product"}
+  ],
+  newMembers:[
+    {name:"Lena Fischer",role:"UX Designer",joined:"Joined May 1",avatar:"https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=face"},
+    {name:"David Nkosi",role:"Backend Dev",joined:"Joined May 3",avatar:"https://images.unsplash.com/photo-1521119989659-a83eee488004?w=120&h=120&fit=crop&crop=face"},
+    {name:"Riya Patel",role:"Data Analyst",joined:"Joined May 5",avatar:"https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=120&h=120&fit=crop&crop=face"},
+    {name:"Tom Nguyen",role:"Sales Lead",joined:"Joined May 6",avatar:"https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=120&h=120&fit=crop&crop=face"},
+    {name:"Sofia Mendes",role:"Ops Manager",joined:"Joined May 7",avatar:"https://images.unsplash.com/photo-1554151228-14d9def656e4?w=120&h=120&fit=crop&crop=face"}
+  ]
+};
+
+/* ── DATE ── */
+document.getElementById('liveDate').textContent =
+  new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+/* ── STATS ── */
+document.getElementById('statsRow').innerHTML = DATA.stats.map(s=>`
+  <div class="stat-card">
+    <div class="stat-num">${s.num}</div>
+    <div class="stat-label">${s.label}</div>
+  </div>`).join('');
+
+/* ── EVENTS ── */
+document.getElementById('eventsList').innerHTML = DATA.events.map(ev=>`
+  <div class="event-card">
+    <div class="card-img-wrap">
+      <img src="${ev.img}" alt="${ev.title}" loading="lazy">
+      <span class="status-badge ${ev.badge}">${ev.status}</span>
+    </div>
+    <div class="card-info">
+      <div class="card-meta-row">
+        <span class="card-meta-date">${ev.date} · ${ev.time}</span>
+        <span class="card-countdown">${ev.days} Days Remaining</span>
+      </div>
+      <div class="card-title">${ev.title}</div>
+      <div class="card-desc">${ev.desc}</div>
+      <div class="card-footer">
+        <span class="card-location">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.79 1.5 4 3.29 4 5.5c0 3.5 4 9 4 9s4-5.5 4-9c0-2.21-1.79-3.5-4-3.5z" fill="currentColor" opacity=".5"/><circle cx="8" cy="5.5" r="1.5" fill="currentColor"/></svg>
+          ${ev.location}
+        </span>
+        ${ev.reg ? '<button class="btn-register">Register</button>' : ''}
+      </div>
+    </div>
+  </div>`).join('');
+
+/* ── WHAT'S AHEAD ── */
+document.getElementById('whatsAhead').innerHTML = DATA.whatsAhead.map(a=>`
+  <div class="ahead-item">
+    <div class="ahead-date-box">
+      <div class="ahead-day">${a.day}</div>
+      <div class="ahead-mon">${a.month}</div>
+    </div>
+    <div class="ahead-info">
+      <div class="ahead-title">${a.title}</div>
+      <div class="ahead-sub">${a.sub}</div>
+    </div>
+    <span class="ahead-tag">${a.tag}</span>
+  </div>`).join('');
+
+/* ── CAROUSEL BUILDER (responsive) ── */
+function getVisibleItems() {
+  const w = window.innerWidth;
+  if (w < 400) return 1;
+  if (w < 600) return 2;
+  if (w < 900) return 3;
+  return 4;
+}
+
+function buildCarousel(trackId, dotsId, itemW, gap, items, renderFn, visibleOverride) {
+  const track = document.getElementById(trackId);
+  const dotsEl = document.getElementById(dotsId);
+  const wrapper = track.closest('.carousel-wrap');
+  const panel = track.closest('.panel');
+
+  const visible = visibleOverride !== undefined ? visibleOverride : getVisibleItems();
+
+  track.innerHTML = items.map(renderFn).join('');
+
+  let cur = 0;
+  const max = Math.max(0, items.length - visible);
+
+  function go(idx) {
+    cur = Math.max(0, Math.min(idx, max));
+    track.style.transform = `translateX(-${cur * (itemW + gap)}px)`;
+
+    dotsEl.querySelectorAll('.c-dot').forEach((d, i) =>
+      d.classList.toggle('on', i === cur)
+    );
+  }
+
+  // dots
+  dotsEl.innerHTML = Array.from({ length: max + 1 }, (_, i) =>
+    `<div class="c-dot${i === 0 ? ' on' : ''}" data-i="${i}"></div>`
+  ).join('');
+
+  dotsEl.addEventListener('click', e => {
+    const i = e.target.dataset.i;
+    if (i !== undefined) go(+i);
+  });
+
+  // arrows
+  const prevBtn = document.getElementById(trackId.replace('Track', 'Prev'));
+  const nextBtn = document.getElementById(trackId.replace('Track', 'Next'));
+
+  if (prevBtn && nextBtn) {
+    prevBtn.addEventListener('click', () => go(cur - 1));
+    nextBtn.addEventListener('click', () => go(cur + 1));
+  }
+
+  // autoplay handling
+  let autoplayId = setInterval(() => go((cur + 1) % (max + 1)), 3500);
+
+  // pause on hover over arrows or wrapper
+  const pause = () => clearInterval(autoplayId);
+  const resume = () => {
+    clearInterval(autoplayId);
+    autoplayId = setInterval(() => go((cur + 1) % (max + 1)), 3500);
+  };
+
+  if (prevBtn) {
+    prevBtn.addEventListener('mouseenter', pause);
+    prevBtn.addEventListener('mouseleave', resume);
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('mouseenter', pause);
+    nextBtn.addEventListener('mouseleave', resume);
+  }
+  if (wrapper) {
+    wrapper.addEventListener('mouseenter', pause);
+    wrapper.addEventListener('mouseleave', resume);
+  }
+
+  // responsive resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const newVisible = getVisibleItems();
+      const newMax = Math.max(0, items.length - newVisible);
+      cur = Math.min(cur, newMax);
+      go(cur);
+    }, 150);
+  });
+}
+
+
+buildCarousel('bdayTrack', 'bdayDots', 126, 12, DATA.birthdays, b => `
+  <div class="bday-card">
+    <img class="bday-avatar" src="${b.avatar}" alt="${b.name}" loading="lazy">
+    <div class="bday-name">${b.name}</div>
+    <div class="bday-date-pill">🎂 ${b.date}</div>
+    <div class="bday-role">${b.role}</div>
+  </div>`, 2);
+
+buildCarousel('membersTrack', 'memberDots', 96, 12, DATA.newMembers, m => `
+  <div class="member-card">
+    <div class="member-aw">
+      <img class="member-avatar" src="${m.avatar}" alt="${m.name}" loading="lazy">
+      <span class="new-pill">New</span>
+    </div>
+    <div class="member-name">${m.name}</div>
+    <div class="member-role">${m.role}</div>
+    <div class="member-joined">${m.joined}</div>
+  </div>`, 2);
+</script>

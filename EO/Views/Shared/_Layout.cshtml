@@ -13,7 +13,7 @@
            
             .app-layout {
                 display: flex;
-                min-height: 100vh;
+                flex: 1;
                 background: var(--app-layout-bg);
             }
 
@@ -97,19 +97,8 @@
                 border-bottom: 1px solid var(--border-color);
             }
 
-            @@media (max-width: 768px) {
-                .sidebar {
-                    position: fixed;
-                    height: 100%;
-                    z-index: 1000;
-                    left: 0;
-                    top: 0;
-                }
-
-                    .sidebar.collapsed {
-                        transform: translateX(-100%);
-                        width: 240px;
-                    }
+            footer {
+                flex-shrink: 0;
             }
     </style>
     <script>

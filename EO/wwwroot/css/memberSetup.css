@@ -49,12 +49,12 @@
     .mf-page {
         font-family: 'Segoe UI', Arial, sans-serif;
         background: var(--mf-page-bg);
-        min-height: 100vh;
         display: flex;
         align-items: flex-start;
         justify-content: center;
         padding: 48px 20px;
         transition: background 0.3s;
+        width: 100%;
     }
 
     /* â”€â”€ Card â”€â”€ */

@@ -1,8 +1,8 @@
 using EO.Models;
 using EO.Services;
+using EO.Services.Common;
 using EO.Services.Event;
-using EO.Services.EventGuest;
-using EO.Services.Guest;
+using EO.Services.EventGuests;
 using EO.Services.Profile;
 using EO.WebContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,8 +26,9 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IGuestService, GuestService>();
 builder.Services.AddScoped<IEventGuestService, EventGuestService>();
+builder.Services.AddScoped<ICommonService, CommonService>();
+builder.Services.AddScoped<IAllianceService, AllianceService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()

@@ -4,312 +4,329 @@
 
 
 <div class="mf-page">
-<div class="mf-card">
+    <div class="mf-card">
 
-    <div class="mf-heading">Profile Setup</div>
-    <div class="mf-subtitle">Complete each section to build your profile</div>
+        <div class="mf-heading">Profile Setup</div>
+        <div class="mf-subtitle">Complete each section to build your profile</div>
 
-    <!-- â”€â”€ Stepper â”€â”€ -->
-    <div class="mf-stepper">
-        <div class="mf-stepper-line"></div>
-        <div class="mf-step-item">
-            <div class="mf-step-circle active" id="mf-sc-1">1</div>
-            <div class="mf-step-label active" id="mf-sl-1">Personal</div>
+        <!-- â”€â”€ Stepper â”€â”€ -->
+        <div class="mf-stepper">
+            <div class="mf-stepper-line"></div>
+            <div class="mf-step-item">
+                <div class="mf-step-circle active" id="mf-sc-1">1</div>
+                <div class="mf-step-label active" id="mf-sl-1">Personal</div>
+            </div>
+            <div class="mf-step-item">
+                <div class="mf-step-circle pending" id="mf-sc-2">2</div>
+                <div class="mf-step-label" id="mf-sl-2">Company</div>
+            </div>
+            <div class="mf-step-item">
+                <div class="mf-step-circle pending" id="mf-sc-3">3</div>
+                <div class="mf-step-label" id="mf-sl-3">Social</div>
+            </div>
+            <div class="mf-step-item">
+                <div class="mf-step-circle pending" id="mf-sc-4">4</div>
+                <div class="mf-step-label" id="mf-sl-4">Spouse</div>
+            </div>
+            <div class="mf-step-item">
+                <div class="mf-step-circle pending" id="mf-sc-5">5</div>
+                <div class="mf-step-label" id="mf-sl-5">Children</div>
+            </div>
+            <div class="mf-step-item">
+                <div class="mf-step-circle pending" id="mf-sc-6">6</div>
+                <div class="mf-step-label" id="mf-sl-6">Review</div>
+            </div>
         </div>
-        <div class="mf-step-item">
-            <div class="mf-step-circle pending" id="mf-sc-2">2</div>
-            <div class="mf-step-label" id="mf-sl-2">Company</div>
-        </div>
-        <div class="mf-step-item">
-            <div class="mf-step-circle pending" id="mf-sc-3">3</div>
-            <div class="mf-step-label" id="mf-sl-3">Social</div>
-        </div>
-        <div class="mf-step-item">
-            <div class="mf-step-circle pending" id="mf-sc-4">4</div>
-            <div class="mf-step-label" id="mf-sl-4">Spouse</div>
-        </div>
-        <div class="mf-step-item">
-            <div class="mf-step-circle pending" id="mf-sc-5">5</div>
-            <div class="mf-step-label" id="mf-sl-5">Children</div>
-        </div>
-        <div class="mf-step-item">
-            <div class="mf-step-circle pending" id="mf-sc-6">6</div>
-            <div class="mf-step-label" id="mf-sl-6">Review</div>
-        </div>
-    </div>
 
-    <!-- â”€â”€ Progress bar â”€â”€ -->
-    <div class="mf-progress-track">
-        <div class="mf-progress-fill" id="progress" style="width:0%;"></div>
-    </div>
+        <!-- â”€â”€ Progress bar â”€â”€ -->
+        <div class="mf-progress-track">
+            <div class="mf-progress-fill" id="progress" style="width:0%;"></div>
+        </div>
 
-    <!-- â”€â”€ Section header â”€â”€ -->
-    <div class="mf-section-row">
-        <div class="mf-section-title" id="mf-section-title">Personal Details:</div>
-        <div class="mf-section-count" id="mf-section-count">Step 1 of 6</div>
-    </div>
+        <!-- â”€â”€ Section header â”€â”€ -->
+        <div class="mf-section-row">
+            <div class="mf-section-title" id="mf-section-title">Personal Details:</div>
+            <div class="mf-section-count" id="mf-section-count">Step 1 of 6</div>
+        </div>
 
-    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
          YOUR ORIGINAL FORM â€” tags untouched
     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-    <form id="profileForm">
+        <form id="profileForm" enctype="multipart/form-data">
 
-        <!-- STEP 1 -->
-        <div class="step active" data-step="1">
-            <h3>Personal Details</h3>
+            <!-- STEP 1 -->
+            <div class="step active" data-step="1">
+                <h3>Personal Details</h3>
 
-            <label>Date of Birth</label>
-            <input name="PersonalDetails.DateOfBirth"
-                   type="date"
-                   value="@Model?.PersonalDetails?.DateOfBirth?.ToString("yyyy-MM-dd")" />
+                <label>Full Name</label>
+                <input type="text" value="@ViewData["FullName"]" readonly />
 
-            <label>Address</label>
-            <input name="PersonalDetails.Address"
-                   value="@Model?.PersonalDetails?.Address" />
+                <label>Date of Birth</label>
+                <input name="PersonalDetails.DateOfBirth"
+                       type="date"
+                       value="@(Model?.PersonalDetails?.DateOfBirth?.ToString("yyyy-MM-dd"))"
 
-            <label>Bio</label>
-            <textarea name="PersonalDetails.Bio">@Model?.PersonalDetails?.Bio</textarea>
+                <label>Address</label>
+                <input name="PersonalDetails.Address"
+                       value="@Model?.PersonalDetails?.Address" />
 
-            <div class="mf-checkbox-row">
-                <input type="checkbox"
-                       id="isMarried"
-                       name="PersonalDetails.IsMarried"
-                       @(Model?.PersonalDetails?.IsMarried == true ? "checked" : "") />
-                <label for="isMarried">Married</label>
+                <label>Bio</label>
+                <textarea name="PersonalDetails.Bio">@Model?.PersonalDetails?.Bio</textarea>
+
+                <div class="mf-checkbox-row">
+                    <input type="checkbox"
+                           id="isMarried"
+                           name="PersonalDetails.IsMarried"
+                    @(Model?.PersonalDetails?.IsMarried == true ? "checked" : "") />
+                    <label for="isMarried">Married</label>
+                </div>
+
+                <label>Anniversary Date</label>
+                <input id="anniversaryField"
+                       name="PersonalDetails.AnniversaryDate"
+                       type="date"
+                       value="@Model?.PersonalDetails?.AnniversaryDate?.ToString("yyyy-MM-dd")" />
             </div>
 
-            <label>Anniversary Date</label>
-            <input id="anniversaryField"
-                   name="PersonalDetails.AnniversaryDate"
-                   type="date"
-                   value="@Model?.PersonalDetails?.AnniversaryDate?.ToString("yyyy-MM-dd")" />
-        </div>
+            <!-- STEP 2 -->
+            <div class="step" data-step="2">
+                <h3>Company Details</h3>
 
-        <!-- STEP 2 -->
-        <div class="step" data-step="2">
-            <h3>Company Details</h3>
+                <label>Company Name</label>
+                <input name="CompanyDetails.CompanyName"
+                       value="@Model?.CompanyDetails?.CompanyName" />
 
-            <label>Company Name</label>
-            <input name="CompanyDetails.CompanyName"
-                   value="@Model?.CompanyDetails?.CompanyName" />
+                <label>Designation</label>
+                <input name="CompanyDetails.Designation"
+                       value="@Model?.CompanyDetails?.Designation" />
 
-            <label>Designation</label>
-            <input name="CompanyDetails.Designation"
-                   value="@Model?.CompanyDetails?.Designation" />
+                <label>Role</label>
+                <input name="CompanyDetails.Role"
+                       value="@Model?.CompanyDetails?.Role" />
+            </div>
 
-            <label>Role</label>
-            <input name="CompanyDetails.Role"
-                   value="@Model?.CompanyDetails?.Role" />
-        </div>
+            <!-- STEP 3 -->
+            <div class="step" data-step="3">
+                <h3>Social Links</h3>
 
-        <!-- STEP 3 -->
-        <div class="step" data-step="3">
-            <h3>Social Links</h3>
+                <label>Facebook</label>
+                <input name="SocialLinks.Facebook" value="@Model?.SocialLinks?.Facebook" />
 
-            <label>Facebook</label>
-            <input name="SocialLinks.Facebook" value="@Model?.SocialLinks?.Facebook" />
+                <label>Instagram</label>
+                <input name="SocialLinks.Instagram" value="@Model?.SocialLinks?.Instagram" />
 
-            <label>Instagram</label>
-            <input name="SocialLinks.Instagram" value="@Model?.SocialLinks?.Instagram" />
+                <label>LinkedIn</label>
+                <input name="SocialLinks.LinkedIn" value="@Model?.SocialLinks?.LinkedIn" />
 
-            <label>LinkedIn</label>
-            <input name="SocialLinks.LinkedIn" value="@Model?.SocialLinks?.LinkedIn" />
+                <label>X</label>
+                <input name="SocialLinks.X" value="@Model?.SocialLinks?.X" />
 
-            <label>X</label>
-            <input name="SocialLinks.X" value="@Model?.SocialLinks?.X" />
+                <label>Website</label>
+                <input name="SocialLinks.Website" value="@Model?.SocialLinks?.Website" />
+            </div>
 
-            <label>Website</label>
-            <input name="SocialLinks.Website" value="@Model?.SocialLinks?.Website" />
-        </div>
+            <!-- STEP 4 â€” SPOUSE -->
+            <div class="step" data-step="4">
+                <h3>Spouse Details</h3>
 
-        <!-- STEP 4 â€” SPOUSE -->
-        <div class="step" data-step="4">
-            <h3>Spouse Details</h3>
+                <label>Name</label>
+                <input name="Spouse.Name" value="@Model?.Spouse?.Name" />
 
-            <label>Name</label>
-            <input name="Spouse.Name" value="@Model?.Spouse?.Name" />
+                <label>Phone</label>
+                <input name="Spouse.Phone" value="@Model?.Spouse?.Phone" />
 
-            <label>Phone</label>
-            <input name="Spouse.Phone" value="@Model?.Spouse?.Phone" />
+                <label>Email</label>
+                <input name="Spouse.Email" value="@Model?.Spouse?.Email" />
 
-            <label>Email</label>
-            <input name="Spouse.Email" value="@Model?.Spouse?.Email" />
+                <label>Date of Birth</label>
+                <input name="Spouse.DateOfBirth"
+                       type="date"
+                       value="@Model?.Spouse?.DateOfBirth?.ToString("yyyy-MM-dd")" />
 
-            <label>Date of Birth</label>
-            <input name="Spouse.DateOfBirth"
-                   type="date"
-                   value="@Model?.Spouse?.DateOfBirth?.ToString("yyyy-MM-dd")" />
+                <label>Profile Image</label>
 
-            <label>Profile Image</label>
-            <input name="Spouse.ProfileImage"
-                   value="@Model?.Spouse?.ProfileImage" />
-
-            <hr />
-
-            <h4>Spouse Social Links</h4>
-
-            <label>Facebook</label>
-            <input name="Spouse.SocialLinks.Facebook"
-                   value="@Model?.Spouse?.SocialLinks?.Facebook" />
-
-            <label>Instagram</label>
-            <input name="Spouse.SocialLinks.Instagram"
-                   value="@Model?.Spouse?.SocialLinks?.Instagram" />
-
-            <label>LinkedIn</label>
-            <input name="Spouse.SocialLinks.LinkedIn"
-                   value="@Model?.Spouse?.SocialLinks?.LinkedIn" />
-
-            <label>X</label>
-            <input name="Spouse.SocialLinks.X"
-                   value="@Model?.Spouse?.SocialLinks?.X" />
-
-            <label>Website</label>
-            <input name="Spouse.SocialLinks.Website"
-                   value="@Model?.Spouse?.SocialLinks?.Website" />
-
-            <hr />
-
-            <h4>Spouse Professional</h4>
-
-            <label>Current Company</label>
-            <input name="Spouse.Professional.CurrentCompany"
-                   value="@Model?.Spouse?.Professional?.CurrentCompany" />
-
-            <label>Position</label>
-            <input name="Spouse.Professional.Position"
-                   value="@Model?.Spouse?.Professional?.Position" />
-
-            <label>Experience Years</label>
-            <input name="Spouse.Professional.ExperienceYears"
-                   value="@Model?.Spouse?.Professional?.ExperienceYears" />
-
-            <label>Previous Roles</label>
-            <div id="previousRolesContainer">
-                @if (Model?.Spouse?.Professional?.PreviousRoles != null && Model.Spouse.Professional.PreviousRoles.Any())
+                @if (!string.IsNullOrEmpty(Model?.Spouse?.ProfileImage))
                 {
-                    foreach (var role in Model.Spouse.Professional.PreviousRoles)
+                    <div class="mb-2">
+                        <img src="@Model.Spouse.ProfileImage" width="120" />
+                    </div>
+                }
+
+                <input type="file" name="Spouse.ProfileImageFile" accept="image/*" />
+
+                <hr />
+
+                <h4>Spouse Social Links</h4>
+
+                <label>Facebook</label>
+                <input name="Spouse.SocialLinks.Facebook"
+                       value="@Model?.Spouse?.SocialLinks?.Facebook" />
+
+                <label>Instagram</label>
+                <input name="Spouse.SocialLinks.Instagram"
+                       value="@Model?.Spouse?.SocialLinks?.Instagram" />
+
+                <label>LinkedIn</label>
+                <input name="Spouse.SocialLinks.LinkedIn"
+                       value="@Model?.Spouse?.SocialLinks?.LinkedIn" />
+
+                <label>X</label>
+                <input name="Spouse.SocialLinks.X"
+                       value="@Model?.Spouse?.SocialLinks?.X" />
+
+                <label>Website</label>
+                <input name="Spouse.SocialLinks.Website"
+                       value="@Model?.Spouse?.SocialLinks?.Website" />
+
+                <hr />
+
+                <h4>Spouse Professional</h4>
+
+                <label>Current Company</label>
+                <input name="Spouse.Professional.CurrentCompany"
+                       value="@Model?.Spouse?.Professional?.CurrentCompany" />
+
+                <label>Position</label>
+                <input name="Spouse.Professional.Position"
+                       value="@Model?.Spouse?.Professional?.Position" />
+
+                <label>Experience Years</label>
+                <input name="Spouse.Professional.ExperienceYears"
+                       value="@Model?.Spouse?.Professional?.ExperienceYears" />
+
+                <label>Previous Roles</label>
+                <div id="previousRolesContainer">
+                    @if (Model?.Spouse?.Professional?.PreviousRoles != null && Model.Spouse.Professional.PreviousRoles.Any())
+                    {
+                        foreach (var role in Model.Spouse.Professional.PreviousRoles)
+                        {
+                            <div class="tag-item">
+                                <input name="Spouse.Professional.PreviousRoles" value="@role" />
+                                <button type="button" onclick="removeTag(this)">x</button>
+                            </div>
+                        }
+                    }
+                    else
                     {
                         <div class="tag-item">
-                            <input name="Spouse.Professional.PreviousRoles" value="@role" />
+                            <input name="Spouse.Professional.PreviousRoles" />
                             <button type="button" onclick="removeTag(this)">x</button>
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="tag-item">
-                        <input name="Spouse.Professional.PreviousRoles" />
-                        <button type="button" onclick="removeTag(this)">x</button>
-                    </div>
-                }
-            </div>
-            <button type="button" class="mf-add-btn" onclick="addPreviousRole()">+ Add Role</button>
+                </div>
+                <button type="button" class="mf-add-btn" onclick="addPreviousRole()">+ Add Role</button>
 
-            <label>Expertise</label>
-            <div id="expertiseContainer">
-                @if (Model?.Spouse?.Professional?.Expertise != null && Model.Spouse.Professional.Expertise.Any())
-                {
-                    foreach (var exp in Model.Spouse.Professional.Expertise)
+                <label>Expertise</label>
+                <div id="expertiseContainer">
+                    @if (Model?.Spouse?.Professional?.Expertise != null && Model.Spouse.Professional.Expertise.Any())
+                    {
+                        foreach (var exp in Model.Spouse.Professional.Expertise)
+                        {
+                            <div class="tag-item">
+                                <input name="Spouse.Professional.Expertise" value="@exp" />
+                                <button type="button" onclick="removeTag(this)">x</button>
+                            </div>
+                        }
+                    }
+                    else
                     {
                         <div class="tag-item">
-                            <input name="Spouse.Professional.Expertise" value="@exp" />
+                            <input name="Spouse.Professional.Expertise" />
                             <button type="button" onclick="removeTag(this)">x</button>
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="tag-item">
-                        <input name="Spouse.Professional.Expertise" />
-                        <button type="button" onclick="removeTag(this)">x</button>
-                    </div>
-                }
+                </div>
+                <button type="button" class="mf-add-btn" onclick="addExpertise()">+ Add Expertise</button>
             </div>
-            <button type="button" class="mf-add-btn" onclick="addExpertise()">+ Add Expertise</button>
-        </div>
 
-        <!-- STEP 5 - CHILDREN -->
-        <div class="step" data-step="5">
-            <h3>Children</h3>
+            <!-- STEP 5 - CHILDREN -->
+            <div class="step" data-step="5">
+                <h3>Children</h3>
 
-            <div id="childrenContainer">
-                @if (Model?.Children != null && Model.Children.Any())
-                {
-                    for (int i = 0; i < Model.Children.Count; i++)
+                <div id="childrenContainer">
+                    @if (Model?.Children != null && Model.Children.Any())
+                    {
+                        for (int i = 0; i < Model.Children.Count; i++)
+                        {
+                            <div class="child-item">
+                                <input type="hidden" name="Children[@i].Id" value="@Model.Children[i].Id" />
+
+                                <label>Name</label>
+                                <input name="Children[@i].Name" value="@Model.Children[i].Name" />
+
+                                <label>School</label>
+                                <input name="Children[@i].School" value="@Model.Children[i].School" />
+
+                                <label>Grade</label>
+                                <input name="Children[@i].Grade" value="@Model.Children[i].Grade" />
+
+                                <label>Date of Birth</label>
+                                <input type="date"
+                                       name="Children[@i].DateOfBirth"
+                                       value="@Model.Children[i].DateOfBirth?.ToString("yyyy-MM-dd")" />
+
+                                @if (!string.IsNullOrEmpty(Model.Children[i].ProfileImage))
+                                {
+                                    <div class="mb-2">
+                                        <img src="@Model.Children[i].ProfileImage" width="120" />
+                                    </div>
+                                }
+
+                                <input type="file"
+                                       name="Children[@i].ProfileImageFile"
+                                       accept="image/*" />
+
+                                <button type="button" onclick="removeChildItem(this)">Remove</button>
+                            </div>
+                        }
+                    }
+                    else
                     {
                         <div class="child-item">
-                            <input type="hidden" name="Children[@i].Id" value="@Model.Children[i].Id" />
+                            <input type="hidden" name="Children[0].Id" value="" />
 
                             <label>Name</label>
-                            <input name="Children[@i].Name" value="@Model.Children[i].Name" />
+                            <input name="Children[0].Name" />
 
                             <label>School</label>
-                            <input name="Children[@i].School" value="@Model.Children[i].School" />
+                            <input name="Children[0].School" />
 
                             <label>Grade</label>
-                            <input name="Children[@i].Grade" value="@Model.Children[i].Grade" />
+                            <input name="Children[0].Grade" />
 
                             <label>Date of Birth</label>
-                            <input type="date"
-                                   name="Children[@i].DateOfBirth"
-                                   value="@Model.Children[i].DateOfBirth?.ToString("yyyy-MM-dd")" />
+                            <input type="date" name="Children[0].DateOfBirth" />
 
                             <label>Profile Image</label>
-                            <input name="Children[@i].ProfileImage"
-                                   value="@Model.Children[i].ProfileImage" />
+                            <input type="file" name="Children[${index}].ProfileImageFile" accept="image/*" />
 
                             <button type="button" onclick="removeChildItem(this)">Remove</button>
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="child-item">
-                        <input type="hidden" name="Children[0].Id" value="" />
+                </div>
 
-                        <label>Name</label>
-                        <input name="Children[0].Name" />
-
-                        <label>School</label>
-                        <input name="Children[0].School" />
-
-                        <label>Grade</label>
-                        <input name="Children[0].Grade" />
-
-                        <label>Date of Birth</label>
-                        <input type="date" name="Children[0].DateOfBirth" />
-
-                        <label>Profile Image</label>
-                        <input name="Children[0].ProfileImage" />
-
-                        <button type="button" onclick="removeChildItem(this)">Remove</button>
-                    </div>
-                }
+                <button type="button" class="mf-add-btn" onclick="addChild()">+ Add Child</button>
             </div>
 
-            <button type="button" class="mf-add-btn" onclick="addChild()">+ Add Child</button>
+            <!-- STEP 6 â€” REVIEW -->
+            <div class="step" data-step="6">
+                <h3>Review Your Profile</h3>
+                <div id="reviewContainer" class="review-grid"></div>
+            </div>
+
+            <!-- â”€â”€ Navigation (replaces original btn-group) â”€â”€ -->
+            <div class="btn-group"></div><!-- kept so Razor doesn't error; hidden via CSS -->
+
+        </form>
+
+        <!-- nav lives outside <form> so it doesn't accidentally submit -->
+        <div class="mf-btn-row">
+            <button class="mf-btn-back" id="mf-btn-back" onclick="prevStep()" style="display:none;">&#8592; Back</button>
+            <button class="mf-btn-next" id="nextBtn" onclick="nextStep()">Next &#8594;</button>
+            <button class="mf-btn-submit" id="submitBtn" onclick="submitForm()" style="display:none;">Submit</button>
         </div>
 
-        <!-- STEP 6 â€” REVIEW -->
-        <div class="step" data-step="6">
-            <h3>Review Your Profile</h3>
-            <div id="reviewContainer" class="review-grid"></div>
-        </div>
-
-        <!-- â”€â”€ Navigation (replaces original btn-group) â”€â”€ -->
-        <div class="btn-group"></div><!-- kept so Razor doesn't error; hidden via CSS -->
-
-    </form>
-
-    <!-- nav lives outside <form> so it doesn't accidentally submit -->
-    <div class="mf-btn-row">
-        <button class="mf-btn-back" id="mf-btn-back" onclick="prevStep()" style="display:none;">&#8592; Back</button>
-        <button class="mf-btn-next" id="nextBtn" onclick="nextStep()">Next &#8594;</button>
-        <button class="mf-btn-submit" id="submitBtn" onclick="submitForm()" style="display:none;">Submit</button>
-    </div>
-
-</div><!-- /.mf-card -->
+    </div><!-- /.mf-card -->
 </div><!-- /.mf-page -->
 
 <script src="~/js/profile-wizard.js"></script>
@@ -465,11 +482,11 @@
 
     // ---------------- CHILDREN ----------------
 
-    function addChild() {
+        function addChild() {
         const container = document.getElementById("childrenContainer");
-        const index = Date.now();
+        const index = document.querySelectorAll(".child-item").length;
 
-        container.insertAdjacentHTML("beforeend", `
+        const html = `
             <div class="child-item">
                 <input type="hidden" name="Children[${index}].Id" value="" />
 
@@ -486,11 +503,13 @@
                 <input type="date" name="Children[${index}].DateOfBirth" />
 
                 <label>Profile Image</label>
-                <input name="Children[${index}].ProfileImage" />
+                <input type="file" name="Children[${index}].ProfileImageFile" accept="image/*" />
 
                 <button type="button" onclick="removeChildItem(this)">Remove</button>
             </div>
-        `);
+        `;
+
+        container.insertAdjacentHTML("beforeend", html);
     }
 
     function removeChildItem(btn) {
@@ -589,7 +608,7 @@
             const school = row.querySelector('[name*=".School"]')?.value;
             const grade  = row.querySelector('[name*=".Grade"]')?.value;
             const dob    = row.querySelector('[name*=".DateOfBirth"]')?.value;
-            const image  = row.querySelector('[name*=".ProfileImage"]')?.value;
+            const image = row.querySelector('input[type="file"]')?.files?.[0]?.name;
 
             if (!name && !school && !grade && !dob && !image) return;
 
@@ -685,71 +704,96 @@
 
     // ---------------- SUBMIT ----------------
 
-    async function submitForm() {
-        const married = isMarried();
+            async function submitForm() {
 
+        const married = isMarried();
+        const formData = new FormData();
+
+        // ---------------- PROFILE JSON ----------------
         const obj = {
             userId: "@Model.UserId",
 
             personalDetails: {
-                dateOfBirth:     getValue("PersonalDetails.DateOfBirth"),
+                dateOfBirth: getValue("PersonalDetails.DateOfBirth"),
                 anniversaryDate: getValue("PersonalDetails.AnniversaryDate"),
-                address:         getValue("PersonalDetails.Address"),
-                bio:             getValue("PersonalDetails.Bio"),
-                isMarried:       married
+                address: getValue("PersonalDetails.Address"),
+                bio: getValue("PersonalDetails.Bio"),
+                isMarried: married
             },
 
             companyDetails: {
-                companyName:  getValue("CompanyDetails.CompanyName"),
-                designation:  getValue("CompanyDetails.Designation"),
-                role:         getValue("CompanyDetails.Role")
+                companyName: getValue("CompanyDetails.CompanyName"),
+                designation: getValue("CompanyDetails.Designation"),
+                role: getValue("CompanyDetails.Role")
             },
 
             socialLinks: {
-                facebook:  getValue("SocialLinks.Facebook"),
+                facebook: getValue("SocialLinks.Facebook"),
                 instagram: getValue("SocialLinks.Instagram"),
-                linkedIn:  getValue("SocialLinks.LinkedIn"),
-                x:         getValue("SocialLinks.X"),
-                website:   getValue("SocialLinks.Website")
+                linkedIn: getValue("SocialLinks.LinkedIn"),
+                x: getValue("SocialLinks.X"),
+                website: getValue("SocialLinks.Website")
             },
 
             spouse: married ? {
-                name:         getValue("Spouse.Name"),
-                phone:        getValue("Spouse.Phone"),
-                email:        getValue("Spouse.Email"),
-                dateOfBirth:  getValue("Spouse.DateOfBirth"),
-                profileImage: getValue("Spouse.ProfileImage"),
+                name: getValue("Spouse.Name"),
+                phone: getValue("Spouse.Phone"),
+                email: getValue("Spouse.Email"),
+                dateOfBirth: getValue("Spouse.DateOfBirth"),
 
                 socialLinks: {
-                    facebook:  getValue("Spouse.SocialLinks.Facebook"),
+                    facebook: getValue("Spouse.SocialLinks.Facebook"),
                     instagram: getValue("Spouse.SocialLinks.Instagram"),
-                    linkedIn:  getValue("Spouse.SocialLinks.LinkedIn"),
-                    x:         getValue("Spouse.SocialLinks.X"),
-                    website:   getValue("Spouse.SocialLinks.Website")
+                    linkedIn: getValue("Spouse.SocialLinks.LinkedIn"),
+                    x: getValue("Spouse.SocialLinks.X"),
+                    website: getValue("Spouse.SocialLinks.Website")
                 },
 
                 professional: {
-                    currentCompany:  getValue("Spouse.Professional.CurrentCompany"),
-                    position:        getValue("Spouse.Professional.Position"),
-                    experienceYears: getValue("Spouse.Professional.ExperienceYears"),
-                    previousRoles:   getList("Spouse.Professional.PreviousRoles"),
-                    expertise:       getList("Spouse.Professional.Expertise")
+                    currentCompany: getValue("Spouse.Professional.CurrentCompany"),
+                    position: getValue("Spouse.Professional.Position"),
+                    experienceYears: getValue("Spouse.Professional.ExperienceYears")
+                        ? parseInt(getValue("Spouse.Professional.ExperienceYears"))
+                        : null,
+                    previousRoles: getList("Spouse.Professional.PreviousRoles"),
+                    expertise: getList("Spouse.Professional.Expertise")
                 }
             } : null,
 
             children: getChildren()
         };
 
+        // ---------------- JSON ----------------
+        formData.append("data", JSON.stringify(obj));
+
+        // ---------------- SPOUSE FILE (FIXED) ----------------
+        const spouseFileInput = document.querySelector("input[name='Spouse.ProfileImageFile']");
+
+        if (spouseFileInput?.files?.length > 0) {
+            formData.append("SpouseProfileImageFile", spouseFileInput.files[0]);
+        }
+
+        // ---------------- CHILDREN FILES (ONLY THIS WAY) ----------------
+        document.querySelectorAll(".child-item").forEach((row) => {
+            const fileInput = row.querySelector("input[type='file']");
+
+            if (fileInput?.files?.length > 0) {
+                formData.append("ChildrenFiles", fileInput.files[0]);
+            }
+        });
+
+        // ---------------- SEND ----------------
         const res = await fetch("/Profile/Submit", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(obj)
+            body: formData
         });
 
         if (res.ok) {
             window.location.href = "/";
         } else {
-            alert("Failed");
+            const text = await res.text();
+            console.error(text);
+            alert("Failed to submit profile");
         }
     }
 </script>

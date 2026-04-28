@@ -257,13 +257,20 @@ namespace EO.Controllers.ApiControllers
                     }).ToList(),
 
                 Guests = eventData.Guests
-    .Where(x => x.Guest != null)
-    .Select(x => new GuestDto
+    .Where(x => x.User != null)
+    .Select(x => new EventGuestDto
     {
-        Id = x.Guest.Id.ToString(),
-        Name = x.Guest.Name,
-        Designation = x.Guest.Designation,
-        Avatar = x.Guest.Avatar
+        Id = x.User.Id,
+        Name = x.User.FullName,
+        Avatar = x.User.ProfileImage,
+
+        Designation = x.User.CompanyDetails != null
+            ? x.User.CompanyDetails.Designation
+            : "",
+
+        CompanyName = x.User.CompanyDetails != null
+            ? x.User.CompanyDetails.CompanyName
+            : ""
     })
     .ToList()
             };

@@ -1,0 +1,85 @@
+﻿@model EO.Models.AllianceDto
+
+@{
+    ViewData["Title"] = "Edit Alliance";
+    var types = ViewBag.Types as List<EO.Models.AllianceType>;
+    var perks = ViewBag.Perks as List<EO.Models.Perk>;
+
+    var selectedPerks = Model.PerkIds ?? new List<int>();
+}
+
+<h2>Edit Alliance</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div>
+        <label>Name</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div>
+        <label>Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div>
+        <label>Alliance Type</label>
+        <select asp-for="AllianceTypeId" class="form-control">
+            <option value="">-- Select Type --</option>
+            @foreach (var t in types)
+            {
+                <option value="@t.Id" selected="@(t.Id == Model.AllianceTypeId)">
+                    @t.Name
+                </option>
+            }
+        </select>
+    </div>
+
+    <div style="margin-top:10px;">
+        <label>Current Logo</label>
+        <br />
+
+        @if (!string.IsNullOrEmpty(Model.Logo))
+        {
+            <img src="@Url.Content(Model.Logo)" width="120" style="border-radius:8px;" />
+        }
+        else
+        {
+            <img src="/images/default.png" width="120" />
+        }
+    </div>
+
+    <div style="margin-top:10px;">
+        <label>Change Logo</label>
+        <input asp-for="LogoFile"
+               type="file"
+               accept="image/*"
+               class="form-control" />
+    </div>
+
+    <div style="margin-top:15px;">
+        <label>Perks</label>
+
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+            @foreach (var p in perks)
+            {
+                <label style="border:1px solid #ccc; padding:5px 10px; border-radius:6px;">
+                    <input type="checkbox"
+                           name="PerkIds"
+                           value="@p.Id"
+                    @(selectedPerks.Contains(p.Id) ? "checked" : "") />
+                    @p.Name
+                </label>
+            }
+        </div>
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary">
+        Update
+    </button>
+
+</form>

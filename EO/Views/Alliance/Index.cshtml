@@ -1,0 +1,25 @@
+﻿@model List<AllianceDto>
+
+<h2>Alliances</h2>
+
+<a href="/Alliance/Create">Create New</a>
+
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.Description</td>
+            <td>
+                <a href="/Alliance/Edit/@item.Id">Edit</a> |
+                <a href="/Alliance/Delete/@item.Id">Delete</a>
+            </td>
+        </tr>
+    }
+</table>

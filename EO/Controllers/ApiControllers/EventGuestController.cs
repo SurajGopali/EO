@@ -1,4 +1,4 @@
-﻿using EO.Services.EventGuest;
+﻿using EO.Services.EventGuests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EO.Controllers.ApiControllers
@@ -16,18 +16,18 @@ namespace EO.Controllers.ApiControllers
 
         // ADD
         [HttpPost]
-        public async Task<IActionResult> Add(int eventId, int guestId)
+        public async Task<IActionResult> Add(int eventId, string userId)
         {
-            await _service.AddGuestToEventAsync(eventId, guestId);
-            return Ok(new { message = "Guest added to event" });
+            await _service.AddGuestToEventAsync(eventId, userId);
+            return Ok(new { message = "User added to event" });
         }
 
         // REMOVE
         [HttpDelete]
-        public async Task<IActionResult> Remove(int eventId, int guestId)
+        public async Task<IActionResult> Remove(int eventId, string userId)
         {
-            await _service.RemoveGuestFromEventAsync(eventId, guestId);
-            return Ok(new { message = "Guest removed from event" });
+            await _service.RemoveGuestFromEventAsync(eventId, userId);
+            return Ok(new { message = "User removed from event" });
         }
 
         // GET

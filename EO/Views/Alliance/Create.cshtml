@@ -1,0 +1,61 @@
+﻿@model EO.Models.AllianceDto
+
+@{
+    ViewData["Title"] = "Create Alliance";
+    var types = ViewBag.Types as List<EO.Models.AllianceType>;
+    var perks = ViewBag.Perks as List<EO.Models.Perk>;
+}
+
+<h2>Create Alliance</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+
+    <div>
+        <label>Name</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div>
+        <label>Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div>
+        <label>Alliance Type</label>
+        <select asp-for="AllianceTypeId" class="form-control">
+            <option value="">-- Select Type --</option>
+            @foreach (var t in types)
+            {
+                <option value="@t.Id">@t.Name</option>
+            }
+        </select>
+    </div>
+
+    <div>
+        <label>Logo</label>
+        <input asp-for="LogoFile" type="file" class="form-control" />
+    </div>
+
+    <div>
+        <label>Perks</label>
+
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+            @foreach (var p in perks)
+            {
+                <label style="border:1px solid #ccc; padding:5px 10px; border-radius:6px;">
+                    <input type="checkbox"
+                           name="PerkIds"
+                           value="@p.Id" />
+                    @p.Name
+                </label>
+            }
+        </div>
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary">
+        Create
+    </button>
+
+</form>

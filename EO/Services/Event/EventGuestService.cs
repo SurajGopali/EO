@@ -2,7 +2,7 @@
 using EO.WebContext;
 using Microsoft.EntityFrameworkCore;
 
-namespace EO.Services.EventGuest
+namespace EO.Services.EventGuests
 {
     public class EventGuestService : IEventGuestService
     {
@@ -14,20 +14,19 @@ namespace EO.Services.EventGuest
         }
 
         // =====================
-        // ADD GUEST TO EVENT
+        // ADD USER TO EVENT
         // =====================
-        public async Task AddGuestToEventAsync(int eventId, int guestId)
+        public async Task AddGuestToEventAsync(int eventId, string userId)
         {
             var exists = await _context.EventGuests
-                .AnyAsync(x => x.EventId == eventId && x.GuestId == guestId);
+                .AnyAsync(x => x.EventId == eventId && x.UserId == userId);
 
-            if (exists)
-                return;
+            if (exists) return;
 
-            var mapping = new Models.EventGuest
+            var mapping = new EO.Models.EventGuest
             {
                 EventId = eventId,
-                GuestId = guestId
+                UserId = userId
             };
 
             _context.EventGuests.Add(mapping);
@@ -35,29 +34,42 @@ namespace EO.Services.EventGuest
         }
 
         // =====================
-        // REMOVE GUEST FROM EVENT
+        // REMOVE USER FROM EVENT
         // =====================
-        public async Task RemoveGuestFromEventAsync(int eventId, int guestId)
+        public async Task RemoveGuestFromEventAsync(int eventId, string userId)
         {
             var record = await _context.EventGuests
-                .FirstOrDefaultAsync(x => x.EventId == eventId && x.GuestId == guestId);
+                .FirstOrDefaultAsync(x => x.EventId == eventId && x.UserId == userId);
 
-            if (record == null)
-                return;
+            if (record == null) return;
 
             _context.EventGuests.Remove(record);
             await _context.SaveChangesAsync();
         }
 
         // =====================
-        // GET GUESTS OF EVENT
+        // GET USERS OF EVENT
         // =====================
-        public async Task<List<Guests>> GetGuestsByEventIdAsync(int eventId)
+        public async Task<List<EventGuestDto>> GetGuestsByEventIdAsync(int eventId)
         {
             return await _context.EventGuests
                 .Where(x => x.EventId == eventId)
-                .Include(x => x.Guest)
-                .Select(x => x.Guest)
+                .Include(x => x.User)
+                    .ThenInclude(u => u.CompanyDetails)
+                .Select(x => new EventGuestDto
+                {
+                    Id = x.User.Id,
+                    Name = x.User.FullName,
+                    Avatar = x.User.ProfileImage,
+
+                    Designation = x.User.CompanyDetails != null
+                        ? x.User.CompanyDetails.Designation
+                        : "",
+
+                    CompanyName = x.User.CompanyDetails != null
+                        ? x.User.CompanyDetails.CompanyName
+                        : ""
+                })
                 .ToListAsync();
         }
     }

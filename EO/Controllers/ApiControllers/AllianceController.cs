@@ -32,7 +32,8 @@ namespace EO.Controllers.ApiControllers
                 .ToListAsync();
 
             var alliances = await _context.Alliances
-                .Include(a => a.Perks)
+                .Include(a => a.AlliancePerks)
+                    .ThenInclude(ap => ap.Perk)
                 .ToListAsync();
 
             var result = new
@@ -41,10 +42,12 @@ namespace EO.Controllers.ApiControllers
                 alliances = alliances.Select(a => new
                 {
                     name = a.Name,
-                    category = a.Category,
+                    category = a.AllianceTypeId, 
                     logo = a.Logo,
                     description = a.Description,
-                    perks = a.Perks.Select(p => p.Text)
+
+                    perks = a.AlliancePerks
+                        .Select(ap => ap.Perk.Name)
                 })
             };
 
@@ -52,7 +55,7 @@ namespace EO.Controllers.ApiControllers
             {
                 success = true,
                 message = "Alliance Data Fetched Successfully",
-                Alliance = result
+                alliance = result
             });
         }
     }

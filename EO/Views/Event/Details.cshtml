@@ -1,0 +1,116 @@
+﻿@model EO.Models.EventDetailsDto
+
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm rounded-4 p-4">
+
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-start mb-3">
+
+            <div>
+                <h2 class="fw-bold mb-1">@Model.Title</h2>
+                <p class="text-muted mb-0">@Model.Description</p>
+            </div>
+
+            <a class="btn btn-warning btn-sm"
+                   asp-controller="Event"
+                   asp-action="EditDetails"
+                   asp-route-id="@Model.Id">
+                Update Event Details
+            </a>
+
+        </div>
+
+        <!-- IMAGE -->
+        @if (!string.IsNullOrEmpty(Model.CoverImage))
+        {
+            <img src="@Model.CoverImage" class="img-fluid rounded mb-3" />
+        }
+
+        <!-- INFO -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Venue:</strong> @Model.Venue
+            </div>
+            <div class="col-md-6">
+                <strong>Status:</strong>
+
+                @if (Model.IsRegistered)
+                {
+                    <span class="badge bg-success">Registered</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Not Registered</span>
+                }
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Start:</strong> @Model.StartDateTime.ToString("yyyy-MM-dd HH:mm")
+            </div>
+            <div class="col-md-6">
+                <strong>End:</strong> @Model.EndDateTime.ToString("yyyy-MM-dd HH:mm")
+            </div>
+        </div>
+
+        <hr />
+
+        <!-- SCHEDULE -->
+        <h4>Schedule</h4>
+
+        @if (Model.Schedule?.Any() == true)
+        {
+            <ul class="list-group mb-4">
+                @foreach (var s in Model.Schedule)
+                {
+                    <li class="list-group-item">
+                        <strong>@s.Title</strong><br />
+                        <small>@s.StartTime - @s.EndTime</small><br />
+                        <span>@s.Description</span>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted">No schedule available</p>
+        }
+
+        <hr />
+
+        <!-- GUESTS -->
+        <h4>Guests</h4>
+
+        @if (Model.Guests?.Any() == true)
+        {
+            <div class="row">
+                @foreach (var g in Model.Guests)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card p-3 text-center">
+
+                            <img src="@g.Avatar"
+                                 class="rounded-circle mb-2"
+                                 style="width:80px;height:80px;object-fit:cover;" />
+
+                            <strong>@g.Name</strong>
+                            <small class="text-muted">@g.Designation</small>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">No guests available</p>
+        }
+
+    </div>
+</div>

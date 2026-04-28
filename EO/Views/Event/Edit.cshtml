@@ -1,0 +1,68 @@
+﻿@model EO.Models.EventUpdateDto
+
+@{
+    ViewData["Title"] = "Edit Event";
+    var dateValue = Model.Date == default
+        ? DateTime.Today
+        : Model.Date;
+}
+
+
+<div class="container mt-4">
+
+    <div class="card p-4 shadow-sm">
+
+        <h3>Edit Event</h3>
+
+        <form asp-action="Edit" method="post">
+
+            <input type="hidden" name="id" value="@ViewContext.RouteData.Values["id"]" />
+
+            <label>Title</label>
+            <input asp-for="Title" class="form-control" />
+
+            <label>Description</label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+
+            <label>Location</label>
+            <input asp-for="Location" class="form-control" />
+
+            <label>Date</label>
+            <input type="date"
+                   class="form-control"
+                   name="Date"
+                   value="@dateValue.ToString("yyyy-MM-dd")" />
+
+            <label>Start Time</label>
+            <input asp-for="StartTime" type="time" class="form-control" />
+
+            <label>End Time</label>
+            <input asp-for="EndTime" type="time" class="form-control" />
+
+            <label>Event Type</label>
+
+            <select class="form-control" asp-for="TypeId">
+                <option value="">-- Select Event Type --</option>
+
+                @foreach (var type in ViewBag.EventTypes)
+                {
+                    <option value="@type.Id" selected="@(type.Id == Model.TypeId ? "selected" : null)">
+                        @type.Name
+                    </option>
+                }
+            </select>
+
+            <label>Image</label>
+            <input asp-for="Image" class="form-control" />
+
+            <br />
+
+            <button class="btn btn-primary">Save</button>
+
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+
+        </form>
+
+    </div>
+
+</div>

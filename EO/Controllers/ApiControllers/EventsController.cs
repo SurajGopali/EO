@@ -1,5 +1,6 @@
 ﻿using Azure;
 using EO.Models;
+using EO.Services.Event;
 using EO.WebContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,153 +14,61 @@ namespace EO.Controllers.ApiControllers
     public class EventsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IEventService _eventService; 
 
-        public EventsController(AppDbContext context)
+        public EventsController(AppDbContext context, IEventService eventService)
         {
             _context = context;
+            _eventService = eventService;
         }
 
-        [Authorize]
+
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("GetAllEvents")]
         public async Task<IActionResult> GetAllEvents()
         {
-            var now = DateTime.UtcNow;
-
-            var events = await _context.Events
-                .Include(x => x.EventType)
-                .OrderBy(x => x.Date)
-                .ThenBy(x => x.StartTime)
-                .ToListAsync();
-
-            var result = events.Select(x =>
-            {
-                var eventDateTime = x.Date + (x.StartTime ?? TimeSpan.Zero);
-                var remainingDays = (eventDateTime - now).TotalDays;
-
-                return new EventDto
-                {
-                    Id = x.Id,
-                    Title = x.Title,
-                    Description = x.Description,
-                    StartTime = x.StartTime,
-                    EndTime = x.EndTime,
-                    Location = x.Location,
-                    Date = x.Date,
-                    TypeId = x.EventTypeId,
-                    Type = x.EventType?.Name,
-                    IsRegistered = x.IsRegistered,
-                    Image = x.Image,
-                    RemainingDays = remainingDays > 0
-                                    ? (int)Math.Ceiling(remainingDays) : 0,
-                };
-            });
-
+            var data = await _eventService.GetEventsAsync();
             return Ok(new
             {
                 success = true,
-                message = "Events fetched successfully",
-                events = result
+                message = "Event types fetched successfully",
+                AllEvents = data
             });
         }
 
-
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("event-types")]
         public async Task<IActionResult> GetEventTypes()
         {
-            var types = await _context.EventTypes
-                .OrderBy(x => x.Name)
-                .ToListAsync();
+            var types = await _eventService.GetEventTypesAsync();
 
             return Ok(new
             {
                 success = true,
                 message = "Event types fetched successfully",
-                EventTypes = types
+                eventTypes = types
             });
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("filter-events")]
         public async Task<IActionResult> FilterEvents(
-        [FromQuery] int? eventTypeId,
-        [FromQuery] int? year,
-        [FromQuery] string? range)
+         [FromQuery] int? eventTypeId,
+         [FromQuery] int? year,
+         [FromQuery] string? range)
         {
-            var today = DateTime.Now.Date;
+            var result = await _eventService.FilterEventsAsync(eventTypeId, year, range);
 
-            var query = _context.Events
-                .Include(x => x.EventType)
-                .AsQueryable();
-
-           
-            if (eventTypeId.HasValue)
+            return Ok(new 
             {
-                query = query.Where(x => x.EventTypeId == eventTypeId.Value);
-            }
-
-            if (year.HasValue)
-            {
-                query = query.Where(x => x.Date.Year == year.Value);
-            }
-
-            if (!string.IsNullOrEmpty(range))
-            {
-                range = range.ToLower();
-
-                if (range == "today")
-                {
-                    query = query.Where(x => x.Date.Date == today);
-                }
-                else if (range == "week")
-                {
-                    var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
-                    var endOfWeek = startOfWeek.AddDays(7);
-
-                    query = query.Where(x =>
-                        x.Date >= startOfWeek &&
-                        x.Date < endOfWeek);
-                }
-                else if (range == "month")
-                {
-                    query = query.Where(x =>
-                        x.Date.Month == today.Month &&
-                        x.Date.Year == today.Year);
-                }
-            }
-
-       
-            var result = await query
-                .OrderBy(x => x.Date)
-                .ThenBy(x => x.StartTime)
-                .Select(x => new EventDto
-                {
-                    Id = x.Id,
-                    Title = x.Title,
-                    Description = x.Description,
-                    StartTime = x.StartTime,
-                    EndTime = x.EndTime,
-                    Location = x.Location,
-                    Date = x.Date,
-
-                    TypeId = x.EventTypeId,
-                    Type = x.EventType != null ? x.EventType.Name : null,
-
-                    IsRegistered = x.IsRegistered,
-                    Image = x.Image
-                })
-                .ToListAsync();
-
-            return Ok(new
-            {
-                success = true,
-                count = result.Count,
-                filteredData = result
+                Success = true,
+                Message = "Filtered events fetched successfully",
+                Data = result
             });
         }
 
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("TodayEvents")]
         public async Task<IActionResult> GetTodayEvents()
         {
@@ -195,7 +104,7 @@ namespace EO.Controllers.ApiControllers
             });
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("UpcomingEvents")]
         public async Task<IActionResult> GetUpcomingEvents()
         {
@@ -310,7 +219,7 @@ namespace EO.Controllers.ApiControllers
             });
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet("event-details")]
         public async Task<IActionResult> GetEventDetails([FromQuery] int id)
         {
@@ -348,15 +257,15 @@ namespace EO.Controllers.ApiControllers
                     }).ToList(),
 
                 Guests = eventData.Guests
-                    .OrderBy(g => g.Id)
-                    .Select(g => new GuestDto
-                    {
-                        Id = g.Id.ToString(),
-                        Name = g.Name,
-                        Designation = g.Designation,
-                        Avatar = g.Avatar
-                    })
-                    .ToList()
+    .Where(x => x.Guest != null)
+    .Select(x => new GuestDto
+    {
+        Id = x.Guest.Id.ToString(),
+        Name = x.Guest.Name,
+        Designation = x.Guest.Designation,
+        Avatar = x.Guest.Avatar
+    })
+    .ToList()
             };
 
             return Ok(new
@@ -368,7 +277,7 @@ namespace EO.Controllers.ApiControllers
         }
 
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpPost("events/{eventId}/details")]
         public async Task<IActionResult> UpsertEventDetails(int eventId, [FromBody] CreateEventDetailsDto dto)
         {

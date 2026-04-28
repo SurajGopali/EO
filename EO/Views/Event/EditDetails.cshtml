@@ -14,47 +14,65 @@
     var scheduleCount = Model.Schedule?.Count ?? 0;
 }
 
-<div class="container mt-4">
+<link href="~/css/memberSetup.css" rel="stylesheet" />
+<div class="mf-page">
 
-    <div class="card p-4 shadow-sm">
+    <div class="mf-card">
 
-        <h3 class="mb-3">Update Event</h3>
+        <div class="mf-heading">Update Event</div>
+        <div class="mf-subtitle">Manage event, schedule and guests</div>
+
+        <!-- <div class="mf-stepper">
+            <div class="mf-stepper-line"></div>
+
+            <div class="mf-step-item">
+                <div class="mf-step-circle active">1</div>
+                <div class="mf-step-label active">Update Event</div>
+            </div>
+        </div>
+
+        <div class="mf-progress-track">
+            <div class="mf-progress-fill" style="width:100%;"></div>
+        </div>
+
+        <div class="mf-section-row">
+            <div class="mf-section-title">Complete Event Setup</div>
+            <div class="mf-section-count">Single Step Form</div>
+        </div> -->
 
         <form asp-action="EditDetails" asp-route-id="@Model.EventId" method="post">
 
             <input type="hidden" asp-for="EventId" />
 
-            <!-- ================= EVENT DETAILS ================= -->
-            <h5 class="mb-3">Event Details</h5>
+            <!-- EVENT -->
+            <h4>Event Details</h4>
 
             <label>Title</label>
-            <input class="form-control" asp-for="Event.Title" />
+            <input asp-for="Event.Title" />
 
             <label>Description</label>
-            <textarea class="form-control" asp-for="Event.Description"></textarea>
+            <textarea asp-for="Event.Description"></textarea>
 
             <label>Venue</label>
-            <input class="form-control" asp-for="Event.Venue" />
+            <input asp-for="Event.Venue" />
 
             <label>Cover Image</label>
-            <input class="form-control" asp-for="Event.CoverImage" />
+            <input asp-for="Event.CoverImage" />
 
             <label>Start DateTime</label>
             <input type="datetime-local"
-                   class="form-control"
                    name="Event.StartDateTime"
                    value="@start.ToString("yyyy-MM-ddTHH:mm")" />
 
             <label>End DateTime</label>
             <input type="datetime-local"
-                   class="form-control"
                    name="Event.EndDateTime"
                    value="@end.ToString("yyyy-MM-ddTHH:mm")" />
 
             <hr />
 
-            <!-- ================= SCHEDULE ================= -->
-            <h5>Schedule</h5>
+            <!-- SCHEDULE -->
+            <h4>Schedule</h4>
 
             <div id="scheduleContainer">
 
@@ -62,34 +80,29 @@
                 {
                     for (int i = 0; i < Model.Schedule.Count; i++)
                     {
-                        <div class="border p-3 mb-2 rounded schedule-item">
+                        <div class="child-item schedule-item">
 
                             <input type="hidden" name="Schedule[@i].Id" value="@Model.Schedule[i].Id" />
 
                             <label>Title</label>
-                            <input class="form-control"
-                                   name="Schedule[@i].Title"
+                            <input name="Schedule[@i].Title"
                                    value="@Model.Schedule[i].Title" />
 
                             <label>Description</label>
-                            <input class="form-control"
-                                   name="Schedule[@i].Description"
+                            <input name="Schedule[@i].Description"
                                    value="@Model.Schedule[i].Description" />
 
                             <label>Start Time</label>
                             <input type="time"
-                                   class="form-control"
                                    name="Schedule[@i].StartTime"
                                    value="@Model.Schedule[i].StartTime" />
 
                             <label>End Time</label>
                             <input type="time"
-                                   class="form-control"
                                    name="Schedule[@i].EndTime"
                                    value="@Model.Schedule[i].EndTime" />
 
                             <button type="button"
-                                    class="btn btn-danger btn-sm mt-2"
                                     onclick="removeSchedule(this)">
                                 Remove
                             </button>
@@ -97,21 +110,19 @@
                         </div>
                     }
                 }
-                else
-                {
-                    <p class="text-muted">No schedules</p>
-                }
 
             </div>
 
-            <button type="button" class="btn btn-success mt-2" onclick="addSchedule()">
+            <button type="button"
+                    class="mf-add-btn"
+                    onclick="addSchedule()">
                 + Add Schedule
             </button>
 
             <hr />
 
-            <!-- ================= GUESTS ================= -->
-            <h5>Guests</h5>
+            <!-- GUESTS -->
+            <h4>Guests</h4>
 
             @if (ViewBag.AllGuests != null)
             {
@@ -121,16 +132,13 @@
                 {
                     var selected = selectedIds.Contains(guest.Id);
 
-                    <div class="form-check">
+                    <div class="mf-checkbox-row">
                         <input type="checkbox"
-                               class="form-check-input"
                                name="GuestIds"
                                value="@guest.Id"
-                        @(selected ? "checked" : "") />
+                               @(selected ? "checked" : "") />
 
-                        <label class="form-check-label">
-                            @guest.Name (@guest.Designation)
-                        </label>
+                        <label>@guest.Name (@guest.Designation)</label>
                     </div>
                 }
             }
@@ -139,50 +147,52 @@
                 <p class="text-muted">No guests available</p>
             }
 
-            <br />
+            <div class="mf-btn-row">
 
-            <button type="submit" class="btn btn-primary">
-                Save Changes
-            </button>
-
-            <a asp-action="Details"
+                <a asp-action="Details"
                    asp-route-id="@Model.EventId"
-                   class="btn btn-secondary">
-                Cancel
-            </a>
+                   class="mf-btn-back text-decoration-none">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="mf-btn-submit">
+                    Save Changes
+                </button>
+
+            </div>
 
         </form>
 
     </div>
+
 </div>
 
-<!-- ================= JS ================= -->
 <script>
     let scheduleIndex = @scheduleCount;
 
     function addSchedule() {
+
         const container = document.getElementById("scheduleContainer");
 
         const html = `
-        <div class="border p-3 mb-2 rounded schedule-item">
+        <div class="child-item schedule-item">
 
             <input type="hidden" name="Schedule[${scheduleIndex}].Id" value="0" />
 
             <label>Title</label>
-            <input class="form-control" name="Schedule[${scheduleIndex}].Title" />
+            <input name="Schedule[${scheduleIndex}].Title" />
 
             <label>Description</label>
-            <input class="form-control" name="Schedule[${scheduleIndex}].Description" />
+            <input name="Schedule[${scheduleIndex}].Description" />
 
             <label>Start Time</label>
-            <input type="time" class="form-control" name="Schedule[${scheduleIndex}].StartTime" />
+            <input type="time" name="Schedule[${scheduleIndex}].StartTime" />
 
             <label>End Time</label>
-            <input type="time" class="form-control" name="Schedule[${scheduleIndex}].EndTime" />
+            <input type="time" name="Schedule[${scheduleIndex}].EndTime" />
 
-            <button type="button"
-                    class="btn btn-danger btn-sm mt-2"
-                    onclick="removeSchedule(this)">
+            <button type="button" onclick="removeSchedule(this)">
                 Remove
             </button>
 
@@ -192,18 +202,7 @@
         scheduleIndex++;
     }
 
-       function removeSchedule(btn) {
-        const item = btn.closest(".schedule-item");
-
-        // mark deleted flag
-        const idInput = item.querySelector('input[name*=".Id"]');
-
-        if (idInput && idInput.value > 0) {
-            // set a special value to identify deletion
-            idInput.value = -1;
-        }
-
-        // actually remove from DOM (IMPORTANT)
-        item.remove();
+    function removeSchedule(btn) {
+        btn.closest(".schedule-item").remove();
     }
 </script>

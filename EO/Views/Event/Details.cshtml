@@ -4,113 +4,184 @@
     ViewData["Title"] = "Event Details";
 }
 
-<div class="container mt-4">
+<link href="~/css/memeberDetail.css" rel="stylesheet" />
 
-    <div class="card shadow-sm rounded-4 p-4">
+<div class="profile-dashboard">
+    <div class="row g-0">
 
-        <!-- HEADER -->
-        <div class="d-flex justify-content-between align-items-start mb-3">
+        <!-- SIDEBAR -->
+        <div class="col-md-3 profile-sidebar">
+            <div class="sidebar-content">
 
-            <div>
-                <h2 class="fw-bold mb-1">@Model.Title</h2>
-                <p class="text-muted mb-0">@Model.Description</p>
-            </div>
+                <div class="profile-image-container">
+                    @if (!string.IsNullOrEmpty(Model.CoverImage))
+                    {
+                        <img src="@Model.CoverImage" alt="@Model.Title" />
+                    }
+                    else
+                    {
+                        <div class="photo-placeholder">@Model.Title?.Substring(0,1)</div>
+                    }
+                </div>
 
-            <a class="btn btn-warning btn-sm"
-                   asp-controller="Event"
-                   asp-action="EditDetails"
-                   asp-route-id="@Model.Id">
-                Update Event Details
-            </a>
+                <div class="sidebar-section">
+                    <h6 class="sidebar-label">VENUE</h6>
+                    <div class="work-entry">
+                        <span class="company-name">@Model.Venue</span>
+                        @if (Model.IsRegistered)
+                        {
+                            <span class="tag-blue">Registered</span>
+                        }
+                        else
+                        {
+                            <span class="tag-blue">Open</span>
+                        }
+                    </div>
+                </div>
 
-        </div>
+                <hr class="sidebar-divider" />
 
-        <!-- IMAGE -->
-        @if (!string.IsNullOrEmpty(Model.CoverImage))
-        {
-            <img src="@Model.CoverImage" class="img-fluid rounded mb-3" />
-        }
+                <div class="sidebar-section">
+                    <h6 class="sidebar-label">TIMING</h6>
+                    <ul class="skills-list">
+                        <li>@Model.StartDateTime.ToString("MMM dd, yyyy")</li>
+                        <li>@Model.StartDateTime.ToString("hh:mm tt")</li>
+                        <li>@Model.EndDateTime.ToString("hh:mm tt")</li>
+                    </ul>
+                </div>
 
-        <!-- INFO -->
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <strong>Venue:</strong> @Model.Venue
-            </div>
-            <div class="col-md-6">
-                <strong>Status:</strong>
-
-                @if (Model.IsRegistered)
-                {
-                    <span class="badge bg-success">Registered</span>
-                }
-                else
-                {
-                    <span class="badge bg-secondary">Not Registered</span>
-                }
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <strong>Start:</strong> @Model.StartDateTime.ToString("yyyy-MM-dd HH:mm")
-            </div>
-            <div class="col-md-6">
-                <strong>End:</strong> @Model.EndDateTime.ToString("yyyy-MM-dd HH:mm")
             </div>
         </div>
 
-        <hr />
+        <!-- MAIN -->
+        <div class="col-md-9 profile-main">
 
-        <!-- SCHEDULE -->
-        <h4>Schedule</h4>
+            <div class="main-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h1 class="user-name">
+                            @Model.Title
+                            <span class="location-text">
+                                <i class="fa-solid fa-location-dot"></i> @Model.Venue
+                            </span>
+                        </h1>
+                        <p class="user-subtitle">@Model.Description</p>
+                    </div>
 
-        @if (Model.Schedule?.Any() == true)
-        {
-            <ul class="list-group mb-4">
-                @foreach (var s in Model.Schedule)
-                {
-                    <li class="list-group-item">
-                        <strong>@s.Title</strong><br />
-                        <small>@s.StartTime - @s.EndTime</small><br />
-                        <span>@s.Description</span>
-                    </li>
-                }
-            </ul>
-        }
-        else
-        {
-            <p class="text-muted">No schedule available</p>
-        }
+                    <div>
+                        <a class="btn btn-warning btn-sm"
+                           asp-controller="Event"
+                           asp-action="EditDetails"
+                           asp-route-id="@Model.Id">
+                            Update Event Details
+                        </a>
+                    </div>
+                </div>
 
-        <hr />
+                <div class="profile-tabs mt-4">
+                    <button class="tab-item active" onclick="switchTab(event,'overview')">Overview</button>
+                    <button class="tab-item" onclick="switchTab(event,'schedule')">Schedule</button>
+                    <button class="tab-item" onclick="switchTab(event,'guests')">Guests</button>
+                </div>
+            </div>
 
-        <!-- GUESTS -->
-        <h4>Guests</h4>
+            <div class="tab-content-area">
 
-        @if (Model.Guests?.Any() == true)
-        {
-            <div class="row">
-                @foreach (var g in Model.Guests)
-                {
-                    <div class="col-md-4 mb-3">
-                        <div class="card p-3 text-center">
+                <!-- OVERVIEW -->
+                <section id="overview" class="info-pane active">
+                    <h5 class="section-heading">Event Information</h5>
 
-                            <img src="@g.Avatar"
-                                 class="rounded-circle mb-2"
-                                 style="width:80px;height:80px;object-fit:cover;" />
+                    <div class="info-row">
+                        <div class="info-label">Title:</div>
+                        <div class="info-value">@Model.Title</div>
+                    </div>
 
-                            <strong>@g.Name</strong>
-                            <small class="text-muted">@g.Designation</small>
+                    <div class="info-row">
+                        <div class="info-label">Venue:</div>
+                        <div class="info-value">@Model.Venue</div>
+                    </div>
 
+                    <div class="info-row">
+                        <div class="info-label">Start:</div>
+                        <div class="info-value">@Model.StartDateTime.ToString("MMMM dd, yyyy hh:mm tt")</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">End:</div>
+                        <div class="info-value">@Model.EndDateTime.ToString("MMMM dd, yyyy hh:mm tt")</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Status:</div>
+                        <div class="info-value">
+                            @(Model.IsRegistered ? "Registered" : "Not Registered")
                         </div>
                     </div>
-                }
-            </div>
-        }
-        else
-        {
-            <p class="text-muted">No guests available</p>
-        }
+                </section>
 
+                <!-- SCHEDULE -->
+                <section id="schedule" class="info-pane">
+                    <h5 class="section-heading">Schedule</h5>
+
+                    @if (Model.Schedule?.Any() == true)
+                    {
+                        @foreach (var s in Model.Schedule)
+                        {
+                            <div class="info-row mb-3">
+                                <div class="info-label">@s.Title</div>
+                                <div class="info-value">
+                                    @s.StartTime - @s.EndTime <br />
+                                    @s.Description
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No schedule available.</p>
+                    }
+                </section>
+
+                <!-- GUESTS -->
+                <section id="guests" class="info-pane">
+                    <h5 class="section-heading">Guests</h5>
+
+                    @if (Model.Guests?.Any() == true)
+                    {
+                        @foreach (var g in Model.Guests)
+                        {
+                            <div class="info-row mb-3">
+                                <div class="info-label">@g.Name</div>
+                                <div class="info-value">@g.Designation</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No guests available.</p>
+                    }
+                </section>
+
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    function switchTab(evt, tabName) {
+        var i, tabContent, tabLinks;
+
+        tabContent = document.getElementsByClassName("info-pane");
+        for (i = 0; i < tabContent.length; i++) {
+            tabContent[i].classList.remove("active");
+        }
+
+        tabLinks = document.getElementsByClassName("tab-item");
+        for (i = 0; i < tabLinks.length; i++) {
+            tabLinks[i].classList.remove("active");
+        }
+
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+</script>

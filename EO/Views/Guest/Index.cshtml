@@ -4,50 +4,85 @@
     ViewData["Title"] = "Guests";
 }
 
+<link href="~/css/table.css" rel="stylesheet">
+
 <h3 class="mb-3">Guests</h3>
 
-<a class="btn btn-primary mb-3" asp-action="Create">
-    + Add Guest
-</a>
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-outline-success btn-sm">
+        + Add Guest
+    </a>
+</div>
 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th>Avatar</th>
-            <th>Name</th>
-            <th>Designation</th>
-            <th width="200px">Actions</th>
-        </tr>
-    </thead>
+<hr />
 
-    <tbody>
-        @foreach (var g in Model)
-        {
-            <tr>
-                <td>
-                    @if (!string.IsNullOrEmpty(g.Avatar))
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="custom-table align-middle">
+            <thead>
+                <tr>
+                    <th>Avatar</th>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model?.Any() == true)
+                {
+                    @foreach (var g in Model)
                     {
-                        <img src="@g.Avatar" width="50" height="50" style="border-radius:50%" />
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(g.Avatar))
+                                {
+                                    <img src="@g.Avatar"
+                                         style="width:45px;height:45px;border-radius:50%;object-fit:cover;" />
+                                }
+                            </td>
+
+                            <td class="fw-bold">@g.Name</td>
+
+                            <td class="text-muted-custom">
+                                @g.Designation
+                            </td>
+
+                            <td class="text-end">
+                                <div class="action-buttons">
+                                    <a asp-action="Edit"
+                                       asp-route-id="@g.Id"
+                                       class="btn-action btn-edit"
+                                       title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <form asp-action="Delete"
+                                          asp-route-id="@g.Id"
+                                          method="post"
+                                          class="d-inline">
+
+                                        <button type="submit"
+                                                class="btn-action btn-deactivate"
+                                                title="Delete"
+                                                onclick="return confirm('Delete this guest?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                </td>
-
-                <td>@g.Name</td>
-                <td>@g.Designation</td>
-
-                <td>
-                    <a asp-action="Edit" asp-route-id="@g.Id" class="btn btn-sm btn-warning">
-                        Edit
-                    </a>
-
-                    <form asp-action="Delete" asp-route-id="@g.Id" method="post" style="display:inline;">
-                        <button type="submit"
-                                class="btn btn-sm btn-danger"
-                                onclick="return confirm('Delete this guest?')">
-                            Delete
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            No guests found in the records.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

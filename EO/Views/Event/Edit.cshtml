@@ -1,47 +1,69 @@
 ﻿@model EO.Models.EventUpdateDto
 
 @{
-    ViewData["Title"] = "Edit Event";
+    ViewData["Title"] = Model.TypeId > 0 ? "Edit Event" : "Add Event";
+
     var dateValue = Model.Date == default
         ? DateTime.Today
         : Model.Date;
+
+    var isEdit = Model.TypeId > 0;
 }
 
+<link href="~/css/memberSetup.css" rel="stylesheet" />
 
-<div class="container mt-4">
+<div class="mf-page">
 
-    <div class="card p-4 shadow-sm">
+    <div class="mf-card">
 
-        <h3>Edit Event</h3>
+        <div class="mf-heading">@(isEdit ? "Edit Event" : "Add Event")</div>
+        <div class="mf-subtitle">@(isEdit ? "Update your event information" : "Enter your event information")</div>
+
+        <!-- Single Step Header -->
+        <!-- <div class="mf-stepper">
+            <div class="mf-stepper-line"></div>
+
+            <div class="mf-step-item">
+                <div class="mf-step-circle active">1</div>
+                <div class="mf-step-label active">Event Details</div>
+            </div>
+        </div>
+
+        <div class="mf-progress-track">
+            <div class="mf-progress-fill" style="width:100%;"></div>
+        </div>
+
+        <div class="mf-section-row">
+            <div class="mf-section-title">Event Information</div>
+            <div class="mf-section-count">Single Step Form</div>
+        </div> -->
 
         <form asp-action="Edit" method="post">
 
             <input type="hidden" name="id" value="@ViewContext.RouteData.Values["id"]" />
 
             <label>Title</label>
-            <input asp-for="Title" class="form-control" />
+            <input asp-for="Title" />
 
             <label>Description</label>
-            <textarea asp-for="Description" class="form-control"></textarea>
+            <textarea asp-for="Description"></textarea>
 
             <label>Location</label>
-            <input asp-for="Location" class="form-control" />
+            <input asp-for="Location" />
 
             <label>Date</label>
             <input type="date"
-                   class="form-control"
                    name="Date"
                    value="@dateValue.ToString("yyyy-MM-dd")" />
 
             <label>Start Time</label>
-            <input asp-for="StartTime" type="time" class="form-control" />
+            <input asp-for="StartTime" type="time" />
 
             <label>End Time</label>
-            <input asp-for="EndTime" type="time" class="form-control" />
+            <input asp-for="EndTime" type="time" />
 
             <label>Event Type</label>
-
-            <select class="form-control" asp-for="TypeId">
+            <select asp-for="TypeId">
                 <option value="">-- Select Event Type --</option>
 
                 @foreach (var type in ViewBag.EventTypes)
@@ -53,13 +75,17 @@
             </select>
 
             <label>Image</label>
-            <input asp-for="Image" class="form-control" />
+            <input asp-for="Image" />
 
-            <br />
+            <div class="mf-btn-row">
+                <a asp-action="Index" class="mf-btn-back text-decoration-none">
+                    Cancel
+                </a>
 
-            <button class="btn btn-primary">Save</button>
-
-            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="mf-btn-submit">
+                    Save Changes
+                </button>
+            </div>
 
         </form>
 

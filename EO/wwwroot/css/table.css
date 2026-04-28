@@ -120,3 +120,36 @@
     color: var(--text-muted);
     font-style: italic;
 }
+
+.search-wrapper {
+    max-width: 320px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--bg-container);
+}
+
+.search-wrapper:focus-within {
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.search-wrapper .form-control,
+.search-wrapper .input-group-text,
+.search-wrapper .btn {
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent;
+    color: var(--text-main);
+}
+
+.search-wrapper .form-control::placeholder {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.search-wrapper .btn:hover {
+    color: var(--accent-primary);
+    background-color: var(--row-hover);
+}

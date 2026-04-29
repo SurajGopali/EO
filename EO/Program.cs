@@ -105,6 +105,12 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
+    //app.UseExceptionHandler("/Home/Error");
+    app.UseDeveloperExceptionPage();
+    app.UseHsts();
+}
+if (!app.Environment.IsStaging())
+{
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }

@@ -209,7 +209,6 @@
         </nav>
     </header>
 
-    <!-- APP -->
     <div class="app-layout">
 
         @if (User.Identity.IsAuthenticated)
@@ -288,7 +287,6 @@
                 }
             }
 
-            // Set initial icon
             document.addEventListener('DOMContentLoaded', () => {
                 const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
                 updateThemeIcon(currentTheme);

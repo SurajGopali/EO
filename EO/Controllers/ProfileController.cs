@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
@@ -182,6 +183,70 @@ namespace EO.Controllers
             await _userManager.UpdateAsync(user);
 
             return RedirectToAction("Members");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var user = await _profileService.GetAsync(userId);
+
+            var dto = new ProfileUpdateDto
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+
+                FirstName = user.FirstName,
+                MiddleName = user.MiddleName,
+                LastName = user.LastName,
+
+                ProfileImage = user.ProfileImage
+            };
+
+            return View(dto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(ProfileUpdateDto dto, IFormFile? imageFile)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var imagePath = await _commonService.SaveFileAsync(
+                    imageFile,
+                    "profile",
+                    userId
+                );
+
+                dto.ProfileImage = imagePath;
+            }
+
+
+            var result = await _profileService.UpdateAsync(userId, dto);
+
+            if (!result)
+            {
+                ModelState.AddModelError("", "Failed to update profile.");
+                return View(dto);
+            }
+
+            return RedirectToAction("Info");
+        }
+
+        public async Task<IActionResult> Info()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var user = await _profileService.GetAsync(userId);
+
+            return View(user);
         }
     }
 }

@@ -1,0 +1,86 @@
+﻿@model EO.Models.ProfileUpdateDto
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<link href="~/css/memberSetup.css" rel="stylesheet" />
+
+<div class="mf-page">
+
+    <div class="mf-card">
+
+        <div class="mf-heading">Edit Profile</div>
+        <div class="mf-subtitle">Update your personal information</div>
+
+        <form asp-action="Edit"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <!-- USERNAME -->
+            <label>Username</label>
+            <input asp-for="UserName" class="form-control" />
+
+            <!-- EMAIL -->
+            <label>Email</label>
+            <input asp-for="Email" class="form-control" />
+
+            <!-- PHONE -->
+            <label>Phone Number</label>
+            <input asp-for="PhoneNumber" class="form-control" />
+
+            <hr />
+
+            <!-- NAME FIELDS -->
+            <label>First Name</label>
+            <input asp-for="FirstName" class="form-control" />
+
+            <label>Middle Name</label>
+            <input asp-for="MiddleName" class="form-control" />
+
+            <label>Last Name</label>
+            <input asp-for="LastName" class="form-control" />
+
+            <hr />
+
+            <!-- CURRENT IMAGE -->
+            <label>Current Profile Image</label>
+            <div style="margin-bottom:10px;">
+                @if (!string.IsNullOrEmpty(Model.ProfileImage))
+                {
+                    <img src="@Model.ProfileImage"
+                         style="width:100px;height:100px;border-radius:50%;object-fit:cover;" />
+                }
+                else
+                {
+                    <p>No image uploaded</p>
+                }
+            </div>
+
+            <!-- NEW IMAGE -->
+            <label>Upload New Image</label>
+            <input type="file" name="imageFile" class="form-control" />
+
+            <hr />
+
+            <!-- BUTTONS -->
+            <div class="mf-btn-row">
+
+                <a asp-action="Edit"
+                       class="mf-btn-back text-decoration-none">
+                    Cancel
+                </a>
+
+                <button type="submit" class="mf-btn-submit">
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

@@ -15,36 +15,21 @@
 }
 
 <link href="~/css/memberSetup.css" rel="stylesheet" />
-<div class="mf-page">
 
+<div class="mf-page">
     <div class="mf-card">
 
         <div class="mf-heading">Update Event</div>
         <div class="mf-subtitle">Manage event, schedule and guests</div>
 
-        <!-- <div class="mf-stepper">
-            <div class="mf-stepper-line"></div>
-
-            <div class="mf-step-item">
-                <div class="mf-step-circle active">1</div>
-                <div class="mf-step-label active">Update Event</div>
-            </div>
-        </div>
-
-        <div class="mf-progress-track">
-            <div class="mf-progress-fill" style="width:100%;"></div>
-        </div>
-
-        <div class="mf-section-row">
-            <div class="mf-section-title">Complete Event Setup</div>
-            <div class="mf-section-count">Single Step Form</div>
-        </div> -->
-
-        <form asp-action="EditDetails" asp-route-id="@Model.EventId" method="post">
+        <form asp-action="EditDetails"
+              asp-route-id="@Model.EventId"
+              method="post"
+              enctype="multipart/form-data">
 
             <input type="hidden" asp-for="EventId" />
 
-            <!-- EVENT -->
+            <!-- ================= EVENT ================= -->
             <h4>Event Details</h4>
 
             <label>Title</label>
@@ -56,8 +41,27 @@
             <label>Venue</label>
             <input asp-for="Event.Venue" />
 
+            <!-- COVER IMAGE -->
             <label>Cover Image</label>
-            <input asp-for="Event.CoverImage" />
+
+            <input type="file"
+                   name="Event.CoverImageFile"
+                   onchange="previewCover(event)" />
+
+            @if (!string.IsNullOrEmpty(Model.Event.CoverImage))
+            {
+                <div style="margin-top:10px;">
+                    <img id="coverPreview"
+                         src="@Model.Event.CoverImage"
+                         width="150"
+                         style="border-radius:8px;" />
+                </div>
+            }
+            else
+            {
+                <img id="coverPreview"
+                     style="display:none; width:150px; border-radius:8px;" />
+            }
 
             <label>Start DateTime</label>
             <input type="datetime-local"
@@ -71,7 +75,7 @@
 
             <hr />
 
-            <!-- SCHEDULE -->
+            <!-- ================= SCHEDULE ================= -->
             <h4>Schedule</h4>
 
             <div id="scheduleContainer">
@@ -102,8 +106,7 @@
                                    name="Schedule[@i].EndTime"
                                    value="@Model.Schedule[i].EndTime" />
 
-                            <button type="button"
-                                    onclick="removeSchedule(this)">
+                            <button type="button" onclick="removeSchedule(this)">
                                 Remove
                             </button>
 
@@ -121,37 +124,41 @@
 
             <hr />
 
-            <!-- GUESTS -->
+            <!-- ================= GUESTS ================= -->
             <h4>Guests</h4>
 
-            @if (ViewBag.AllGuests != null)
+            @if (ViewBag.AllUsers != null)
             {
-                var selectedIds = ViewBag.SelectedGuestIds as List<int> ?? new List<int>();
+                var users = ViewBag.AllUsers as List<ApplicationUser>;
+                var selectedIds = ViewBag.SelectedUserIds as List<string> ?? new List<string>();
 
-                foreach (var guest in ViewBag.AllGuests)
+                foreach (var user in users)
                 {
-                    var selected = selectedIds.Contains(guest.Id);
+                    var selected = selectedIds.Contains(user.Id);
 
                     <div class="mf-checkbox-row">
                         <input type="checkbox"
                                name="GuestIds"
-                               value="@guest.Id"
-                               @(selected ? "checked" : "") />
+                               value="@user.Id"
+                        @(selected ? "checked" : "") />
 
-                        <label>@guest.Name (@guest.Designation)</label>
+                        <label>
+                            @user.FullName (@user.Email)
+                        </label>
                     </div>
                 }
             }
             else
             {
-                <p class="text-muted">No guests available</p>
+                <p class="text-muted">No users available</p>
             }
 
+            <!-- ================= BUTTONS ================= -->
             <div class="mf-btn-row">
 
                 <a asp-action="Details"
-                   asp-route-id="@Model.EventId"
-                   class="mf-btn-back text-decoration-none">
+                       asp-route-id="@Model.EventId"
+                       class="mf-btn-back text-decoration-none">
                     Cancel
                 </a>
 
@@ -165,14 +172,22 @@
         </form>
 
     </div>
-
 </div>
 
 <script>
+    function previewCover(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById("coverPreview");
+
+        if (file) {
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = "block";
+        }
+    }
+
     let scheduleIndex = @scheduleCount;
 
     function addSchedule() {
-
         const container = document.getElementById("scheduleContainer");
 
         const html = `

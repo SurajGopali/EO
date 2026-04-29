@@ -1,4 +1,5 @@
 ﻿using EO.Models;
+using EO.Services.Common;
 using EO.Services.Event;
 using EO.WebContext;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +12,13 @@ namespace EO.Controllers
     {
         private readonly IEventService _eventService;
         private readonly AppDbContext _context;
+        private readonly ICommonService _commonService;
 
-        public EventController(IEventService eventService, AppDbContext context)
+        public EventController(IEventService eventService, AppDbContext context,ICommonService commonService)
         {
             _eventService = eventService;
             _context = context;
+            _commonService = commonService;
         }
 
         // =========================
@@ -53,7 +56,7 @@ namespace EO.Controllers
 
             if (model == null) return NotFound();
 
-            // USERS (AspNetUsers instead of Guests table)
+            // ✅ USERS instead of Guests
             var allUsers = await _context.Users.ToListAsync();
             ViewBag.AllUsers = allUsers;
 
@@ -71,6 +74,17 @@ namespace EO.Controllers
         [HttpPost]
         public async Task<IActionResult> EditDetails(int id, UpdateEventDetailFullDto dto)
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (dto.Event?.CoverImageFile != null)
+            {
+                dto.Event.CoverImage = await _commonService.SaveFileAsync(
+                    dto.Event.CoverImageFile,
+                    "events",
+                    userId ?? "default"
+                );
+            }
+
             await _eventService.UpdateFullEventAsync(id, dto);
 
             return RedirectToAction("Details", new { id });
@@ -100,7 +114,24 @@ namespace EO.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, EventUpdateDto dto)
         {
+            // 🔥 HANDLE IMAGE UPLOAD
+            if (dto.ImageFile != null)
+            {
+                // you can use logged in user id
+                var userId = User.FindFirst("sub")?.Value
+                             ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                var imagePath = await _commonService.SaveFileAsync(
+                    dto.ImageFile,
+                    "events",
+                    userId ?? "system"
+                );
+
+                dto.Image = imagePath;
+            }
+
             await _eventService.UpsertEventAsync(id, dto);
+
             return RedirectToAction("Index");
         }
 

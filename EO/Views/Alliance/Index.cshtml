@@ -4,78 +4,45 @@
     ViewData["Title"] = "Alliances";
 }
 
-<link href="~/css/table.css" rel="stylesheet" />
+<a asp-action="Create" class="btn btn-primary mb-2">Create New</a>
 
-<h3 class="mb-3">Alliances</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th width="200">Actions</th>
+        </tr>
+    </thead>
 
-<div class="mb-3">
-    <a class="btn btn-outline-primary btn-sm" href="/Alliance/Create">
-        + Create New
-    </a>
-</div>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">
+                        Edit
+                    </a>
 
-<hr />
+                    <form asp-action="Delete" method="post" style="display:inline;"
+                          onsubmit="return confirmDelete();">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
 
-<div class="table-container">
-    <div class="table-responsive">
-        <table class="custom-table align-middle">
-            <thead>
-                <tr>
-                    <th>Logo</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th class="text-end">Actions</th>
-                </tr>
-            </thead>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
-            <tbody>
-                @if (Model?.Any() == true)
-                {
-                    foreach (var item in Model)
-                    {
-                        <tr>
-                         <td>
-                                @if (!string.IsNullOrEmpty(item.Logo))
-                                {
-                                    <img src="@item.Logo"
-                                         loading="lazy"
-                                         style="width:45px;height:45px;object-fit:cover;border-radius:10px;" />
-                                }
-                            </td>
-                            <td class="fw-bold">@item.Name</td>
-
-                            <td class="text-muted-custom">
-                                @item.Description
-                            </td>
-
-                            <td class="text-end">
-                                <div class="action-buttons">
-                                    <a class="btn-action btn-edit"
-                                       href="/Alliance/Edit/@item.Id"
-                                       title="Edit">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-
-                                    <a class="btn-action btn-deactivate"
-                                       href="/Alliance/Delete/@item.Id"
-                                       title="Delete"
-                                       onclick="return confirm('Are you sure you want to delete this alliance?');">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="3" class="empty-state">
-                            No alliances found in the records.
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+<script>
+    function confirmDelete() {
+        return confirm("Are you sure you want to delete this alliance?");
+    }
+</script>

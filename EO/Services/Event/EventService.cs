@@ -86,10 +86,10 @@ public class EventService : IEventService
     .Select(eg => new EventGuestDto
     {
         Id = eg.User.Id,
-        Name = eg.User.UserName ?? "",
-        Avatar = eg.User.ProfileImage ?? "",
-        CompanyName = eg.User.CompanyDetails?.CompanyName ?? "",
-        Designation = eg.User.CompanyDetails?.Designation ?? ""
+        Name = eg.User.FullName ?? "",
+        Avatar = eg.User.ProfileImage ?? "/images/default-user.png",
+        Designation = eg.User.CompanyDetails?.Designation ?? "N/A",
+        CompanyName = eg.User.CompanyDetails?.CompanyName ?? "N/A"
     })
     .ToList()
         };
@@ -214,7 +214,10 @@ public class EventService : IEventService
         e.EventDetail.Title = dto.Event.Title;
         e.EventDetail.Description = dto.Event.Description;
         e.EventDetail.Venue = dto.Event.Venue;
-        e.EventDetail.CoverImage = dto.Event.CoverImage;
+        if (!string.IsNullOrEmpty(dto.Event.CoverImage))
+        {
+            e.EventDetail.CoverImage = dto.Event.CoverImage;
+        }
         e.EventDetail.StartDateTime = dto.Event.StartDateTime;
         e.EventDetail.EndDateTime = dto.Event.EndDateTime;
 
@@ -270,23 +273,23 @@ public class EventService : IEventService
         // GUESTS (FIXED)
         // =========================
         var existingGuests = await _context.EventGuests
-            .Where(x => x.EventId == id)
-            .ToListAsync();
+    .Where(x => x.EventId == id)
+    .ToListAsync();
 
-        var dtoUserIds = dto.GuestIds ?? new List<string>();
+        var dtoGuestIds = dto.GuestIds ?? new List<string>();
 
         // DELETE removed
-        var toDeleteGuests = existingGuests
-            .Where(x => !dtoUserIds.Contains(x.UserId))
+        var toDelete = existingGuests
+            .Where(x => !dtoGuestIds.Contains(x.UserId))
             .ToList();
 
-        _context.EventGuests.RemoveRange(toDeleteGuests);
+        _context.EventGuests.RemoveRange(toDelete);
 
         // ADD new
-        var existingUserIds = existingGuests.Select(x => x.UserId).ToList();
+        var existingIds = existingGuests.Select(x => x.UserId).ToList();
 
-        var newGuests = dtoUserIds
-            .Where(x => !existingUserIds.Contains(x))
+        var newGuests = dtoGuestIds
+            .Where(x => !existingIds.Contains(x))
             .Select(x => new EventGuest
             {
                 EventId = id,
@@ -450,5 +453,63 @@ public class EventService : IEventService
                 Image = x.Image
             })
             .ToListAsync();
+    }
+    public async Task<List<EventDto>> GetUpcomingEventsAsync()
+    {
+        var today = DateTime.Today;
+        var now = DateTime.Now;
+
+        var events = await _context.Events
+            .Where(x => x.Date.Date > today)
+            .Include(x => x.EventType)
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.StartTime)
+            .ToListAsync();
+
+        return events.Select(x => new EventDto
+        {
+            Id = x.Id,
+            Title = x.Title,
+            Description = x.Description,
+            StartTime = x.StartTime,
+            EndTime = x.EndTime,
+            Location = x.Location,
+            Date = x.Date,
+            TypeId = x.EventTypeId,
+            Type = x.EventType?.Name,
+            IsRegistered = x.IsRegistered,
+            Image = x.Image,
+
+            RemainingDays = (int)Math.Ceiling(
+                ((x.Date + (x.StartTime ?? TimeSpan.Zero)) - now).TotalDays
+            )
+        }).ToList();
+    }
+    public async Task<List<EventDto>> GetTodayEventsAsync()
+    {
+        var today = DateTime.Today;
+        var now = DateTime.Now;
+
+        var events = await _context.Events
+            .Where(x => x.Date.Date == today)
+            .Include(x => x.EventType)
+            .OrderBy(x => x.StartTime)
+            .ToListAsync();
+
+        return events.Select(x => new EventDto
+        {
+            Id = x.Id,
+            Title = x.Title,
+            Description = x.Description,
+            StartTime = x.StartTime,
+            EndTime = x.EndTime,
+            Location = x.Location,
+            Date = x.Date,
+            TypeId = x.EventTypeId,
+            Type = x.EventType.Name,
+            IsRegistered = x.IsRegistered,
+            Image = x.Image,
+            RemainingDays = 0 // today
+        }).ToList();
     }
 }

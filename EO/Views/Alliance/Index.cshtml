@@ -1,25 +1,81 @@
 ﻿@model List<AllianceDto>
 
-<h2>Alliances</h2>
+@{
+    ViewData["Title"] = "Alliances";
+}
 
-<a href="/Alliance/Create">Create New</a>
+<link href="~/css/table.css" rel="stylesheet" />
 
-<table class="table">
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Actions</th>
-    </tr>
+<h3 class="mb-3">Alliances</h3>
 
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.Name</td>
-            <td>@item.Description</td>
-            <td>
-                <a href="/Alliance/Edit/@item.Id">Edit</a> |
-                <a href="/Alliance/Delete/@item.Id">Delete</a>
-            </td>
-        </tr>
-    }
-</table>
+<div class="mb-3">
+    <a class="btn btn-outline-primary btn-sm" href="/Alliance/Create">
+        + Create New
+    </a>
+</div>
+
+<hr />
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="custom-table align-middle">
+            <thead>
+                <tr>
+                    <th>Logo</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model?.Any() == true)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                         <td>
+                                @if (!string.IsNullOrEmpty(item.Logo))
+                                {
+                                    <img src="@item.Logo"
+                                         loading="lazy"
+                                         style="width:45px;height:45px;object-fit:cover;border-radius:10px;" />
+                                }
+                            </td>
+                            <td class="fw-bold">@item.Name</td>
+
+                            <td class="text-muted-custom">
+                                @item.Description
+                            </td>
+
+                            <td class="text-end">
+                                <div class="action-buttons">
+                                    <a class="btn-action btn-edit"
+                                       href="/Alliance/Edit/@item.Id"
+                                       title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <a class="btn-action btn-deactivate"
+                                       href="/Alliance/Delete/@item.Id"
+                                       title="Delete"
+                                       onclick="return confirm('Are you sure you want to delete this alliance?');">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" class="empty-state">
+                            No alliances found in the records.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

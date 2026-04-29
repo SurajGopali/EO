@@ -2,60 +2,72 @@
 
 @{
     ViewData["Title"] = "Create Alliance";
+
     var types = ViewBag.Types as List<EO.Models.AllianceType>;
     var perks = ViewBag.Perks as List<EO.Models.Perk>;
 }
 
-<h2>Create Alliance</h2>
+<link href="~/css/memberSetup.css" rel="stylesheet" />
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
+<div class="mf-page">
 
-    <div>
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" />
+    <div class="mf-card">
+
+        <div class="mf-heading">Create Alliance</div>
+        <div class="mf-subtitle">Enter your alliance information</div>
+
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+
+            <label>Name</label>
+            <input asp-for="Name" />
+
+            <label>Description</label>
+            <textarea asp-for="Description"></textarea>
+
+            <label>Alliance Type</label>
+            <select asp-for="AllianceTypeId">
+                <option value="">-- Select Type --</option>
+
+                @foreach (var t in types)
+                {
+                    <option value="@t.Id">@t.Name</option>
+                }
+            </select>
+
+            <label>Logo</label>
+            <input asp-for="LogoFile"
+                   type="file"
+                   accept="image/*" />
+
+            <label>Perks</label>
+
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+                @foreach (var p in perks)
+                {
+                    <label style="padding:8px 14px;border:1px solid #d8d8d8;border-radius:10px;cursor:pointer;">
+                        <input type="checkbox"
+                               name="PerkIds"
+                               value="@p.Id" />
+                        @p.Name
+                    </label>
+                }
+            </div>
+
+            <div class="mf-btn-row">
+
+                <a asp-action="Index"
+                   class="mf-btn-back text-decoration-none">
+                    Cancel
+                </a>
+
+                <button type="submit" class="mf-btn-submit">
+                    Create Alliance
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
 
-    <div>
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
-
-    <div>
-        <label>Alliance Type</label>
-        <select asp-for="AllianceTypeId" class="form-control">
-            <option value="">-- Select Type --</option>
-            @foreach (var t in types)
-            {
-                <option value="@t.Id">@t.Name</option>
-            }
-        </select>
-    </div>
-
-    <div>
-        <label>Logo</label>
-        <input asp-for="LogoFile" type="file" class="form-control" />
-    </div>
-
-    <div>
-        <label>Perks</label>
-
-        <div style="display:flex; flex-wrap:wrap; gap:10px;">
-            @foreach (var p in perks)
-            {
-                <label style="border:1px solid #ccc; padding:5px 10px; border-radius:6px;">
-                    <input type="checkbox"
-                           name="PerkIds"
-                           value="@p.Id" />
-                    @p.Name
-                </label>
-            }
-        </div>
-    </div>
-
-    <br />
-
-    <button type="submit" class="btn btn-primary">
-        Create
-    </button>
-
-</form>
+</div>

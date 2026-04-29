@@ -148,13 +148,32 @@
 
                     @if (Model.Guests?.Any() == true)
                     {
-                        @foreach (var g in Model.Guests)
-                        {
-                            <div class="info-row mb-3">
-                                <div class="info-label">@g.Name</div>
-                                <div class="info-value">@g.Designation</div>
-                            </div>
-                        }
+                        <div class="guest-container">
+
+                            @foreach (var g in Model.Guests)
+                            {
+                                <div class="guest-card">
+
+                                    <img src="@(string.IsNullOrEmpty(g.Avatar) ? "/images/default-user.png" : g.Avatar)"
+                                         class="guest-img"
+                                         alt="avatar" />
+
+                                    <div class="guest-info">
+                                        <div class="guest-name">@g.Name</div>
+
+                                        <div class="guest-designation">
+                                            @g.Designation
+                                        </div>
+
+                                        <div class="guest-company">
+                                            @g.CompanyName
+                                        </div>
+                                    </div>
+
+                                </div>
+                            }
+
+                        </div>
                     }
                     else
                     {

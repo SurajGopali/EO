@@ -20,6 +20,8 @@ namespace EO.Services.Event
         Task DeleteEventAsync(int id);
         Task<List<EventType>> GetEventTypesAsync();
         Task<List<EventDto>> FilterEventsAsync(int? eventTypeId, int? year, string? range);
+        Task<List<EventDto>> GetUpcomingEventsAsync();
+        Task<List<EventDto>> GetTodayEventsAsync();
 
     }
 }

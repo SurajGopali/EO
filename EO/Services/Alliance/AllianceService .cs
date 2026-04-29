@@ -14,15 +14,28 @@ public class AllianceService : IAllianceService
     public async Task<List<AllianceDto>> GetAllAsync()
     {
         return await _context.Alliances
+            .Include(a => a.AllianceType)
             .Include(a => a.AlliancePerks)
+                .ThenInclude(ap => ap.Perk)
             .Select(a => new AllianceDto
             {
                 Id = a.Id,
                 Name = a.Name,
                 Description = a.Description,
                 Logo = a.Logo,
+
                 AllianceTypeId = a.AllianceTypeId,
-                PerkIds = a.AlliancePerks.Select(p => p.PerkId).ToList()
+                AllianceTypeName = a.AllianceType.Name,
+
+                Perks = a.AlliancePerks
+                    .Where(ap => ap.Perk != null)
+                    .Select(ap => new PerkDto
+                    {
+                        Id = ap.Perk.Id,
+                        Name = ap.Perk.Name,
+                        Description = ap.Perk.Description
+                    })
+                    .ToList()
             })
             .ToListAsync();
     }
@@ -111,10 +124,14 @@ public class AllianceService : IAllianceService
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var alliance = await _context.Alliances.FindAsync(id);
-        if (alliance == null) return false;
+        var entity = await _context.Alliances.FindAsync(id);
 
-        _context.Alliances.Remove(alliance);
+        if (entity == null)
+        {
+            return false;
+        }
+
+        _context.Alliances.Remove(entity);
         await _context.SaveChangesAsync();
 
         return true;

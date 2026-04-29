@@ -94,16 +94,9 @@ public class AllianceController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // ---------------- DELETE (GET) ----------------
-    public async Task<IActionResult> Delete(int id)
-    {
-        var data = await _service.GetByIdAsync(id);
-        return View(data);
-    }
-
-    // ---------------- DELETE (POST) ----------------
     [HttpPost]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
     {
         await _service.DeleteAsync(id);
         return RedirectToAction(nameof(Index));

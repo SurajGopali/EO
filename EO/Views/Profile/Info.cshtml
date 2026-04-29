@@ -1,0 +1,42 @@
+﻿@model EO.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Profile Details";
+}
+
+<link href="~/css/profile.css" rel="stylesheet" />
+
+<div class="profile-container">
+
+    <div class="profile-header">
+
+        <div class="profile-image">
+            @if (!string.IsNullOrEmpty(Model.ProfileImage))
+            {
+                <img src="@Model.ProfileImage" />
+            }
+            else
+            {
+                <div class="placeholder">
+                    @Model.FirstName?.Substring(0, 1)
+                </div>
+            }
+        </div>
+
+        <div class="profile-info">
+            <h2>@Model.FullName</h2>
+            <p>@Model.UserName</p>
+            <p>@Model.Email</p>
+            <p>@Model.PhoneNumber</p>
+        </div>
+
+        <div class="profile-actions">
+            <a asp-action="Edit" class="btn btn-primary">
+                Edit Profile
+            </a>
+        </div>
+
+    </div>
+
+
+</div>

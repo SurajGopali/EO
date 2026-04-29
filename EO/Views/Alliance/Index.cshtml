@@ -2,24 +2,45 @@
 
 <h2>Alliances</h2>
 
-<a href="/Alliance/Create">Create New</a>
+<a asp-action="Create" class="btn btn-primary mb-2">Create New</a>
 
-<table class="table">
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Actions</th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
+<table class="table table-bordered">
+    <thead>
         <tr>
-            <td>@item.Name</td>
-            <td>@item.Description</td>
-            <td>
-                <a href="/Alliance/Edit/@item.Id">Edit</a> |
-                <a href="/Alliance/Delete/@item.Id">Delete</a>
-            </td>
+            <th>Name</th>
+            <th>Description</th>
+            <th width="200">Actions</th>
         </tr>
-    }
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">
+                        Edit
+                    </a>
+
+                    <form asp-action="Delete" method="post" style="display:inline;"
+                          onsubmit="return confirmDelete();">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
+
+<script>
+    function confirmDelete() {
+        return confirm("Are you sure you want to delete this alliance?");
+    }
+</script>

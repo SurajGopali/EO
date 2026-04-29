@@ -187,7 +187,7 @@ namespace EO.Models
 
         public string Venue { get; set; }
         public string CoverImage { get; set; }
-
+        public IFormFile? CoverImageFile { get; set; }
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
 
@@ -229,6 +229,7 @@ namespace EO.Models
 
         public bool? IsRegistered { get; set; }
         public string? Image { get; set; }
+        public IFormFile? ImageFile { get; set; }  
     }
 
     // =========================

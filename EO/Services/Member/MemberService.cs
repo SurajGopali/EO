@@ -116,6 +116,7 @@ public class MemberService : IMemberService
             Location = profile?.Address ?? "",
             Bio = profile?.Bio ?? "",
             Dob = profile?.DateOfBirth,
+            IsMarried = profile?.IsMarried,
 
             SocialLinks = social == null ? null : new SocialDto
             {
@@ -129,6 +130,7 @@ public class MemberService : IMemberService
             Spouse = spouse == null ? null : new SpouseDto
             {
                 Name = spouse.Name ?? "",
+                DateOfBirth = spouse.DateOfBirth,
                 Email = spouse.Email ?? "",
                 Phone = spouse.Phone ?? "",
                 ProfileImage = spouse.ProfileImage ?? "",
@@ -173,5 +175,100 @@ public class MemberService : IMemberService
                 ProfileImage = c.ProfileImage ?? ""
             }).ToList() ?? new List<ChildDto>()
         };
+    }
+
+    public async Task<List<BirthdayDto>> GetUpcomingBirthdaysAsync()
+    {
+        var today = DateTime.Today;
+
+        var users = await _context.Users
+            .Include(u => u.CompanyDetails)
+            .Include(u => u.UserProfiles)  
+            .ToListAsync();
+
+        var result = users
+            .Where(u => u.UserProfiles?.DateOfBirth != null)
+            .Select(u =>
+            {
+                var dob = u.UserProfiles.DateOfBirth.Value;
+
+                var nextBirthday = new DateTime(today.Year, dob.Month, dob.Day);
+
+                if (nextBirthday < today)
+                    nextBirthday = nextBirthday.AddYears(1);
+
+                return new BirthdayDto
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    ProfileImage = u.ProfileImage,
+                    Designation = u.CompanyDetails?.Designation,
+                    DateOfBirth = dob,
+                    DaysLeft = (nextBirthday - today).Days
+                };
+            })
+            .OrderBy(x => x.DaysLeft)
+            .Take(10)
+            .ToList();
+
+        return result;
+    }
+
+    public async Task<List<NewMemberDto>> GetNewJoineesThisMonthAsync()
+    {
+        var now = DateTime.Now;
+
+        var users = await _context.Users
+            .Include(u => u.CompanyDetails)
+            .Where(u =>
+                u.JoinedDate.Month == now.Month &&
+                u.JoinedDate.Year == now.Year)
+            .ToListAsync();
+
+        return users.Select(u => new NewMemberDto
+        {
+            Id = u.Id,
+            FullName = u.FullName,
+            ProfileImage = u.ProfileImage,
+            Designation = u.CompanyDetails?.Designation,
+            CompanyName = u.CompanyDetails?.CompanyName,
+            JoinedDate = u.JoinedDate
+        })
+        .OrderByDescending(x => x.JoinedDate)
+        .ToList();
+    }
+    public async Task<List<AnniversaryDto>> GetUpcomingAnniversariesAsync()
+    {
+        var today = DateTime.Today;
+
+        var data = await _context.UserProfiles
+            .Include(up => up.User) 
+            .Where(up => up.AnniversaryDate != null)
+            .ToListAsync();
+
+        var result = data.Select(up =>
+        {
+            var nextAnniversary = new DateTime(
+                today.Year,
+                up.AnniversaryDate.Value.Month,
+                up.AnniversaryDate.Value.Day
+            );
+
+            if (nextAnniversary < today)
+                nextAnniversary = nextAnniversary.AddYears(1);
+
+            return new AnniversaryDto
+            {
+                UserId = up.UserId,
+                FullName = up.User.FullName,
+                AnniversaryDate = up.AnniversaryDate.Value,
+                DaysLeft = (nextAnniversary - today).Days
+            };
+        })
+        .OrderBy(x => x.DaysLeft)
+        .Take(10)
+        .ToList();
+
+        return result;
     }
 }

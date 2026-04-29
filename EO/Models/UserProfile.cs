@@ -189,6 +189,8 @@
         public string Phone { get; set; }
         public string ProfileImage { get; set; }
         public IFormFile? ProfileImageFile { get; set; }
+        public bool? IsMarried { get; set; }
+
 
         public string CompanyName { get; set; }
         public string CompanyRole { get; set; }
@@ -212,5 +214,32 @@
         public string Facebook { get; set; }
         public string Instagram { get; set; }
         public string Website { get; set; }
+    }
+
+    public class BirthdayDto
+    {
+        public string Id { get; set; }
+        public string FullName { get; set; }
+        public string ProfileImage { get; set; }
+        public string Designation { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public int DaysLeft { get; set; }
+    }
+
+    public class NewMemberDto
+    {
+        public string Id { get; set; }
+        public string FullName { get; set; }
+        public string ProfileImage { get; set; }
+        public string? Designation { get; set; }
+        public string? CompanyName { get; set; }
+        public DateTime JoinedDate { get; set; }
+    }
+    public class AnniversaryDto
+    {
+        public string UserId { get; set; }
+        public string FullName { get; set; }
+        public DateTime AnniversaryDate { get; set; }
+        public int DaysLeft { get; set; }
     }
 }

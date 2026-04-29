@@ -94,7 +94,10 @@
                     
                     <h5 class="section-heading mt-4">Basic Information</h5>
                     <div class="info-row"><div class="info-label">Birthday:</div><div class="info-value">@Model.Dob?.ToString("MMMM dd, yyyy")</div></div>
+                    <div class="info-row"><div class="info-label">Relation Status:</div><div class="info-value">@(Model.IsMarried == true ? "Married" : "Single")</div></div>
                     <div class="info-row"><div class="info-label">Gender:</div><div class="info-value">Male</div></div>
+                    <div class="info-row"><div class="info-label">Address:</div><div class="info-value">@Model.Location</div></div>
+                    <div class="info-row"><div class="info-label">Bio:</div><div class="info-value">@Model.Bio</div></div>
                 </section>
 
                 <section id="company" class="info-pane">
@@ -109,12 +112,18 @@
                     <div class="info-row"><div class="info-label">LinkedIn:</div><div class="info-value link-style">@Model.SocialLinks?.Linkedin</div></div>
                     <div class="info-row"><div class="info-label">Website:</div><div class="info-value link-style">@Model.SocialLinks?.Website</div></div>
                     <div class="info-row"><div class="info-label">Twitter:</div><div class="info-value link-style">@Model.SocialLinks?.Twitter</div></div>
+                    <div class="info-row"><div class="info-label">Facebook:</div><div class="info-value link-style">@Model.SocialLinks?.Facebook</div></div>
+                    <div class="info-row"><div class="info-label">Instagram:</div><div class="info-value link-style">@Model.SocialLinks?.Instagram</div></div>
                 </section>
 
                 <section id="spouse" class="info-pane">
                     @if (Model.Spouse != null) {
                         <h5 class="section-heading">Spouse Information</h5>
                         <div class="info-row"><div class="info-label">Name:</div><div class="info-value">@Model.Spouse.Name</div></div>
+                        <div class="info-row"><div class="info-label">Birthday:</div><div class="info-value">@Model.Spouse.DateOfBirth?.ToString("MMMM dd, yyyy")</div></div>
+                        <div class="info-row"><div class="info-label">Phone:</div><div class="info-value">@Model.Spouse.Phone</div></div>
+                        <div class="info-row"><div class="info-label">Email:</div><div class="info-value">@Model.Spouse.Email</div></div>
+
                         <div class="info-row"><div class="info-label">Profession:</div><div class="info-value">@Model.Spouse.Professional?.Position</div></div>
                     } else { <p class="text-muted">No spouse data available.</p> }
                 </section>

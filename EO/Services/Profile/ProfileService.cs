@@ -318,5 +318,69 @@ public class ProfileService : IProfileService
             }).ToList()
         };
     }
+    public async Task<ApplicationUser?> GetAsync(string userId)
+    {
+        if (string.IsNullOrEmpty(userId))
+            return null;
+
+        return await _context.Users
+            .FirstOrDefaultAsync(x => x.Id == userId);
+    }
+
+    public async Task<bool> UpdateAsync(string userId, ProfileUpdateDto dto)
+    {
+        if (string.IsNullOrEmpty(userId) || dto == null)
+            return false;
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(x => x.Id == userId);
+
+        if (user == null)
+            return false;
+
+        // ======================
+        // USERNAME (Identity safe)
+        // ======================
+        if (!string.IsNullOrEmpty(dto.UserName) &&
+            dto.UserName != user.UserName)
+        {
+            var result = await _userManager.SetUserNameAsync(user, dto.UserName);
+
+            if (!result.Succeeded)
+                return false;
+        }
+
+        // ======================
+        // EMAIL (Identity safe)
+        // ======================
+        if (!string.IsNullOrEmpty(dto.Email) &&
+            dto.Email != user.Email)
+        {
+            var token = await _userManager.GenerateChangeEmailTokenAsync(user, dto.Email);
+            var result = await _userManager.ChangeEmailAsync(user, dto.Email, token);
+
+            if (!result.Succeeded)
+                return false;
+        }
+
+        // ======================
+        // BASIC INFO
+        // ======================
+        user.FirstName = dto.FirstName;
+        user.MiddleName = dto.MiddleName;
+        user.LastName = dto.LastName;
+        user.PhoneNumber = dto.PhoneNumber;
+
+        // ======================
+        // IMAGE
+        // ======================
+        if (!string.IsNullOrEmpty(dto.ProfileImage))
+        {
+            user.ProfileImage = dto.ProfileImage;
+        }
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
 
 }

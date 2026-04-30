@@ -29,8 +29,11 @@ namespace EO.Controllers
             var model = new HomeDashboardModel
             {
                 UpcomingEvents = upcomingEvents,
+                TodayEvents = TodayEvents,
                 UpcomingBirthdays = upcomingBirthdays,
-                NewMembers = newMembers
+                NewMembers = newMembers,
+                UpcomingAnniversaries = UpcomingAnniversaries
+
             };
 
             return View(model);

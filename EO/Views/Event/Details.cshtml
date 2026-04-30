@@ -143,43 +143,34 @@
                 </section>
 
                 <!-- GUESTS -->
-                <section id="guests" class="info-pane">
-                    <h5 class="section-heading">Guests</h5>
+               <section id="guests" class="info-pane">
+    <h5 class="section-heading">Guests</h5>
 
-                    @if (Model.Guests?.Any() == true)
-                    {
-                        <div class="guest-container">
+    @if (Model.Guests?.Any() == true)
+    {
+        @foreach (var g in Model.Guests)
+        {
+            <div class="info-row mb-3">
+                <div class="info-label">@g.Name</div>
 
-                            @foreach (var g in Model.Guests)
-                            {
-                                <div class="guest-card">
+                <div class="info-value d-flex align-items-start gap-3">
+                    <img src="@(string.IsNullOrEmpty(g.Avatar) ? "/images/default-user.png" : g.Avatar)"
+                         class="guest-img"
+                         alt="avatar" />
 
-                                    <img src="@(string.IsNullOrEmpty(g.Avatar) ? "/images/default-user.png" : g.Avatar)"
-                                         class="guest-img"
-                                         alt="avatar" />
-
-                                    <div class="guest-info">
-                                        <div class="guest-name">@g.Name</div>
-
-                                        <div class="guest-designation">
-                                            @g.Designation
-                                        </div>
-
-                                        <div class="guest-company">
-                                            @g.CompanyName
-                                        </div>
-                                    </div>
-
-                                </div>
-                            }
-
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted">No guests available.</p>
-                    }
-                </section>
+                    <div>
+                        <div>@g.Designation</div>
+                        <div>@g.CompanyName</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p class="text-muted">No guests available.</p>
+    }
+</section>
 
             </div>
         </div>

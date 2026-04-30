@@ -1,3 +1,5 @@
+@model EO.Models.HomeDashboardModel
+
 
 @{
     ViewData["Title"] = "Home";
@@ -35,6 +37,14 @@
         <span class="section-link">View all →</span>
       </div>
       <div class="events-grid" id="eventsList"></div>
+       <!-- What's Ahead -->
+  <div class="whats-ahead-section">
+    <div class="section-hdr">
+      <div class="section-title mt-5">What's Ahead</div>
+    </div>
+    <div class="ahead-grid" id="whatsAhead"></div>
+  </div>
+
     </div>
     <div class="right-col">
       <!-- Birthdays -->
@@ -86,82 +96,123 @@
 
   <div class="c-dots" id="memberDots"></div>
 </div>
-    </div>
+<!-- Anniversaries -->
+<div class="panel">
+  <div class="section-hdr">
+    <div class="section-title">Anniversaries 🎊</div>
+    <span class="section-link">See all</span>
   </div>
 
-  <!-- What's Ahead -->
-  <div class="whats-ahead-section">
-    <div class="section-hdr">
-      <div class="section-title">What's Ahead</div>
+  <div class="carousel-wrap">
+    <button class="c-arrow left" id="anniPrev">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <div class="c-overflow">
+      <div class="c-track" id="anniTrack"></div>
     </div>
-    <div class="ahead-grid" id="whatsAhead"></div>
+
+    <button class="c-arrow right" id="anniNext">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+
+  <div class="c-dots" id="anniDots"></div>
+</div>
+    </div>
   </div>
 
 
 <script>
 
+
+
+// ── Dynamic data from HomeDashboardModel (camelCase JSON) ──
+const _opts = new Proxy({}, {});
+const _rawEvents    = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.UpcomingEvents,    new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+const _rawBirthdays = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.UpcomingBirthdays, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+const _rawMembers   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.NewMembers,        new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+const _rawAhead     = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TodayEvents,       new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+const _rawAnniversaries = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.UpcomingAnniversaries, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+
+// Helper: format a C# TimeSpan string ("HH:MM:SS") → "H:MM AM/PM"
+function fmtTime(ts) {
+  if (!ts) return 'TBD';
+  const [h, m] = ts.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
 const DATA = {
-  stats:[
-    {num:"12",label:"Events This Month"},
-    {num:"5",label:"Registered"},
+
+  stats: [
+    { num: "@Model.TotalEventsThisMonth", label: "Events This Month" },
+    { num: "@Model.RegisteredEvents",     label: "Registered" }
   ],
-  events:[
-    {
-      title:"Executive Strategy Meeting",
-      desc:"Quarterly leadership alignment on growth targets and roadmap.",
-      date:"May 16, 2025",time:"10:00 AM",days:19,
-      location:"Boardroom 3A, HQ Tower",
-      status:"Registered",badge:"badge-green",
-      img:"https://images.unsplash.com/photo-1552664730-d307ca884978?w=700&h=420&fit=crop"
-    },
-    {
-      title:"Investment Review Session",
-      desc:"Deep-dive portfolio analysis with finance and strategy teams.",
-      date:"May 22, 2025",time:"2:00 PM",days:25,
-      location:"Virtual · Zoom Link",
-      status:"Open",badge:"badge-orange",reg:true,
-      img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=700&h=420&fit=crop"
-    },
-    {
-      title:"Annual Team Retreat",
-      desc:"Two-day offsite for bonding, planning, and creative workshops.",
-      date:"Jun 5, 2025",time:"9:00 AM",days:39,
-      location:"Lakeview Resort, Pokhara",
-      status:"Open",badge:"badge-orange",reg:true,
-      img:"https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=700&h=420&fit=crop"
-    },
-     {
-      title:"Annual Team Retreat",
-      desc:"Two-day offsite for bonding, planning, and creative workshops.",
-      date:"Jun 5, 2025",time:"9:00 AM",days:39,
-      location:"Lakeview Resort, Pokhara",
-      status:"Open",badge:"badge-orange",reg:true,
-      img:"https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=700&h=420&fit=crop"
-    }
-  ],
-  birthdays:[
-    {name:"Priya Sharma",role:"Product Lead",date:"May 12",avatar:"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face"},
-    {name:"Jordan Lee",role:"Engineering",date:"May 17",avatar:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=face"},
-    {name:"Amara Osei",role:"Design",date:"May 21",avatar:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=120&h=120&fit=crop&crop=face"},
-    {name:"Carlos Ruiz",role:"Finance",date:"May 28",avatar:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face"},
-    {name:"Mei Zhang",role:"Operations",date:"Jun 3",avatar:"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&h=120&fit=crop&crop=face"},
-    {name:"Ethan Brooks",role:"Marketing",date:"Jun 9",avatar:"https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&h=120&fit=crop&crop=face"}
-  ],
-  whatsAhead:[
-    {day:"08",month:"May",title:"Board Pre-meeting Briefing",sub:"Executive floor · 45 min",tag:"Internal"},
-    {day:"15",month:"May",title:"Q2 Financial Review",sub:"Finance Dept · 2 hrs",tag:"Finance"},
-    {day:"16",month:"May",title:"Executive Strategy Meeting",sub:"Boardroom 3A · All day",tag:"Event"},
-    {day:"20",month:"May",title:"New Hire Onboarding Batch",sub:"HR Campus · Morning",tag:"HR"},
-    {day:"22",month:"May",title:"Investment Review Session",sub:"Virtual · Zoom",tag:"Event"},
-    {day:"30",month:"May",title:"Product Roadmap Sync",sub:"Design Studio · 1.5 hrs",tag:"Product"}
-  ],
-  newMembers:[
-    {name:"Lena Fischer",role:"UX Designer",joined:"Joined May 1",avatar:"https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=face"},
-    {name:"David Nkosi",role:"Backend Dev",joined:"Joined May 3",avatar:"https://images.unsplash.com/photo-1521119989659-a83eee488004?w=120&h=120&fit=crop&crop=face"},
-    {name:"Riya Patel",role:"Data Analyst",joined:"Joined May 5",avatar:"https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=120&h=120&fit=crop&crop=face"},
-    {name:"Tom Nguyen",role:"Sales Lead",joined:"Joined May 6",avatar:"https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=120&h=120&fit=crop&crop=face"},
-    {name:"Sofia Mendes",role:"Ops Manager",joined:"Joined May 7",avatar:"https://images.unsplash.com/photo-1554151228-14d9def656e4?w=120&h=120&fit=crop&crop=face"}
-  ]
+
+  // UpcomingEvents (EventDto) → event cards
+  events: _rawEvents.map(e => {
+    const d     = new Date(e.date);
+    const isReg = e.isRegistered ?? false;
+    return {
+      title:    e.title    || 'Untitled Event',
+      desc:     e.description || '',
+      date:     d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      time:     fmtTime(e.startTime),
+      days:     e.remainingDays ?? 0,
+      location: e.location || 'TBD',
+      status:   isReg ? 'Registered' : 'Open',
+      badge:    isReg ? 'badge-green' : 'badge-orange',
+      reg:      !isReg,
+      img:      e.image || 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=700&h=420&fit=crop'
+    };
+  }),
+
+  // UpcomingBirthdays (BirthdayDto) → birthday carousel
+  birthdays: _rawBirthdays.map(b => {
+    const dob = new Date(b.dateOfBirth);
+    return {
+      name:   b.fullName    || 'Member',
+      role:   b.designation || '',
+      date:   dob.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      avatar: b.profileImage || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face'
+    };
+  }),
+
+  // TodayEvents (EventDto) → What's Ahead
+  whatsAhead: _rawAhead.map(e => {
+    const d = new Date(e.date);
+    return {
+      day:   String(d.getDate()).padStart(2, '0'),
+      month: d.toLocaleDateString('en-US', { month: 'short' }),
+      title: e.title    || 'Event',
+      sub:   (e.location || 'TBD') + (e.startTime ? ' · ' + fmtTime(e.startTime) : ''),
+      tag:   e.type     || 'Event'
+    };
+  }),
+
+  anniversaries: _rawAnniversaries.map(a => {
+    const joined = new Date(a.joinedDate);
+    return {
+      name:   a.fullName    || 'Member',
+      role:   a.designation || '',
+      date:   joined.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      years:  a.yearsCompleted || 0,
+      avatar: a.profileImage || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face'
+    };
+  }),
+
+  // NewMembers (NewMemberDto) → New in Circle carousel
+  newMembers: _rawMembers.map(m => {
+    const j = new Date(m.joinedDate);
+    return {
+      name:   m.fullName    || 'Member',
+      role:   m.designation || m.companyName || '',
+      joined: 'Joined ' + j.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      avatar: m.profileImage || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=face'
+    };
+  })
 };
 
 /* ── DATE ── */
@@ -169,14 +220,18 @@ document.getElementById('liveDate').textContent =
   new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
 /* ── STATS ── */
-document.getElementById('statsRow').innerHTML = DATA.stats.map(s=>`
-  <div class="stat-card">
+document.getElementById('statsRow').innerHTML = DATA.stats.map(s=>
+`<div class="stat-card">
     <div class="stat-num">${s.num}</div>
     <div class="stat-label">${s.label}</div>
   </div>`).join('');
 
 /* ── EVENTS ── */
-document.getElementById('eventsList').innerHTML = DATA.events.map(ev=>`
+if (DATA.events.length === 0) {
+  document.getElementById('eventsList').innerHTML =
+    '<p style="color:var(--text-muted,#888);padding:16px">No upcoming events.</p>';
+} else {
+  document.getElementById('eventsList').innerHTML = DATA.events.map(ev=>`
   <div class="event-card">
     <div class="card-img-wrap">
       <img src="${ev.img}" alt="${ev.title}" loading="lazy">
@@ -198,9 +253,14 @@ document.getElementById('eventsList').innerHTML = DATA.events.map(ev=>`
       </div>
     </div>
   </div>`).join('');
+}
 
 /* ── WHAT'S AHEAD ── */
-document.getElementById('whatsAhead').innerHTML = DATA.whatsAhead.map(a=>`
+if (DATA.whatsAhead.length === 0) {
+  document.getElementById('whatsAhead').innerHTML =
+    '<p style="color:var(--text-muted,#888);padding:16px">No events scheduled for today.</p>';
+} else {
+  document.getElementById('whatsAhead').innerHTML = DATA.whatsAhead.map(a=>`
   <div class="ahead-item">
     <div class="ahead-date-box">
       <div class="ahead-day">${a.day}</div>
@@ -212,6 +272,7 @@ document.getElementById('whatsAhead').innerHTML = DATA.whatsAhead.map(a=>`
     </div>
     <span class="ahead-tag">${a.tag}</span>
   </div>`).join('');
+}
 
 /* ── CAROUSEL BUILDER (responsive) ── */
 function getVisibleItems() {
@@ -317,5 +378,15 @@ buildCarousel('membersTrack', 'memberDots', 96, 12, DATA.newMembers, m => `
     <div class="member-name">${m.name}</div>
     <div class="member-role">${m.role}</div>
     <div class="member-joined">${m.joined}</div>
+  </div>`, 2);
+
+  buildCarousel('anniTrack', 'anniDots', 126, 12, DATA.anniversaries, a => `
+  <div class="bday-card">
+    <img class="bday-avatar" src="${a.avatar}" alt="${a.name}" loading="lazy">
+    <div class="bday-name">${a.name}</div>
+    <div class="bday-date-pill" style="background:var(--blue-bg); color:var(--blue-fg); border:1px solid var(--blue-fg)">
+        ✨ ${a.years} ${a.years === 1 ? 'Year' : 'Years'}
+    </div>
+    <div class="bday-role">${a.date}</div>
   </div>`, 2);
 </script>

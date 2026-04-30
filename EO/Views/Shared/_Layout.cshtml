@@ -170,6 +170,8 @@
         color: var(--sidebar-text-hover) !important;
     }
 </style>
+
+
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -262,6 +264,7 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/modal.js"></script>
 
     <script>
             function toggleSidebar() {
@@ -292,7 +295,7 @@
                 updateThemeIcon(currentTheme);
             });
     </script>
-
+    @Html.Partial("_CommonModal")
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

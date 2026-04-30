@@ -34,7 +34,6 @@
     <div class="left-col">
       <div class="section-hdr">
         <div class="section-title">Upcoming Events</div>
-        <span class="section-link">View all →</span>
       </div>
       <div class="events-grid" id="eventsList"></div>
        <!-- What's Ahead -->
@@ -51,7 +50,7 @@
      <div class="panel">
   <div class="section-hdr">
     <div class="section-title">Birthdays 🎂</div>
-    <span class="section-link">See all</span>
+    <span class="section-link" onclick="showModal(DATA.birthdays, 'Birthdays')">See all</span>
   </div>
 
   <div class="carousel-wrap">
@@ -75,7 +74,7 @@
      <div class="panel">
   <div class="section-hdr">
     <div class="section-title">New in Circle ✨</div>
-    <span class="section-link">See all</span>
+    <span class="section-link"  onclick="showModal(DATA.newMembers, 'New Members')">See all</span>
   </div>
 
   <div class="carousel-wrap">
@@ -100,7 +99,7 @@
 <div class="panel">
   <div class="section-hdr">
     <div class="section-title">Anniversaries 🎊</div>
-    <span class="section-link">See all</span>
+    <span class="section-link" onclick="showModal(DATA.anniversaries, 'Anniversaries')">See all</span>
   </div>
 
   <div class="carousel-wrap">
@@ -147,8 +146,8 @@ function fmtTime(ts) {
 const DATA = {
 
   stats: [
-    { num: "@Model.TotalEventsThisMonth", label: "Events This Month" },
-    { num: "@Model.RegisteredEvents",     label: "Registered" }
+    { num: _rawEvents.length, label: "Events This Month" },
+    { num: _rawEvents.filter(e => e.isRegistered).length,     label: "Registered" }
   ],
 
   // UpcomingEvents (EventDto) → event cards
@@ -193,7 +192,7 @@ const DATA = {
   }),
 
   anniversaries: _rawAnniversaries.map(a => {
-    const joined = new Date(a.joinedDate);
+    const joined = new Date(a.anniversaryDate);
     return {
       name:   a.fullName    || 'Member',
       role:   a.designation || '',

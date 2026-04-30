@@ -2,6 +2,7 @@ function showModal(items, title = "Details") {
     // 1. Set Title & Basic Modal Styles
     const modalTitleEl = document.getElementById("modalTitle");
     modalTitleEl.innerText = title;
+    console.log("items",items)
 
     const modalContent = document.querySelector("#globalModal .modal-content");
     const modalBody = document.getElementById("modalBody");
@@ -41,7 +42,7 @@ function showModal(items, title = "Details") {
 
             const name   = item.name  || item.title;
             const role   = item.role  || item.desc;
-            const date   = item.date;
+            const date   = item.date || item.joined;
             const avatar = item.avatar;
 
             html += `

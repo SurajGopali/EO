@@ -68,11 +68,11 @@
                             </td>
                             <td class="fw-bold">@item.Name</td>
                             <td>
-                                @(item.AllianceTypeId )
+                                @(item.AllianceTypeName )
                             </td>
 
                             <td>
-                                @string.Join(", ", item.PerkIds)
+                                @string.Join(", ", item.Perks.Select(p => p.Name))
                             </td>
 
                             <td class="text-muted-custom">

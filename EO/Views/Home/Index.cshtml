@@ -54,7 +54,7 @@
   </div>
 
   <div class="carousel-wrap">
-    <button class="c-arrow left" id="bdayPrev">
+    <button class="c-arrow left me-auto" id="bdayPrev">
   <i class="bi bi-chevron-left"></i>
 </button>
 
@@ -62,7 +62,7 @@
       <div class="c-track" id="bdayTrack"></div>
     </div>
 
-    <button class="c-arrow right" id="bdayNext">
+    <button class="c-arrow right ms-auto" id="bdayNext">
   <i class="bi bi-chevron-right"></i>
 </button>
 
@@ -79,7 +79,7 @@
 
   <div class="carousel-wrap">
 
-    <button class="c-arrow left" id="membersPrev">
+    <button class="c-arrow left me-auto" id="membersPrev">
       <i class="bi bi-chevron-left"></i>
     </button>
 
@@ -87,7 +87,7 @@
       <div class="m-track" id="membersTrack"></div>
     </div>
 
-    <button class="c-arrow right" id="membersNext">
+    <button class="c-arrow right ms-auto" id="membersNext">
       <i class="bi bi-chevron-right"></i>
     </button>
 
@@ -103,7 +103,7 @@
   </div>
 
   <div class="carousel-wrap">
-    <button class="c-arrow left" id="anniPrev">
+    <button class="c-arrow left me-auto" id="anniPrev">
       <i class="bi bi-chevron-left"></i>
     </button>
 
@@ -111,7 +111,7 @@
       <div class="c-track" id="anniTrack"></div>
     </div>
 
-    <button class="c-arrow right" id="anniNext">
+    <button class="c-arrow right ms-auto" id="anniNext">
       <i class="bi bi-chevron-right"></i>
     </button>
   </div>
@@ -300,18 +300,51 @@ function buildCarousel(trackId, dotsId, itemW, gap, items, renderFn, visibleOver
   const visible = visibleOverride !== undefined ? visibleOverride : getVisibleItems();
 
   track.innerHTML = items.map(renderFn).join('');
+  if (items.length === 1) {
+  track.style.transform = "none";
+  track.style.justifyContent = "center";
+  track.style.transition = "none";
+  const prevBtn = document.getElementById(trackId.replace('Track', 'Prev'));
+  if (prevBtn) prevBtn.style.display = "none";
+  const nextBtn = document.getElementById(trackId.replace('Track', 'Next'));
+  if (nextBtn) nextBtn.style.display = "none";
+  }
+
+const trackWidth = track.scrollWidth;
+const containerWidth = track.parentElement.offsetWidth;
+
+const noScrollNeeded = containerWidth > 0 && trackWidth <= containerWidth;
+if (noScrollNeeded) {
+  const prevBtn = document.getElementById(trackId.replace('Track', 'Prev'));
+  if (prevBtn) prevBtn.style.display = "none";
+  const nextBtn = document.getElementById(trackId.replace('Track', 'Next'));
+  if (nextBtn) nextBtn.style.display = "none";
+  if (dotsEl) dotsEl.style.display = "none";
+  return; // no autoplay either
+}
+
 
   let cur = 0;
   const max = Math.max(0, items.length - visible);
 
   function go(idx) {
-    cur = Math.max(0, Math.min(idx, max));
-    track.style.transform = `translateX(-${cur * (itemW + gap)}px)`;
+  cur = Math.max(0, Math.min(idx, max));
 
-    dotsEl.querySelectorAll('.c-dot').forEach((d, i) =>
-      d.classList.toggle('on', i === cur)
-    );
-  }
+  const firstCard = track.children[0];
+
+  if (!firstCard) return;
+
+  const styles = getComputedStyle(track);
+  const realGap = parseFloat(styles.gap) || gap;
+
+  const realWidth = firstCard.getBoundingClientRect().width + realGap;
+
+  track.style.transform = `translateX(-${cur * realWidth}px)`;
+
+  dotsEl.querySelectorAll('.c-dot').forEach((d, i) =>
+    d.classList.toggle('on', i === cur)
+  );
+}
 
   // dots
   dotsEl.innerHTML = Array.from({ length: max + 1 }, (_, i) =>
@@ -324,6 +357,7 @@ function buildCarousel(trackId, dotsId, itemW, gap, items, renderFn, visibleOver
   });
 
   // arrows
+
   const prevBtn = document.getElementById(trackId.replace('Track', 'Prev'));
   const nextBtn = document.getElementById(trackId.replace('Track', 'Next'));
 
@@ -358,18 +392,20 @@ function buildCarousel(trackId, dotsId, itemW, gap, items, renderFn, visibleOver
   // responsive resize
   let resizeTimer;
   window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      const newVisible = getVisibleItems();
-      const newMax = Math.max(0, items.length - newVisible);
-      cur = Math.min(cur, newMax);
-      go(cur);
-    }, 150);
-  });
+  clearTimeout(resizeTimer);
+
+  resizeTimer = setTimeout(() => {
+    const newVisible = getVisibleItems();
+    const newMax = Math.max(0, items.length - newVisible);
+
+    cur = Math.min(cur, newMax);
+    go(cur);
+  }, 150);
+});
 }
 
 
-buildCarousel('bdayTrack', 'bdayDots', 126, 12, DATA.birthdays, b => `
+buildCarousel('bdayTrack', 'bdayDots', 126, -5, DATA.birthdays, b => `
   <div class="bday-card">
     <img class="bday-avatar" src="${b.avatar}" alt="${b.name}" loading="lazy">
     <div class="bday-name">${b.name}</div>

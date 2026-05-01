@@ -5357,6 +5357,9 @@ textarea.form-control-lg {
   filter: invert(1) grayscale(100%) brightness(200%);
 }
 
+.btn-close-red {
+  filter: invert(29%) sepia(85%) saturate(2222%) hue-rotate(334deg) brightness(97%) contrast(92%);
+}
 .toast {
   width: 350px;
   max-width: 100%;

@@ -2,7 +2,6 @@ function showModal(items, title = "Details") {
     // 1. Set Title & Basic Modal Styles
     const modalTitleEl = document.getElementById("modalTitle");
     modalTitleEl.innerText = title;
-    console.log("items",items)
 
     const modalContent = document.querySelector("#globalModal .modal-content");
     const modalBody = document.getElementById("modalBody");
@@ -14,15 +13,15 @@ function showModal(items, title = "Details") {
     }
 
     if (closeBtn) {
-        // Bootstrap 5 class to make the X icon white
-        closeBtn.classList.add("btn-close-white");
+        closeBtn.classList.remove("btn-close-white");
+        closeBtn.style.setProperty("background-image", `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23dc3545'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e")`, "important");
+        closeBtn.style.setProperty("opacity", "1", "important");
     }
 
     if (modalContent) {
-        // Use setProperty to reliably apply CSS variables (with fallback)
-        modalContent.style.setProperty("background-color", "var(--modal-bg, var(--app-bg, #ffffff))", "important");
-        modalContent.style.setProperty("color", "var(--main-text, #2d3436)", "important");
-        modalContent.style.setProperty("border", "1px solid var(--border-glow, #e9ecef)", "important");
+        modalContent.style.setProperty("background-color", "var(--modal-bg, var(--app-bg, #ffffff))" , "important");
+        modalContent.style.setProperty("color", "var(--main-text, #2d3436)" ,"important");
+        modalContent.style.setProperty("border", "1px solid var(--border-glow, #e9ecef)" , "important");
     }
     
     // Clear padding to let the list items go edge-to-edge if desired

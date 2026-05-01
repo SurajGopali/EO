@@ -1,4 +1,4 @@
-﻿@model EO.Models.UpdateEventDetailFullDto
+@model EO.Models.UpdateEventDetailFullDto
 
 @{
     ViewData["Title"] = "Edit Event";
@@ -15,6 +15,14 @@
 }
 
 <link href="~/css/memberSetup.css" rel="stylesheet" />
+
+<style>
+    [data-theme="dark"] input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+    [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+    [data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+</style>
 
 <div class="mf-page">
     <div class="mf-card">
@@ -75,7 +83,7 @@
 
             <hr />
 
-            <!-- ================= SCHEDULE ================= -->
+        
             <h4>Schedule</h4>
 
             <div id="scheduleContainer">

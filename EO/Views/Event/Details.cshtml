@@ -154,9 +154,11 @@
                 <div class="info-label">@g.Name</div>
 
                 <div class="info-value d-flex align-items-start gap-3">
-                    <img src="@(string.IsNullOrEmpty(g.Avatar) ? "/images/default-user.png" : g.Avatar)"
-                         class="guest-img"
-                         alt="avatar" />
+                    <img src="@(string.IsNullOrEmpty(g.Avatar) ? "../../assets/noUser.jpg" : g.Avatar)"
+                         class="guest-img rounded-circle"
+                         alt="avatar"
+                         width="35"
+                         height="35" />
 
                     <div>
                         <div>@g.Designation</div>

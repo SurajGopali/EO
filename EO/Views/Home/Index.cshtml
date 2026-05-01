@@ -30,8 +30,8 @@
     </div>
   </div>
 
-  <div class="content-grid">
-    <div class="left-col">
+  <div class="content-grid" id="contentGrid">
+    <div class="left-col" id="leftCol">
       <div class="section-hdr">
         <div class="section-title">Upcoming Events</div>
       </div>
@@ -45,7 +45,7 @@
   </div>
 
     </div>
-    <div class="right-col">
+    <div class="right-col" id="rightCol">
       <!-- Birthdays -->
      <div class="panel">
   <div class="section-hdr">
@@ -228,7 +228,16 @@ document.getElementById('statsRow').innerHTML = DATA.stats.map(s=>
 /* ── EVENTS ── */
 if (DATA.events.length === 0) {
   document.getElementById('eventsList').innerHTML =
-    '<p style="color:var(--text-muted,#888);padding:16px">No upcoming events.</p>';
+    `<div style="text-align:center;">
+    <img 
+        src="/assets/NoEvent.png" 
+        alt="No Events"
+        style="
+            max-width:100%;
+            height:auto;
+            border-radius:20px;
+        ">
+</div>`;
 } else {
   document.getElementById('eventsList').innerHTML = DATA.events.map(ev=>`
   <div class="event-card">
@@ -388,4 +397,33 @@ buildCarousel('membersTrack', 'memberDots', 96, 12, DATA.newMembers, m => `
     </div>
     <div class="bday-role">${a.date}</div>
   </div>`, 2);
+
+// ── Hide right column entirely if all three sections have no data ──
+(function () {
+  const hasData =
+    DATA.birthdays.length > 0 ||
+    DATA.newMembers.length > 0 ||
+    DATA.anniversaries.length > 0;
+
+  if (!hasData) {
+    const rightCol = document.getElementById('rightCol');
+    const leftCol  = document.getElementById('leftCol');
+    const grid     = document.getElementById('contentGrid');
+
+    if (rightCol) rightCol.style.display = 'none';
+
+    // Override the grid so left col takes full width
+    if (grid) {
+      grid.style.gridTemplateColumns = '1fr';
+    }
+    // Or if you're using flexbox instead of grid:
+    // if (leftCol) leftCol.style.flex = '1 1 100%';
+  }
+})();
+
+// Hide individual panels if their data is empty
+if (DATA.birthdays.length  === 0) document.querySelector('#bdayTrack')  ?.closest('.panel')?.style.setProperty('display','none');
+if (DATA.newMembers.length === 0) document.querySelector('#membersTrack')?.closest('.panel')?.style.setProperty('display','none');
+if (DATA.anniversaries.length === 0) document.querySelector('#anniTrack')?.closest('.panel')?.style.setProperty('display','none');
+
 </script>

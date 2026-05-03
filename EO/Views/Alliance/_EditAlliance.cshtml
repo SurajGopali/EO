@@ -1,4 +1,4 @@
-﻿@model EO.Models.AllianceDto
+@model EO.Models.AllianceDto
 
 @{
     var types = ViewBag.Types as List<AllianceType>;
@@ -44,21 +44,12 @@
                 }
             </select>
 
-            <label>Current Logo</label>
-
-            <div style="margin-bottom:15px;">
-                @if (!string.IsNullOrEmpty(Model.Logo))
-                {
-                    <img src="@Model.Logo"
-                         style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #ddd;" />
-                }
-                else
-                {
-                    <img src="/images/default.png"
-                         style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #ddd;" />
-                }
+            <div id="logoPreviewContainer" style="margin-bottom:15px; @(string.IsNullOrEmpty(Model.Logo) ? "display:none;" : "")">
+                <label>Current Logo</label>
+                <img id="logoPreview"
+                     src="@(string.IsNullOrEmpty(Model.Logo) ? "/images/default.png" : Model.Logo)"
+                     style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #ddd;" />
             </div>
-
             <label>Change Logo</label>
             <input asp-for="LogoFile" type="file" class="form-control" />
 
@@ -101,7 +92,8 @@
 </div>
 
 <script>
-        $(document).on('submit', '#allianceForm', function (e) {
+
+    $(document).on('submit', '#allianceForm', function (e) {
         e.preventDefault();
 
         var formData = new FormData(this);
@@ -125,4 +117,21 @@
             }
         });
     });
+
+    $(document).on('change', '#LogoFile', function () {
+    var file = this.files[0];
+
+    if (file) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $("#logoPreview").attr("src", e.target.result);
+            $("#logoPreviewContainer").show();
+        };
+
+        reader.readAsDataURL(file);
+    } else {
+        $("#logoPreviewContainer").hide();
+    }
+});
 </script>

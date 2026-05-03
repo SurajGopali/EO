@@ -1,4 +1,4 @@
-﻿@model List<AllianceDto>
+@model List<AllianceDto>
 
 @{
     ViewData["Title"] = "Alliances";
@@ -78,8 +78,9 @@
 </div>
 
 <div class="modal fade" id="allianceModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" id="allianceModalContent"></div>
+    <div class="modal-dialog modal-dialog-centered" style="max-width: max-content;">
+        <div class="modal-content" id="allianceModalContent" style="width: max-content; overflow: hidden; border: none; background: transparent;">
+        </div>
     </div>
 </div>
 

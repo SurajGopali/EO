@@ -1,7 +1,7 @@
 ﻿@model EO.Models.EventUpdateDto
 
 @{
-    Layout = null; // ✅ VERY IMPORTANT
+    Layout = null;
 
     var dateValue = Model.Date == default
         ? DateTime.Today
@@ -12,110 +12,122 @@
 
 <link href="~/css/memberSetup.css" rel="stylesheet" />
 
-<div class="modal-header">
-    <h5 class="modal-title">
-        @(isEdit ? "Edit Event" : "Add Event")
-    </h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-</div>
+<div class="mf-page">
 
-<div class="modal-body">
+    <div class="mf-card">
 
-    <form id="eventForm" enctype="multipart/form-data">
+        <div class="mf-heading">
+            @(isEdit ? "Edit Event" : "Add Event")
+        </div>
 
-        <input type="hidden" name="Id" value="@Model.Id" />
-        <input type="hidden" name="Image" value="@Model.Image" />
+        <div class="mf-subtitle">
+            @(isEdit ? "Update your event details" : "Enter your event details")
+        </div>
 
-        <div class="row g-3">
+        <form id="eventForm" enctype="multipart/form-data">
+
+            <input type="hidden" name="Id" value="@Model.Id" />
+            <input type="hidden" name="Image" value="@Model.Image" />
 
             <!-- TITLE -->
-            <div class="col-md-6">
-                <label class="form-label">Title</label>
-                <input name="Title" value="@Model.Title" class="form-control" />
-            </div>
+            <label>Title</label>
+            <input name="Title" value="@Model.Title" class="form-control" />
 
             <!-- LOCATION -->
-            <div class="col-md-6">
-                <label class="form-label">Location</label>
-                <input name="Location" value="@Model.Location" class="form-control" />
-            </div>
+            <label>Location</label>
+            <input name="Location" value="@Model.Location" class="form-control" />
 
             <!-- DESCRIPTION -->
-            <div class="col-12">
-                <label class="form-label">Description</label>
-                <textarea name="Description" class="form-control">@Model.Description</textarea>
-            </div>
+            <label>Description</label>
+            <textarea name="Description" class="form-control">@Model.Description</textarea>
 
-            <!-- DATE -->
-            <div class="col-md-4">
-                <label class="form-label">Date</label>
-                <input type="date"
-                       name="Date"
-                       value="@dateValue.ToString("yyyy-MM-dd")"
-                       class="form-control" />
-            </div>
+            <!-- DATE + TIME ROW -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
 
-            <!-- START TIME -->
-            <div class="col-md-4">
-                <label class="form-label">Start Time</label>
-                <input name="StartTime" type="time" value="@Model.StartTime" class="form-control" />
-            </div>
+                <div style="flex:1;">
+                    <label>Date</label>
+                    <input type="date"
+                           name="Date"
+                           value="@dateValue.ToString("yyyy-MM-dd")"
+                           class="form-control" />
+                </div>
 
-            <!-- END TIME -->
-            <div class="col-md-4">
-                <label class="form-label">End Time</label>
-                <input name="EndTime" type="time" value="@Model.EndTime" class="form-control" />
+                <div style="flex:1;">
+                    <label>Start Time</label>
+                    <input name="StartTime"
+                           type="time"
+                           value="@Model.StartTime"
+                           class="form-control" />
+                </div>
+
+                <div style="flex:1;">
+                    <label>End Time</label>
+                    <input name="EndTime"
+                           type="time"
+                           value="@Model.EndTime"
+                           class="form-control" />
+                </div>
+
             </div>
 
             <!-- EVENT TYPE -->
-            <div class="col-md-6">
-                <label class="form-label">Event Type</label>
-                <select name="TypeId" class="form-select">
-                    <option value="">-- Select Event Type --</option>
+            <label>Event Type</label>
+            <select name="TypeId" class="form-control">
+                <option value="">-- Select Event Type --</option>
 
-                    @foreach (var type in ViewBag.EventTypes)
-                    {
-                        <option value="@type.Id"
-                                selected="@(type.Id == Model.TypeId ? "selected" : null)">
-                            @type.Name
-                        </option>
-                    }
-                </select>
-            </div>
-
-            <!-- IMAGE -->
-            <div class="col-md-6">
-                <label class="form-label">Event Image</label>
-                <input type="file" name="ImageFile" class="form-control" onchange="previewImage(event)" />
-            </div>
-
-            <!-- PREVIEW -->
-            <div class="col-12">
-                @if (!string.IsNullOrEmpty(Model.Image))
+                @foreach (var type in ViewBag.EventTypes)
                 {
-                    <img id="preview" src="@Model.Image"
-                         style="width:140px;border-radius:8px;" />
+                    <option value="@type.Id"
+                            selected="@(type.Id == Model.TypeId ? "selected" : null)">
+                        @type.Name
+                    </option>
                 }
+            </select>
+
+            <!-- CURRENT IMAGE -->
+
+            @if (!string.IsNullOrEmpty(Model.Image))
+            {
+                <label>Current Image</label>
+
+                <div style="margin-bottom:15px;">
+                    <img id="preview"
+                        src="@Model.Image"
+                        style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #ddd;" />
+                </div>
+            }
                 else
                 {
                     <img id="preview"
-                         style="display:none;width:140px;border-radius:8px;" />
-                }
+                         style="display:none;width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #ddd;" />
+                }   
+
+            <!-- CHANGE IMAGE -->
+            <label>Change Image</label>
+            <input type="file"
+                   name="ImageFile"
+                   class="form-control"
+                   onchange="previewImage(event)" />
+
+            <!-- BUTTONS -->
+            <div class="mf-btn-row mt-3">
+
+                <button type="button"
+                        class="mf-btn-back"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                        class="mf-btn-submit">
+                    Save
+                </button>
+
             </div>
 
-        </div>
+        </form>
 
-        <div class="mt-4 text-end">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                Cancel
-            </button>
-
-            <button type="submit" class="btn btn-primary">
-                Save
-            </button>
-        </div>
-
-    </form>
+    </div>
 
 </div>
 
@@ -155,7 +167,7 @@
                         location.reload();
                     }, 300);
                 }
-            }, 
+            },
 
             error: function (err) {
                 console.error(err);

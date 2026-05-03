@@ -21,18 +21,12 @@ namespace EO.Controllers
             _commonService = commonService;
         }
 
-        // =========================
-        // LIST EVENTS
-        // =========================
         public async Task<IActionResult> Index()
         {
             var events = await _eventService.GetEventsAsync();
             return View(events);
         }
 
-        // =========================
-        // DETAILS
-        // =========================
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -45,9 +39,7 @@ namespace EO.Controllers
             return View(data);
         }
 
-        // =========================
-        // EDIT FULL EVENT (DETAILS + SCHEDULE + USERS)
-        // =========================
+       
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> EditDetails(int id)
@@ -56,7 +48,6 @@ namespace EO.Controllers
 
             if (model == null) return NotFound();
 
-            // ✅ USERS instead of Guests
             var allUsers = await _context.Users.ToListAsync();
             ViewBag.AllUsers = allUsers;
 
@@ -67,12 +58,12 @@ namespace EO.Controllers
 
             ViewBag.SelectedUserIds = selectedUserIds;
 
-            return View(model);
+            return PartialView("_EditEventDetailsPartial", model);
         }
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> EditDetails(int id, UpdateEventDetailFullDto dto)
+        public async Task<IActionResult> EditDetails(UpdateEventDetailFullDto dto)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
@@ -83,16 +74,14 @@ namespace EO.Controllers
                     "events",
                     userId ?? "default"
                 );
-            }
+             }
 
-            await _eventService.UpdateFullEventAsync(id, dto);
+            await _eventService.UpdateFullEventAsync(dto.EventId, dto);
 
-            return RedirectToAction("Details", new { id });
+            return Json(new { success = true });
         }
 
-        // =========================
-        // BASIC EVENT EDIT
-        // =========================
+
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -101,23 +90,22 @@ namespace EO.Controllers
             ViewBag.EventTypes = eventTypes;
 
             if (id == 0)
-                return View(new EventUpdateDto());
+                return PartialView("_EditEventPartial", new EventUpdateDto());
 
             var model = await _eventService.GetEventForEditAsync(id);
 
             if (model == null) return NotFound();
 
-            return View(model);
+            return PartialView("_EditEventPartial", model);
         }
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, EventUpdateDto dto)
+        public async Task<IActionResult> Edit(EventUpdateDto dto)
         {
-            // 🔥 HANDLE IMAGE UPLOAD
+            var id = dto.Id;
             if (dto.ImageFile != null)
             {
-                // you can use logged in user id
                 var userId = User.FindFirst("sub")?.Value
                              ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
@@ -132,7 +120,7 @@ namespace EO.Controllers
 
             await _eventService.UpsertEventAsync(id, dto);
 
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
 
         // =========================

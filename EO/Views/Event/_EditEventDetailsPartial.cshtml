@@ -12,6 +12,7 @@
         : Model.Event.EndDateTime;
 
     var scheduleCount = Model.Schedule?.Count ?? 0;
+    Layout = null;
 }
 
 <link href="~/css/memberSetup.css" rel="stylesheet" />
@@ -22,14 +23,11 @@
         <div class="mf-heading">Update Event</div>
         <div class="mf-subtitle">Manage event, schedule and guests</div>
 
-        <form asp-action="EditDetails"
-              asp-route-id="@Model.EventId"
-              method="post"
+        <form id="editDetailsForm"
               enctype="multipart/form-data">
 
-            <input type="hidden" asp-for="EventId" />
+            <input type="hidden" name="EventId" value="@Model.EventId" />
 
-            <!-- ================= EVENT ================= -->
             <h4>Event Details</h4>
 
             <label>Title</label>
@@ -41,7 +39,6 @@
             <label>Venue</label>
             <input asp-for="Event.Venue" />
 
-            <!-- COVER IMAGE -->
             <label>Cover Image</label>
 
             <input type="file"
@@ -75,7 +72,6 @@
 
             <hr />
 
-            <!-- ================= SCHEDULE ================= -->
             <h4>Schedule</h4>
 
             <div id="scheduleContainer">
@@ -124,7 +120,6 @@
 
             <hr />
 
-            <!-- ================= GUESTS ================= -->
             <h4>Guests</h4>
 
             @if (ViewBag.AllUsers != null)
@@ -153,14 +148,13 @@
                 <p class="text-muted">No users available</p>
             }
 
-            <!-- ================= BUTTONS ================= -->
             <div class="mf-btn-row">
 
-                <a asp-action="Details"
-                       asp-route-id="@Model.EventId"
-                       class="mf-btn-back text-decoration-none">
+                <button type="button"
+                        class="mf-btn-back"
+                        data-bs-dismiss="modal">
                     Cancel
-                </a>
+                </button>
 
                 <button type="submit"
                         class="mf-btn-submit">
@@ -220,4 +214,35 @@
     function removeSchedule(btn) {
         btn.closest(".schedule-item").remove();
     }
+
+        $(document).on('submit', '#editDetailsForm', function (e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: '/Event/EditDetails',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.success) {
+
+                    $('#pageLoader').fadeIn(150);
+
+                    var modalEl = document.getElementById('eventDetailsModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 300);
+                }
+            },
+            error: function (err) {
+                console.error(err);
+            }
+        });
+    });
 </script>

@@ -5,38 +5,10 @@
 }
 <link href="~/css/table.css" rel="stylesheet" />
 
-<a asp-action="Create" class="btn btn-primary mb-2">Create New</a>
-
-<!-- <table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th width="200">Actions</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Description</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">
-                        Edit
-                    </a>
-
-                    <form asp-action="Delete" method="post" style="display:inline;"
-                          onsubmit="return confirmDelete();">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@item.Id" />
-                    </form>
-                </td>
-             </tr>           
-        }
-    </tbody>
-</table> -->
+<button type="button"
+        class="btn btn-primary mb-2 createAllianceBtn">
+    Create New
+</button>
 
 <div class="table-container">
     <div class="table-responsive">
@@ -58,41 +30,35 @@
                     foreach (var item in Model)
                     {
                         <tr>
-                         <td>
+                            <td>
                                 @if (!string.IsNullOrEmpty(item.Logo))
                                 {
                                     <img src="@item.Logo"
-                                         loading="lazy"
                                          style="width:45px;height:45px;object-fit:cover;border-radius:10px;" />
                                 }
                             </td>
+
                             <td class="fw-bold">@item.Name</td>
-                            <td>
-                                @(item.AllianceTypeId )
-                            </td>
-
-                            <td>
-                                @string.Join(", ", item.PerkIds)
-                            </td>
-
-                            <td class="text-muted-custom">
-                                @item.Description
-                            </td>
+                            <td>@item.AllianceTypeId</td>
+                            <td>@string.Join(", ", item.PerkIds)</td>
+                            <td class="text-muted-custom">@item.Description</td>
 
                             <td class="text-end">
                                 <div class="action-buttons">
-                                    <a class="btn-action btn-edit"
-                                       href="/Alliance/Edit/@item.Id"
-                                       title="Edit">
+
+                                    <button type="button"
+                                            class="btn-action btn-edit editAllianceBtn"
+                                            data-id="@item.Id"
+                                            title="Edit">
                                         <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                    </button>
 
                                     <a class="btn-action btn-deactivate"
-                                       href="/Alliance/Delete/@item.Id"
-                                       title="Delete"
-                                       onclick="return confirm('Are you sure you want to delete this alliance?');">
+                                           href="/Alliance/Delete/@item.Id"
+                                           onclick="return confirm('Are you sure?');">
                                         <i class="bi bi-trash"></i>
                                     </a>
+
                                 </div>
                             </td>
                         </tr>
@@ -101,7 +67,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="3" class="empty-state">
+                        <td colspan="6" class="empty-state">
                             No alliances found in the records.
                         </td>
                     </tr>
@@ -110,3 +76,44 @@
         </table>
     </div>
 </div>
+
+<div class="modal fade" id="allianceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="allianceModalContent"></div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+    $(document).on('click', '.editAllianceBtn', function () {
+
+        var id = $(this).data('id');
+
+        $.get('/Alliance/Edit', { id: id }, function (data) {
+
+            $('#allianceModalContent').html(data);
+
+            var modal = new bootstrap.Modal(document.getElementById('allianceModal'));
+            modal.show();
+
+        });
+
+    });
+
+    $(document).on('click', '.createAllianceBtn', function () {
+
+        $.get('/Alliance/Create', function (data) {
+
+            $('#allianceModalContent').html(data);
+
+            var modal = new bootstrap.Modal(document.getElementById('allianceModal'));
+            modal.show();
+
+        });
+
+    });
+
+</script>

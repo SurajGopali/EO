@@ -1,10 +1,8 @@
 ﻿@model EO.Models.AllianceDto
 
 @{
-    ViewData["Title"] = Model.Id > 0 ? "Edit Alliance" : "Add Alliance";
-
-    var types = ViewBag.Types as List<EO.Models.AllianceType>;
-    var perks = ViewBag.Perks as List<EO.Models.Perk>;
+    var types = ViewBag.Types as List<AllianceType>;
+    var perks = ViewBag.Perks as List<Perk>;
 
     var selectedPerks = Model.PerkIds ?? new List<int>();
     var isEdit = Model.Id > 0;
@@ -16,25 +14,27 @@
 
     <div class="mf-card">
 
-        <div class="mf-heading">@(isEdit ? "Edit Alliance" : "Add Alliance")</div>
+        <div class="mf-heading">
+            @(isEdit ? "Edit Alliance" : "Add Alliance")
+        </div>
+
         <div class="mf-subtitle">
             @(isEdit ? "Update your alliance information" : "Enter your alliance information")
         </div>
 
-        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <form id="allianceForm" enctype="multipart/form-data">
 
             <input type="hidden" asp-for="Id" />
 
             <label>Name</label>
-            <input asp-for="Name" />
+            <input asp-for="Name" class="form-control" />
 
             <label>Description</label>
-            <textarea asp-for="Description"></textarea>
+            <textarea asp-for="Description" class="form-control"></textarea>
 
             <label>Alliance Type</label>
-            <select asp-for="AllianceTypeId">
+            <select asp-for="AllianceTypeId" class="form-control">
                 <option value="">-- Select Type --</option>
-
                 @foreach (var t in types)
                 {
                     <option value="@t.Id"
@@ -49,7 +49,7 @@
             <div style="margin-bottom:15px;">
                 @if (!string.IsNullOrEmpty(Model.Logo))
                 {
-                    <img src="@Url.Content(Model.Logo)"
+                    <img src="@Model.Logo"
                          style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #ddd;" />
                 }
                 else
@@ -60,34 +60,36 @@
             </div>
 
             <label>Change Logo</label>
-            <input asp-for="LogoFile"
-                   type="file"
-                   accept="image/*" />
+            <input asp-for="LogoFile" type="file" class="form-control" />
+
+            <hr />
 
             <label>Perks</label>
 
-            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;">
                 @foreach (var p in perks)
                 {
-                    <label style="padding:8px 14px;border:1px solid #d8d8d8;border-radius:10px;cursor:pointer;">
+                    <label style="padding:8px 12px;border:1px solid #ddd;border-radius:10px;cursor:pointer;">
                         <input type="checkbox"
                                name="PerkIds"
                                value="@p.Id"
-                               @(selectedPerks.Contains(p.Id) ? "checked" : "") />
+                        @(selectedPerks.Contains(p.Id) ? "checked" : "") />
                         @p.Name
                     </label>
                 }
             </div>
 
-            <div class="mf-btn-row">
+            <div class="mf-btn-row mt-3">
 
-                <a asp-action="Index"
-                   class="mf-btn-back text-decoration-none">
+                <button type="button"
+                        class="mf-btn-back"
+                        data-bs-dismiss="modal">
                     Cancel
-                </a>
+                </button>
 
-                <button type="submit" class="mf-btn-submit">
-                    @(isEdit ? "Save Changes" : "Create Alliance")
+                <button type="submit"
+                        class="mf-btn-submit">
+                    Save Changes
                 </button>
 
             </div>
@@ -97,3 +99,30 @@
     </div>
 
 </div>
+
+<script>
+        $(document).on('submit', '#allianceForm', function (e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: '/Alliance/Upsert',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+
+                if (res.success) {
+
+                    var modalEl = document.getElementById('allianceModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    location.reload();
+                }
+            }
+        });
+    });
+</script>

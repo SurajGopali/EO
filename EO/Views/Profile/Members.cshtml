@@ -53,9 +53,9 @@
                                     <a class="btn-action btn-view" href="/Profile/MemberDetails/@m.Id" title="View">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                  <a class="btn-action btn-edit" href="/Profile/Setup/@m.Id" title="Edit">
-                                         <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                    <button class="btn-action btn-edit editMemberBtn" data-id="@m.Id">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
                                     <form asp-controller="Profile" asp-action="ToggleMemberStatus" method="post" class="d-inline">
                                         <input type="hidden" name="id" value="@m.Id" />
                                         @if (m.IsActive)
@@ -88,3 +88,34 @@
         </table>
     </div>
 </div>
+<div class="modal fade" id="setupModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" id="setupModalContent">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on('click', '.editMemberBtn', function () {
+            console.log("CLICKED");
+
+            var id = $(this).data('id');
+
+            $.get('/Profile/Setup/' + id, function (data) {
+                console.log("DATA RECEIVED");
+
+                $('#setupModalContent').html(data);
+
+                var modal = new bootstrap.Modal(document.getElementById('setupModal'));
+                modal.show();
+
+                setTimeout(() => {
+                    if (typeof showStep === "function") {
+                        showStep(1);
+                    }
+                }, 200);
+            });
+        });
+    </script>
+}

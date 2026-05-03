@@ -70,14 +70,26 @@
         z-index: 1000;
     }
 
-    .sidebar.collapsed {
-        width: 70px;
+    @@media (min-width: 769px) {
+        .sidebar.collapsed {
+            width: 70px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .sidebar {
+            width: 260px !important;
+        }
+        .sidebar.collapsed {
+            width: 260px !important;
+            transform: translateX(-100%);
+        }
     }
 
     .sidebar-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: center;
         padding: 20px 18px;
         height: 64px;
     }
@@ -207,7 +219,7 @@
 
 
     <script>
-        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </head>
@@ -215,13 +227,21 @@
 <body>
 
     <header>
-        <nav class="navbar navbar-expand-sm   border-bottom box-shadow topbar navbarBackground mx-3" >
+        <nav class="navbar navbar-expand-sm   border-bottom box-shadow topbar navbarBackground " >
             <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">EO</a>
+                <div class="d-flex align-items-center">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <button class="btn btn-link d-md-none p-0 me-2" onclick="toggleSidebar()" style="color: var(--sidebar-text);">
+                            <i class="bi bi-list" style="font-size: 1.25rem;"></i>
+                        </button>
+                    }
+                    <a class="navbar-brand" asp-controller="Home" asp-action="Index">EO</a>
+                </div>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target=".navbar-collapse">
-                    <span class="navbar-toggler-icon"></span>`
+                    <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
@@ -282,6 +302,11 @@
         }
     </nav>
 </aside>
+            <script>
+                if (localStorage.getItem('sidebarState') === 'collapsed') {
+                    document.getElementById('sidebar').classList.add('collapsed');
+                }
+            </script>
         }
 
         <main class="main-content">
@@ -302,7 +327,12 @@
 
     <script>
             function toggleSidebar() {
-                document.getElementById("sidebar").classList.toggle("collapsed");
+                const sidebar = document.getElementById("sidebar");
+                if (sidebar) {
+                    sidebar.classList.toggle("collapsed");
+                    localStorage.setItem('sidebarState', sidebar.classList.contains('collapsed') ? 'collapsed' : 'expanded');
+                    
+                }
             }
             
 

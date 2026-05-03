@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using EO.Models.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace EO.Models
 {
@@ -16,6 +17,7 @@ namespace EO.Models
         public bool IsActive { get; set; } = true;
         public CompanyDetails? CompanyDetails { get; set; }
         public UserProfile? UserProfiles { get; set; }
+        public Gender? Gender { get; set; }
         public string FullName
         {
             get
@@ -81,5 +83,20 @@ namespace EO.Models
         public string LastName { get; set; }
 
         public string? ProfileImage { get; set; }
+    }
+
+    public class Role
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class UserRole
+    {
+        public string UserId { get; set; }
+        public ApplicationUser User { get; set; }
+
+        public int RoleId { get; set; }
+        public Role Role { get; set; }
     }
 }

@@ -80,6 +80,13 @@
                     @(Model?.PersonalDetails?.IsMarried == true ? "checked" : "") />
                     <label for="isMarried">Married</label>
                 </div>
+                <div class="mf-checkbox-row">
+                    <input type="checkbox"
+                           id="isVegetarian"
+                           name="PersonalDetails.IsVegetarian"
+                    @(Model?.PersonalDetails?.IsVegetarian == true ? "checked" : "") />
+                    <label for="isVegetarian">Vegetarian</label>
+                </div>
 
                 <label>Anniversary Date</label>
                 <input id="anniversaryField"
@@ -718,7 +725,8 @@
                 anniversaryDate: getValue("PersonalDetails.AnniversaryDate"),
                 address: getValue("PersonalDetails.Address"),
                 bio: getValue("PersonalDetails.Bio"),
-                isMarried: married
+                isMarried: married,
+                isVegetarian: document.getElementById("isVegetarian")?.checked || false
             },
 
             companyDetails: {

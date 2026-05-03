@@ -117,6 +117,7 @@ public class MemberService : IMemberService
             Bio = profile?.Bio ?? "",
             Dob = profile?.DateOfBirth,
             IsMarried = profile?.IsMarried,
+            IsVegetarian = profile?.IsVegetarian,
 
             SocialLinks = social == null ? null : new SocialDto
             {

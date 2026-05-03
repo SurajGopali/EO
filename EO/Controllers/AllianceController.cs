@@ -31,34 +31,14 @@ public class AllianceController : Controller
         return View(data);
     }
 
-    // ---------------- CREATE (GET) ----------------
     public async Task<IActionResult> Create()
     {
         ViewBag.Types = await _context.AllianceTypes.ToListAsync();
         ViewBag.Perks = await _context.Perks.ToListAsync();
-        return View();
+
+        return PartialView("_EditAlliance", new AllianceDto());
     }
 
-    // ---------------- CREATE (POST) ----------------
-    [HttpPost]
-    public async Task<IActionResult> Create(AllianceDto dto)
-    {
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Unauthorized();
-
-        if (dto.LogoFile != null)
-        {
-            dto.Logo = await _commonService.SaveFileAsync(
-                dto.LogoFile,
-                "alliances",
-                user.Id);
-        }
-
-        await _service.CreateAsync(dto);
-        return RedirectToAction(nameof(Index));
-    }
-
-    // ---------------- EDIT (GET) ----------------
     public async Task<IActionResult> Edit(int id)
     {
         var data = await _service.GetByIdAsync(id);
@@ -66,20 +46,15 @@ public class AllianceController : Controller
         ViewBag.Types = await _context.AllianceTypes.ToListAsync();
         ViewBag.Perks = await _context.Perks.ToListAsync();
 
-        return View(data);
+        return PartialView("_EditAlliance", data);
     }
 
-    // ---------------- EDIT (POST) ----------------
     [HttpPost]
-    public async Task<IActionResult> Edit(AllianceDto dto)
+    [HttpPost]
+    public async Task<IActionResult> Upsert(AllianceDto dto)
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
-
-        var existing = await _service.GetByIdAsync(dto.Id);
-
-        // keep old logo if no new file uploaded
-        dto.Logo = existing.Logo;
 
         if (dto.LogoFile != null)
         {
@@ -89,9 +64,21 @@ public class AllianceController : Controller
                 user.Id);
         }
 
-        await _service.UpdateAsync(dto);
+        if (dto.Id > 0)
+        {
+            var existing = await _service.GetByIdAsync(dto.Id);
 
-        return RedirectToAction(nameof(Index));
+            if (string.IsNullOrEmpty(dto.Logo))
+                dto.Logo = existing.Logo;
+
+            await _service.UpdateAsync(dto);
+        }
+        else
+        {
+            await _service.CreateAsync(dto);
+        }
+
+        return Json(new { success = true });
     }
 
     [HttpPost]

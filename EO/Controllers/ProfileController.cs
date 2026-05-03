@@ -49,7 +49,7 @@ namespace EO.Controllers
 
             if (profile == null)
             {
-                return View(new UpdateProfileRequest
+                return PartialView("_SetupPartial", new UpdateProfileRequest
                 {
                     UserId = userId,
                     PersonalDetails = new(),
@@ -66,7 +66,7 @@ namespace EO.Controllers
 
             profile.UserId = userId;
 
-            return View(profile);
+            return PartialView("_SetupPartial", profile);
         }
 
 

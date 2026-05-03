@@ -311,6 +311,7 @@ public class EventService : IEventService
 
         return new EventUpdateDto
         {
+            Id = e.Id,
             Title = e.Title,
             Description = e.Description,
             StartTime = e.StartTime,

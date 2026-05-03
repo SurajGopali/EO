@@ -9,12 +9,9 @@
 <h3 class="mb-3">Events</h3>
 
 <div class="mb-3 d-flex align-items-center gap-2">
-    <a asp-controller="Event"
-       asp-action="Edit"
-       asp-route-id="0"
-       class="btn btn-outline-success btn-sm">
+    <button class="btn btn-outline-success btn-sm editEventBtn" data-id="0">
         + Add Event
-    </a>
+    </button>
 
     <div class="input-group input-group-sm search-wrapper">
     <span class="input-group-text pe-1">
@@ -132,13 +129,9 @@
                                         <i class="bi bi-eye"></i>
                                     </a>
 
-                                    <a class="btn-action btn-edit"
-                                       asp-controller="Event"
-                                       asp-action="Edit"
-                                       asp-route-id="@e.Id"
-                                       title="Edit">
+                                    <button class="btn-action btn-edit editEventBtn" data-id="@e.Id" title="Edit">
                                         <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                    </button>
 
                                     <form asp-controller="Event"
                                           asp-action="Delete"
@@ -175,47 +168,78 @@
     </div>
 </div>
 
-<script>
-    function filterEvents() {
-        const query = document.getElementById('eventSearch').value.trim().toLowerCase();
-        const rows = document.querySelectorAll('.event-row');
-        const clearBtn = document.getElementById('clearSearch');
-        const countEl = document.getElementById('searchCount');
-        const noResults = document.getElementById('noResults');
+<div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" id="eventModalContent">
+        </div>
+    </div>
+</div>
 
-        clearBtn.style.display = query ? 'block' : 'none';
 
-        let visibleCount = 0;
+@section Scripts {
+    <script>
+        $(document).on('click', '.editEventBtn', function () {
 
-        rows.forEach(row => {
-            const searchable = [
-                row.dataset.title,
-                row.dataset.description,
-                row.dataset.location,
-                row.dataset.type,
-                row.dataset.date
-            ].join(' ');
+            console.log("CLICKED"); // debug
 
-            const match = !query || searchable.includes(query);
-            row.style.display = match ? '' : 'none';
-            if (match) visibleCount++;
+            var id = $(this).data('id');
+
+            $.get('/Event/Edit', { id: id }, function (data) {
+
+                console.log("DATA RECEIVED");
+
+                $('#eventModalContent').html(data);
+
+                var modal = new bootstrap.Modal(document.getElementById('eventModal'));
+                modal.show();
+
+            }).fail(function (err) {
+                console.error("ERROR:", err);
+            });
+
         });
 
-        const hasRows = rows.length > 0;
+             function filterEvents() {
+            const query = document.getElementById('eventSearch').value.trim().toLowerCase();
+            const rows = document.querySelectorAll('.event-row');
+            const clearBtn = document.getElementById('clearSearch');
+            const countEl = document.getElementById('searchCount');
+            const noResults = document.getElementById('noResults');
 
-        if (query && hasRows) {
-            countEl.style.display = 'inline';
-            countEl.textContent = `${visibleCount} of ${rows.length} shown`;
-        } else {
-            countEl.style.display = 'none';
+            clearBtn.style.display = query ? 'block' : 'none';
+
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const searchable = [
+                    row.dataset.title,
+                    row.dataset.description,
+                    row.dataset.location,
+                    row.dataset.type,
+                    row.dataset.date
+                ].join(' ');
+
+                const match = !query || searchable.includes(query);
+                row.style.display = match ? '' : 'none';
+                if (match) visibleCount++;
+            });
+
+            const hasRows = rows.length > 0;
+
+            if (query && hasRows) {
+                countEl.style.display = 'inline';
+                countEl.textContent = `${visibleCount} of ${rows.length} shown`;
+            } else {
+                countEl.style.display = 'none';
+            }
+
+            noResults.style.display = (query && visibleCount === 0) ? 'block' : 'none';
         }
 
-        noResults.style.display = (query && visibleCount === 0) ? 'block' : 'none';
-    }
-
-    function clearSearch() {
-        document.getElementById('eventSearch').value = '';
-        filterEvents();
-        document.getElementById('eventSearch').focus();
-    }
-</script>
+        function clearSearch() {
+            document.getElementById('eventSearch').value = '';
+            filterEvents();
+            document.getElementById('eventSearch').focus();
+        }
+    </script>
+}

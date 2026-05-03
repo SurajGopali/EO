@@ -9,6 +9,7 @@
         public string? Address { get; set; }
         public bool IsMarried { get; set; }
         public string? Bio { get; set; }
+        public bool? IsVegetarian { get; set; }
         public ApplicationUser User { get; set; }
     }
 
@@ -126,6 +127,8 @@
         public string Address { get; set; }
         public bool IsMarried { get; set; }
         public string? Bio { get; set; }
+        public bool? IsVegetarian { get; set; }
+
     }
 
     public class CompanyDetailsDto
@@ -198,6 +201,7 @@
 
         public string Location { get; set; }
         public string Bio { get; set; }
+        public bool? IsVegetarian { get; set; }
         public DateTime? JoinedDate { get; set; }
         public DateTime? Dob { get; set; }
 

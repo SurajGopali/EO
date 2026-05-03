@@ -47,6 +47,7 @@ public class ProfileService : IProfileService
                 profile.Address = request.PersonalDetails.Address;
                 profile.IsMarried = request.PersonalDetails.IsMarried;
                 profile.Bio = request.PersonalDetails.Bio;
+                profile.IsVegetarian = request.PersonalDetails.IsVegetarian;
             }
 
             bool isMarried = profile.IsMarried;
@@ -249,7 +250,8 @@ public class ProfileService : IProfileService
                 AnniversaryDate = profile.AnniversaryDate,
                 Address = profile.Address,
                 Bio = profile.Bio,
-                IsMarried = profile.IsMarried
+                IsMarried = profile.IsMarried,
+                IsVegetarian = profile.IsVegetarian
             },
 
             CompanyDetails = company == null ? null : new CompanyDetailsDto
@@ -338,9 +340,7 @@ public class ProfileService : IProfileService
         if (user == null)
             return false;
 
-        // ======================
-        // USERNAME (Identity safe)
-        // ======================
+       
         if (!string.IsNullOrEmpty(dto.UserName) &&
             dto.UserName != user.UserName)
         {
@@ -350,9 +350,7 @@ public class ProfileService : IProfileService
                 return false;
         }
 
-        // ======================
-        // EMAIL (Identity safe)
-        // ======================
+
         if (!string.IsNullOrEmpty(dto.Email) &&
             dto.Email != user.Email)
         {
@@ -363,17 +361,12 @@ public class ProfileService : IProfileService
                 return false;
         }
 
-        // ======================
-        // BASIC INFO
-        // ======================
         user.FirstName = dto.FirstName;
         user.MiddleName = dto.MiddleName;
         user.LastName = dto.LastName;
         user.PhoneNumber = dto.PhoneNumber;
 
-        // ======================
-        // IMAGE
-        // ======================
+
         if (!string.IsNullOrEmpty(dto.ProfileImage))
         {
             user.ProfileImage = dto.ProfileImage;

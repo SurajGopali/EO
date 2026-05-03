@@ -2,6 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using EO.Models;
+using EO.Models.Enums;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,15 +20,6 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using EO.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 
 namespace EO.Areas.Identity.Pages.Account
 {
@@ -97,6 +98,9 @@ namespace EO.Areas.Identity.Pages.Account
             [Required]
             public string EoRole { get; set; }
 
+            [Required]
+            public Gender Gender { get; set; }
+
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -141,6 +145,7 @@ namespace EO.Areas.Identity.Pages.Account
                 MiddleName = Input.MiddleName,
                 LastName = Input.LastName,
                 EoRole = Input.EoRole,
+                Gender = Input.Gender,
                 JoinedDate = DateTime.UtcNow
             };
 
@@ -174,7 +179,7 @@ namespace EO.Areas.Identity.Pages.Account
             });
             _logger.LogInformation("User registered and logged in.");
 
-            return RedirectToPage("/Profile/Setup");
+            return RedirectToPage("/Account/PostRegister", new { area = "Identity" });
         }
 
         private ApplicationUser CreateUser()

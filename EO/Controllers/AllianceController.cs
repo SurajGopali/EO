@@ -50,7 +50,6 @@ public class AllianceController : Controller
     }
 
     [HttpPost]
-    [HttpPost]
     public async Task<IActionResult> Upsert(AllianceDto dto)
     {
         var user = await _userManager.GetUserAsync(User);

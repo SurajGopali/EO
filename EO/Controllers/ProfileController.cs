@@ -1,4 +1,4 @@
-﻿using EO.Models;
+using EO.Models;
 using EO.Services.Common;
 using EO.Services.Profile;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

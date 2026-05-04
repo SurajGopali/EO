@@ -1,7 +1,8 @@
-﻿@model EO.Models.ProfileUpdateDto
+@model EO.Models.ProfileUpdateDto
 
 @{
     ViewData["Title"] = "Edit Profile";
+    Layout = null;
 }
 
 <link href="~/css/memberSetup.css" rel="stylesheet" />
@@ -68,10 +69,9 @@
             <!-- BUTTONS -->
             <div class="mf-btn-row">
 
-                <a asp-action="Edit"
-                       class="mf-btn-back text-decoration-none">
+                <button type="button" class="mf-btn-back" data-bs-dismiss="modal">
                     Cancel
-                </a>
+                </button>
 
                 <button type="submit" class="mf-btn-submit">
                     Save Changes

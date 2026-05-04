@@ -1,9 +1,13 @@
 ﻿@model EO.Models.UpdateProfileRequest
+@{
+    ViewData["Title"] = "Setup";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
 <link rel="stylesheet" href="~/css/memberSetup.css" asp-append-version="true" />
 
-
-<div class="mf-page">
+<div style="display: flex; justify-content: center; width: 100%;">
+    <div class="mf-page">
     <div class="mf-card">
 
         <div class="mf-heading">Profile Setup</div>
@@ -335,6 +339,7 @@
 
     </div><!-- /.mf-card -->
 </div><!-- /.mf-page -->
+</div><!-- /.centering-wrapper -->
 
 <script src="~/js/profile-wizard.js"></script>
 

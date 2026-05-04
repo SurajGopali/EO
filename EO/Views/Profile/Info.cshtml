@@ -1,42 +1,123 @@
-﻿@model EO.Models.ApplicationUser
+@model EO.Models.ApplicationUser
 
 @{
     ViewData["Title"] = "Profile Details";
 }
 
-<link href="~/css/profile.css" rel="stylesheet" />
+<link href="~/css/memeberDetail.css" rel="stylesheet" />
 
-<div class="profile-container">
+<div class="profile-dashboard">
+    <div class="row g-0">
 
-    <div class="profile-header">
+        <!-- Sidebar -->
+        <div class="col-md-3 profile-sidebar">
+            <div class="sidebar-content">
 
-        <div class="profile-image">
-            @if (!string.IsNullOrEmpty(Model.ProfileImage))
-            {
-                <img src="@Model.ProfileImage" />
-            }
-            else
-            {
-                <div class="placeholder">
-                    @Model.FirstName?.Substring(0, 1)
+                <div class="profile-image-container">
+                    @if (!string.IsNullOrEmpty(Model.ProfileImage))
+                    {
+                        <img src="@Model.ProfileImage" alt="@Model.FullName" />
+                    }
+                    else
+                    {
+                        <div class="photo-placeholder">
+                            @Model.FirstName?.Substring(0, 1)
+                        </div>
+                    }
                 </div>
-            }
+
+                <div class="sidebar-section">
+                    <h6 class="sidebar-label">ACCOUNT</h6>
+                    <div class="work-entry">
+                        <span class="company-name">@Model.UserName</span>
+                        <span class="tag-blue">User</span>
+                    </div>
+                </div>
+
+                <hr class="sidebar-divider" />
+
+                <div class="sidebar-section">
+                    <h6 class="sidebar-label">INFO</h6>
+                    <ul class="skills-list">
+                        <li>Email Verified</li>
+                        <li>Active Account</li>
+                    </ul>
+                </div>
+
+            </div>
         </div>
 
-        <div class="profile-info">
-            <h2>@Model.FullName</h2>
-            <p>@Model.UserName</p>
-            <p>@Model.Email</p>
-            <p>@Model.PhoneNumber</p>
-        </div>
+        <!-- Main Content -->
+        <div class="col-md-9 profile-main">
 
-        <div class="profile-actions">
-            <a asp-action="Edit" class="btn btn-primary">
-                Edit Profile
-            </a>
+            <div class="main-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h1 class="user-name">
+                            @Model.FullName
+                        </h1>
+                        <p class="user-subtitle">Member Profile</p>
+                    </div>
+                </div>
+
+                <!-- Only ONE tab -->
+                <div class="profile-tabs mt-4">
+                    <button class="tab-item active">Personal</button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="tab-content-area">
+
+                <section class="info-pane active">
+                    <h5 class="section-heading">Contact Information</h5>
+
+                    <div class="info-row">
+                        <div class="info-label">Username:</div>
+                        <div class="info-value">@Model.UserName</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Email:</div>
+                        <div class="info-value link-style">@Model.Email</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Phone:</div>
+                        <div class="info-value">@Model.PhoneNumber</div>
+                    </div>
+
+                    <div class="profile-actions mt-4">
+                        <button id="editProfileBtn" class="btn btn-primary">
+                            Edit Profile
+                        </button>
+                    </div>
+
+                </section>
+
+            </div>
         </div>
 
     </div>
-
-
 </div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: max-content;">
+        <div class="modal-content" id="editModalContent" style="width: max-content; overflow: hidden; border: none; background: transparent;">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on('click', '#editProfileBtn', function (e) {
+            e.preventDefault();
+
+            $.get('/Profile/Edit', function (data) {
+                $('#editModalContent').html(data);
+                var modal = new bootstrap.Modal(document.getElementById('editModal'));
+                modal.show();
+            });
+        });
+    </script>
+}

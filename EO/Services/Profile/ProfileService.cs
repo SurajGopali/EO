@@ -11,7 +11,7 @@ public class ProfileService : IProfileService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ICommonService _commonService;
 
-    public ProfileService(AppDbContext context, UserManager<ApplicationUser> userManager,ICommonService commonService)
+    public ProfileService(AppDbContext context, UserManager<ApplicationUser> userManager, ICommonService commonService)
     {
         _context = context;
         _userManager = userManager;
@@ -87,6 +87,56 @@ public class ProfileService : IProfileService
             }
 
             await _context.SaveChangesAsync();
+
+            //Roles
+
+            if (request.PersonalDetails?.Roles != null)
+            {
+                var incomingRoles = request.PersonalDetails.Roles
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => x.Trim())
+                    .Distinct()
+                    .ToList();
+
+                var existingRoles = await _context.UserRoles
+                    .Where(x => x.UserId == userId)
+                    .Include(x => x.Role)
+                    .ToListAsync();
+
+                var existingRoleNames = existingRoles
+                    .Select(x => x.Role.Name)
+                    .ToList();
+
+                var toRemove = existingRoles
+                    .Where(x => !incomingRoles.Contains(x.Role.Name))
+                    .ToList();
+
+                _context.UserRoles.RemoveRange(toRemove);
+
+                foreach (var roleName in incomingRoles)
+                {
+                    var role = await _context.Roles
+                        .FirstOrDefaultAsync(x => x.Name == roleName);
+
+                    if (role == null)
+                    {
+                        role = new Role { Name = roleName };
+                        _context.Roles.Add(role);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    bool exists = existingRoles.Any(x => x.RoleId == role.Id);
+
+                    if (!exists)
+                    {
+                        _context.UserRoles.Add(new UserRole
+                        {
+                            UserId = userId,
+                            RoleId = role.Id
+                        });
+                    }
+                }
+            }
 
             Spouse spouse = null;
 
@@ -224,7 +274,12 @@ public class ProfileService : IProfileService
         var social = await _context.UserSocialLinks
             .FirstOrDefaultAsync(x => x.UserId == userId);
 
-        // ---------------- SAFE PROFILE CHECK ----------------
+        var roles = await _context.UserRoles
+            .Where(x => x.UserId == userId)
+            .Include(x => x.Role)
+            .Select(x => x.Role.Name)
+            .ToListAsync();
+
         Spouse spouse = null;
         List<Child> children = new();
 
@@ -251,7 +306,8 @@ public class ProfileService : IProfileService
                 Address = profile.Address,
                 Bio = profile.Bio,
                 IsMarried = profile.IsMarried,
-                IsVegetarian = profile.IsVegetarian
+                IsVegetarian = profile.IsVegetarian,
+                Roles = roles
             },
 
             CompanyDetails = company == null ? null : new CompanyDetailsDto
@@ -340,7 +396,7 @@ public class ProfileService : IProfileService
         if (user == null)
             return false;
 
-       
+
         if (!string.IsNullOrEmpty(dto.UserName) &&
             dto.UserName != user.UserName)
         {
@@ -374,6 +430,23 @@ public class ProfileService : IProfileService
 
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<List<RoleDto>> SearchRolesAsync(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return new List<RoleDto>();
+
+        return await _context.Roles
+            .Where(r => r.Name.Contains(query))
+            .OrderBy(r => r.Name)
+            .Take(10)
+            .Select(r => new RoleDto
+            {
+                Id = r.Id,
+                Name = r.Name
+            })
+            .ToListAsync();
     }
 
 }

@@ -438,3 +438,58 @@
 
     .mf-btn-next:hover,
     .mf-btn-submit:hover { background: var(--mf-primary-hover); }
+
+.role-box {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.role-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+    .role-input input {
+        border: none;
+        outline: none;
+        flex: 1;
+        min-width: 150px;
+    }
+
+.tag {
+    background: #6C5CE7;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+    .tag span {
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+.role-suggestions {
+    background: white;
+    border: 1px solid #eee;
+    margin-top: 5px;
+    border-radius: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+    .suggestion-item:hover {
+        background: #f3f3ff;
+    }

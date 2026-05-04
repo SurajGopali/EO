@@ -1,6 +1,7 @@
 ﻿using EO.Models;
 using EO.Services.Common;
 using EO.Services.Profile;
+using EO.WebContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,12 +21,14 @@ namespace EO.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMemberService _memberService;
         private readonly ICommonService _commonService;
-        public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, IMemberService memberService, ICommonService commonService)
+        private readonly AppDbContext _context;
+        public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, IMemberService memberService, ICommonService commonService,AppDbContext appDbContext)
         {
             _profileService = profileService;
             _userManager = userManager;
             _memberService = memberService;
             _commonService = commonService;
+            _context = appDbContext;
         }
 
         [Authorize]
@@ -40,6 +43,14 @@ namespace EO.Controllers
             var userId = string.IsNullOrEmpty(id) ? user.Id : id;
 
             var profile = await _profileService.GetProfileAsync(userId);
+
+            var selectedRoles = await _context.UserRoles
+               .Where(x => x.UserId == userId)
+               .Include(x => x.Role)
+               .Select(x => x.Role.Name)
+               .ToListAsync();
+
+            ViewData["SelectedRoles"] = selectedRoles;
 
             var fullName = $"{user.FirstName} {user.MiddleName} {user.LastName}"
                 .Replace("  ", " ")
@@ -69,6 +80,53 @@ namespace EO.Controllers
             return PartialView("_SetupPartial", profile);
         }
 
+
+        public async Task<IActionResult> SetupPage(string? id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Unauthorized();
+
+            var userId = string.IsNullOrEmpty(id) ? user.Id : id;
+
+            var profile = await _profileService.GetProfileAsync(userId);
+
+            var selectedRoles = await _context.UserRoles
+               .Where(x => x.UserId == userId)
+               .Include(x => x.Role)
+               .Select(x => x.Role.Name)
+               .ToListAsync();
+
+            var fullName = $"{user.FirstName} {user.MiddleName} {user.LastName}"
+                .Replace("  ", " ")
+                .Trim();
+
+            ViewData["FullName"] = fullName;
+
+            if (profile == null)
+            {
+                profile = new UpdateProfileRequest
+                {
+                    UserId = userId,
+                    PersonalDetails = new(),
+                    CompanyDetails = new(),
+                    SocialLinks = new(),
+                    Spouse = new SpouseDto
+                    {
+                        SocialLinks = new(),
+                        Professional = new()
+                    },
+                    Children = new()
+                };
+            }
+
+            profile.UserId = userId;
+
+            profile.PersonalDetails.Roles = selectedRoles;
+
+            return View("SetupPage", profile);
+        }
 
         [HttpPost]
         public IActionResult Next([FromBody] int step)
@@ -247,6 +305,27 @@ namespace EO.Controllers
             var user = await _profileService.GetAsync(userId);
 
             return View(user);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Search(string query)
+        {
+            var roles = await _profileService.SearchRolesAsync(query);
+            return Ok(roles);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllRoles()
+        {
+            var roles = await _context.Roles
+                .Select(x => new RoleDto
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                })
+                .ToListAsync();
+
+            return Ok(roles);
         }
     }
 }

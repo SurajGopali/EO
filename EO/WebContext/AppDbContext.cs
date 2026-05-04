@@ -27,6 +27,8 @@ namespace EO.WebContext
         public DbSet<AlliancePerk> AlliancePerks { get; set; }
         public DbSet<AllianceType> AllianceTypes { get; set; }
         public DbSet<Perk> Perks { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -64,6 +66,19 @@ namespace EO.WebContext
                 .HasOne(c => c.User)
                 .WithOne(u => u.CompanyDetails)
                 .HasForeignKey<CompanyDetails>(c => c.UserId);
+
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany()
+                .HasForeignKey(ur => ur.UserId);
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany()
+                .HasForeignKey(ur => ur.RoleId);
         }
     }
 }

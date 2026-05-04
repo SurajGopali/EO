@@ -9,6 +9,7 @@ namespace EO.Services.Profile
         Task<ApplicationUser?> GetAsync(string userId);
 
         Task<bool> UpdateAsync(string userId, ProfileUpdateDto dto);
+        Task<List<RoleDto>> SearchRolesAsync(string query);
 
     }
 }

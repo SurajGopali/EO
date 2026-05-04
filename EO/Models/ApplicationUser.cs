@@ -85,18 +85,4 @@ namespace EO.Models
         public string? ProfileImage { get; set; }
     }
 
-    public class Role
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
-
-    public class UserRole
-    {
-        public string UserId { get; set; }
-        public ApplicationUser User { get; set; }
-
-        public int RoleId { get; set; }
-        public Role Role { get; set; }
-    }
 }

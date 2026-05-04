@@ -68,7 +68,7 @@
                 <label>Date of Birth</label>
                 <input name="PersonalDetails.DateOfBirth"
                        type="date"
-                       value="@(Model?.PersonalDetails?.DateOfBirth?.ToString("yyyy-MM-dd"))"
+                       value="@(Model?.PersonalDetails?.DateOfBirth?.ToString("yyyy-MM-dd"))" />
 
                 <label>Address</label>
                 <input name="PersonalDetails.Address"
@@ -76,6 +76,20 @@
 
                 <label>Bio</label>
                 <textarea name="PersonalDetails.Bio">@Model?.PersonalDetails?.Bio</textarea>
+
+                <label>Roles</label>
+
+                <div class="role-box">
+
+                    <div id="selectedRoles" class="role-input">
+                        <input type="text" id="roleSearch" placeholder="Type and press Enter..." />
+                    </div>
+
+                    <div id="roleSuggestions" class="role-suggestions"></div>
+
+                </div>
+
+                <div id="rolesHiddenContainer"></div>
 
                 <div class="mf-checkbox-row">
                     <input type="checkbox"
@@ -344,6 +358,12 @@
 <script src="~/js/profile-wizard.js"></script>
 
 <script>
+        let selectedRoles = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model?.PersonalDetails?.Roles ?? new List<string>()
+        ));
+</script>
+
+<script>
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     //  YOUR WORKING SCRIPT â€” unchanged logic.
     //  Shell bridge: updateShell() is called after every step change
@@ -395,14 +415,28 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-    document.addEventListener("DOMContentLoaded", () => {
+        function initProfileWizard() {
         toggleAnniversary();
+
+        if (!selectedRoles) selectedRoles = [];
+
+        renderRoles();  
         showStep(step);
+
         childIndex = document.querySelectorAll(".child-item").length || 0;
+    }
+            window.addEventListener("load", function () {
+        initProfileWizard();
     });
 
-    // ---------------- STEP CONTROL ----------------
+        window.addEventListener("beforeunload", function () {
+        clearDraft();
+    });
+
+        function clearDraft() {
+        selectedRoles = [];
+        sessionStorage.removeItem("selectedRolesDraft");
+    }
 
     function isMarried() {
         return document.getElementById("isMarried").checked;
@@ -469,7 +503,6 @@
         document.getElementById("progress").style.width = progress + "%";
     }
 
-    // ---------------- MARRIED ----------------
 
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("isMarried").addEventListener("change", () => {
@@ -492,7 +525,6 @@
         }
     }
 
-    // ---------------- CHILDREN ----------------
 
         function addChild() {
         const container = document.getElementById("childrenContainer");
@@ -559,7 +591,101 @@
         return list;
     }
 
-    // ---------------- TAG SYSTEM ----------------
+
+        document.addEventListener("input", async function (e) {
+        if (e.target && e.target.id === "roleSearch") {
+
+            const query = e.target.value;
+
+            if (!query) {
+                document.getElementById("roleSuggestions").innerHTML = "";
+                return;
+            }
+
+            const res = await fetch(`/Profile/Search?query=${query}`);
+            const data = await res.json();
+
+            let html = "";
+
+            data.forEach(role => {
+                html += `<div class="suggestion-item" onclick="selectRole('${role.name}')">${role.name}</div>`;
+            });
+
+            if (!data.some(r => r.name.toLowerCase() === query.toLowerCase())) {
+                html += `<div class="suggestion-item new" onclick="selectRole('${query}')">Add "${query}"</div>`;
+            }
+
+            document.getElementById("roleSuggestions").innerHTML = html;
+        }
+    });
+
+        document.getElementById("roleSearch").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            if (this.value.trim()) {
+                selectRole(this.value.trim());
+            }
+        }
+    });
+
+        function selectRole(roleName) {
+        if (selectedRoles.includes(roleName)) return;
+
+        selectedRoles.push(roleName);
+        renderRoles();
+
+        document.getElementById("roleSearch").value = "";
+        document.getElementById("roleSuggestions").innerHTML = "";
+    }
+
+            function renderRoles() {
+        const container = document.getElementById("selectedRoles");
+        const hiddenContainer = document.getElementById("rolesHiddenContainer");
+
+        // keep the input safe
+        const inputHtml = `
+            <input type="text" id="roleSearch" placeholder="Type and press Enter..." />
+        `;
+
+        container.innerHTML = inputHtml;
+        hiddenContainer.innerHTML = "";
+
+        selectedRoles.forEach((r, i) => {
+            container.innerHTML += `
+                <div class="tag">
+                    ${r}
+                    <span onclick="removeRole('${r}')">×</span>
+                </div>
+            `;
+
+            hiddenContainer.innerHTML += `
+                <input type="hidden" name="PersonalDetails.Roles[${i}]" value="${r}" />
+            `;
+        });
+
+            function bindRoleInput() {
+        const input = document.getElementById("roleSearch");
+
+        if (!input) return;
+
+        input.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                if (this.value.trim()) {
+                    selectRole(this.value.trim());
+                }
+            }
+        });
+    }
+
+        // rebind events after DOM reset
+        bindRoleInput();
+    }
+        function removeRole(role) {
+        selectedRoles = selectedRoles.filter(r => r !== role);
+        renderRoles();
+    }
+
 
     function addPreviousRole() {
         const container = document.getElementById("previousRolesContainer");
@@ -586,7 +712,6 @@
         if (item) item.remove();
     }
 
-    // ---------------- HELPERS ----------------
 
     function getValue(name) {
         const el = document.querySelector(`[name="${name}"]`);
@@ -599,7 +724,6 @@
             .filter(x => x && x.length > 0);
     }
 
-    // ---------------- CHILDREN REVIEW ----------------
 
     function renderChildrenReview() {
         const rows = document.querySelectorAll(".child-item");
@@ -639,7 +763,6 @@
         return html;
     }
 
-    // ---------------- REVIEW ----------------
 
     function buildReview() {
         const married = isMarried();
@@ -714,14 +837,12 @@
         document.getElementById("reviewContainer").innerHTML = html;
     }
 
-    // ---------------- SUBMIT ----------------
 
             async function submitForm() {
 
         const married = isMarried();
         const formData = new FormData();
 
-        // ---------------- PROFILE JSON ----------------
         const obj = {
             userId: "@Model.UserId",
 
@@ -730,9 +851,11 @@
                 anniversaryDate: getValue("PersonalDetails.AnniversaryDate"),
                 address: getValue("PersonalDetails.Address"),
                 bio: getValue("PersonalDetails.Bio"),
+                roles: selectedRoles,
                 isMarried: married,
                 isVegetarian: document.getElementById("isVegetarian")?.checked || false
             },
+
 
             companyDetails: {
                 companyName: getValue("CompanyDetails.CompanyName"),
@@ -776,17 +899,14 @@
             children: getChildren()
         };
 
-        // ---------------- JSON ----------------
         formData.append("data", JSON.stringify(obj));
 
-        // ---------------- SPOUSE FILE (FIXED) ----------------
         const spouseFileInput = document.querySelector("input[name='Spouse.ProfileImageFile']");
 
         if (spouseFileInput?.files?.length > 0) {
             formData.append("SpouseProfileImageFile", spouseFileInput.files[0]);
         }
 
-        // ---------------- CHILDREN FILES (ONLY THIS WAY) ----------------
         document.querySelectorAll(".child-item").forEach((row) => {
             const fileInput = row.querySelector("input[type='file']");
 
@@ -795,13 +915,13 @@
             }
         });
 
-        // ---------------- SEND ----------------
         const res = await fetch("/Profile/Submit", {
             method: "POST",
             body: formData
         });
 
         if (res.ok) {
+             clearDraft();
              window.location.href = "/Profile/Members";
         } else {
             const text = await res.text();

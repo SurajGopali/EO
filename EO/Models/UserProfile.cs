@@ -128,6 +128,8 @@
         public bool IsMarried { get; set; }
         public string? Bio { get; set; }
         public bool? IsVegetarian { get; set; }
+        public List<string>? Roles { get; set; }
+
 
     }
 
@@ -245,5 +247,25 @@
         public string FullName { get; set; }
         public DateTime AnniversaryDate { get; set; }
         public int DaysLeft { get; set; }
+    }
+
+    public class Role
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class UserRole
+    {
+        public string UserId { get; set; }
+        public ApplicationUser User { get; set; }
+        public int RoleId { get; set; }
+        public Role Role { get; set; }
+    }
+
+    public class RoleDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }

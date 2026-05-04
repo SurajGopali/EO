@@ -1,0 +1,13 @@
+﻿@model EO.Models.UpdateProfileRequest
+
+@{
+    ViewData["Title"] = "Profile Setup";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+    <div style="width: 100%; max-width: 800px;">
+
+        @await Html.PartialAsync("_SetupPartial", Model)
+    </div>
+</div>

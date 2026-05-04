@@ -42,6 +42,13 @@ namespace EO.Controllers
 
             var userId = string.IsNullOrEmpty(id) ? user.Id : id;
 
+            var targetUser = string.IsNullOrEmpty(id)
+            ? user
+            : await _userManager.FindByIdAsync(userId);
+
+            if (targetUser == null)
+                return NotFound();
+
             var profile = await _profileService.GetProfileAsync(userId);
 
             var selectedRoles = await _context.UserRoles
@@ -52,9 +59,9 @@ namespace EO.Controllers
 
             ViewData["SelectedRoles"] = selectedRoles;
 
-            var fullName = $"{user.FirstName} {user.MiddleName} {user.LastName}"
-                .Replace("  ", " ")
-                .Trim();
+            var fullName = $"{targetUser.FirstName} {targetUser.MiddleName} {targetUser.LastName}"
+            .Replace("  ", " ")
+            .Trim();
 
             ViewData["FullName"] = fullName;
 

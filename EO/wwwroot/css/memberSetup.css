@@ -440,10 +440,9 @@
     .mf-btn-submit:hover { background: var(--mf-primary-hover); }
 
 .role-box {
-    border: 1px solid #ddd;
-    padding: 10px;
+    border: 0px;
     border-radius: 10px;
-    background: #fff;
+    background: var(--mf-card-bg);
 }
 
 .role-input {
@@ -477,8 +476,8 @@
     }
 
 .role-suggestions {
-    background: white;
-    border: 1px solid #eee;
+    background: var(--mf-card-bg);
+    border: 0px;
     margin-top: 5px;
     border-radius: 8px;
     max-height: 150px;
@@ -491,5 +490,5 @@
 }
 
     .suggestion-item:hover {
-        background: #f3f3ff;
+        background: var(--mf-primary-hover);
     }

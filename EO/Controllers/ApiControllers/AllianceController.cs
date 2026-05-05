@@ -14,48 +14,31 @@ namespace EO.Controllers.ApiControllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AppDbContext _context;
+        private readonly IAllianceService _allianceService;
 
         public AllianceController(
             UserManager<ApplicationUser> userManager,
-            AppDbContext context)
+            AppDbContext context,
+            IAllianceService allianceService)
         {
             _userManager = userManager;
             _context = context;
+            _allianceService = allianceService;
         }
 
         [Authorize(AuthenticationSchemes = "Jwt")]
         [HttpGet]
         public async Task<IActionResult> GetAllianceData()
         {
-            var types = await _context.AllianceTypes
-                .Select(t => t.Name)
-                .ToListAsync();
-
-            var alliances = await _context.Alliances
-                .Include(a => a.AlliancePerks)
-                    .ThenInclude(ap => ap.Perk)
-                .ToListAsync();
-
-            var result = new
-            {
-                types,
-                alliances = alliances.Select(a => new
-                {
-                    name = a.Name,
-                    category = a.AllianceTypeId, 
-                    logo = a.Logo,
-                    description = a.Description,
-
-                    perks = a.AlliancePerks
-                        .Select(ap => ap.Perk.Name)
-                })
-            };
-
+            var alliances = await _allianceService.GetAllAsync();
             return Ok(new
             {
                 success = true,
                 message = "Alliance Data Fetched Successfully",
-                alliance = result
+                alliance = new
+                {
+                    alliances
+                }
             });
         }
     }

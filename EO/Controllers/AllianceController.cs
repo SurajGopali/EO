@@ -7,7 +7,7 @@ using EO.Services.Common;
 
 public class AllianceController : Controller
 {
-    private readonly IAllianceService _service;
+    private readonly IAllianceService _allianceService;
     private readonly AppDbContext _context;
     private readonly ICommonService _commonService;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -18,16 +18,15 @@ public class AllianceController : Controller
         ICommonService commonService,
         UserManager<ApplicationUser> userManager)
     {
-        _service = service;
+        _allianceService = service;
         _context = context;
         _commonService = commonService;
         _userManager = userManager;
     }
 
-    // ---------------- LIST ----------------
     public async Task<IActionResult> Index()
     {
-        var data = await _service.GetAllAsync();
+        var data = await _allianceService.GetAllAsync();
         return View(data);
     }
 
@@ -41,7 +40,7 @@ public class AllianceController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-        var data = await _service.GetByIdAsync(id);
+        var data = await _allianceService.GetByIdAsync(id);
 
         ViewBag.Types = await _context.AllianceTypes.ToListAsync();
         ViewBag.Perks = await _context.Perks.ToListAsync();
@@ -65,16 +64,16 @@ public class AllianceController : Controller
 
         if (dto.Id > 0)
         {
-            var existing = await _service.GetByIdAsync(dto.Id);
+            var existing = await _allianceService.GetByIdAsync(dto.Id);
 
             if (string.IsNullOrEmpty(dto.Logo))
                 dto.Logo = existing.Logo;
 
-            await _service.UpdateAsync(dto);
+            await _allianceService.UpdateAsync(dto);
         }
         else
         {
-            await _service.CreateAsync(dto);
+            await _allianceService.CreateAsync(dto);
         }
 
         return Json(new { success = true });
@@ -84,7 +83,7 @@ public class AllianceController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        await _service.DeleteAsync(id);
-        return RedirectToAction(nameof(Index));
+        await _allianceService.DeleteAsync(id);
+        return Json(new { success = true, message = "Alliance deleted successfully" });
     }
 }

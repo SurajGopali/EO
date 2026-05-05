@@ -3,10 +3,12 @@
 @{
     ViewData["Title"] = "Alliances";
 }
+
 <link href="~/css/table.css" rel="stylesheet" />
 
-<button type="button"
-        class="btn btn-primary mb-2 createAllianceBtn">
+@Html.AntiForgeryToken()
+
+<button type="button" class="btn btn-primary mb-2 createAllianceBtn">
     Create New
 </button>
 
@@ -48,16 +50,15 @@
 
                                     <button type="button"
                                             class="btn-action btn-edit editAllianceBtn"
-                                            data-id="@item.Id"
-                                            title="Edit">
+                                            data-id="@item.Id">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>
 
-                                    <a class="btn-action btn-deactivate"
-                                           href="/Alliance/Delete/@item.Id"
-                                           onclick="return confirm('Are you sure?');">
+                                    <button type="button"
+                                            class="btn-action btn-deactivate deleteAllianceBtn"
+                                            data-id="@item.Id">
                                         <i class="bi bi-trash"></i>
-                                    </a>
+                                    </button>
 
                                 </div>
                             </td>
@@ -79,13 +80,15 @@
 
 <div class="modal fade" id="allianceModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered" style="max-width: max-content;">
-        <div class="modal-content" id="allianceModalContent" style="width: max-content; overflow: hidden; border: none; background: transparent;">
+        <div class="modal-content" id="allianceModalContent"
+             style="width: max-content; overflow: hidden; border: none; background: transparent;">
         </div>
     </div>
 </div>
 
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> 
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 
@@ -113,6 +116,42 @@
             var modal = new bootstrap.Modal(document.getElementById('allianceModal'));
             modal.show();
 
+        });
+
+    });
+
+    $(document).on('click', '.deleteAllianceBtn', function () {
+
+        var button = $(this);
+        var id = button.data('id');
+
+        if (!confirm('Are you sure you want to delete this alliance?')) return;
+
+        $.ajax({
+            url: '/Alliance/Delete',
+            type: 'POST',
+            data: {
+                id: id,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function (res) {
+
+                if (res.success) {
+
+                    showToast(res.message, "success");
+
+                    button.closest('tr').fadeOut(300, function () {
+                        $(this).remove();
+                    });
+
+                } else {
+                    showToast("Something went wrong", "error");
+                }
+
+            },
+            error: function () {
+                showToast("Server error occurred", "error");
+            }
         });
 
     });

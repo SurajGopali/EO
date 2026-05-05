@@ -123,15 +123,19 @@ namespace EO.Controllers
             return Json(new { success = true });
         }
 
-        // =========================
-        // DELETE
-        // =========================
+
         [Authorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             await _eventService.DeleteEventAsync(id);
-            return RedirectToAction("Index");
+
+            return Json(new
+            {
+                success = true,
+                message = "Event deleted successfully"
+            });
         }
     }
 }

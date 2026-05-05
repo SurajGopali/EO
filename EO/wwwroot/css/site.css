@@ -2,6 +2,40 @@ html {
   font-size: 14px;
 }
 
+:root {
+  --toast-success-bg: linear-gradient(135deg,#e8faf0 0%,#f4fdf7 60%,#ffffff 100%);
+  --toast-error-bg: linear-gradient(135deg,#fdf0f0 0%,#fdf6f6 60%,#ffffff 100%);
+
+  --toast-success-border: rgba(52,168,100,0.22);
+  --toast-error-border: rgba(220,60,60,0.20);
+
+  --toast-success-text: #166534;
+  --toast-error-text: #7b1c1c;
+
+  --toast-success-sub: #6aab80;
+  --toast-error-sub: #c08080;
+
+  --toast-icon-success: #1e8449;
+  --toast-icon-error: #c0392b;
+}
+
+[data-theme="dark"] {
+  --toast-success-bg: linear-gradient(135deg,#0f2a1c 0%,#0c1f16 60%,#0b1220 100%);
+  --toast-error-bg: linear-gradient(135deg,#2a0f0f 0%,#1f0c0c 60%,#0b1220 100%);
+
+  --toast-success-border: rgba(74,222,128,0.18);
+  --toast-error-border: rgba(248,113,113,0.18);
+
+  --toast-success-text: #4ade80;
+  --toast-error-text: #fb7185;
+
+  --toast-success-sub: #86efac;
+  --toast-error-sub: #fca5a5;
+
+  --toast-icon-success: #4ade80;
+  --toast-icon-error: #fb7185;
+}
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;

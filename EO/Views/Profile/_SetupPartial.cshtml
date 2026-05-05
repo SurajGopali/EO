@@ -917,12 +917,15 @@
         });
 
         if (res.ok) {
-             clearDraft();
-             window.location.href = "/Profile/Members";
+            clearDraft();
+            Toast.success("Profile updated successfully", "Redirecting...");
+            setTimeout(() => {
+                window.location.href = "/Profile/Members";
+            }, 2000); // 2 seconds
         } else {
             const text = await res.text();
             console.error(text);
-            alert("Failed to submit profile");
+            Toast.error("Failed to update profile");
         }
     }
 </script>

@@ -144,7 +144,7 @@
 
     $(document).on('submit', '#eventForm', function (e) {
         e.preventDefault();
-
+         var isEdit = @(isEdit.ToString().ToLower());
         var formData = new FormData(this);
 
         $.ajax({
@@ -157,7 +157,9 @@
             success: function (res) {
                 if (res.success) {
 
-                    $('#pageLoader').fadeIn(150);
+                    // $('#pageLoader').fadeIn(150);
+
+                    Toast.success("Event " + (isEdit ? "updated" : "added") + " successfully", "Refreshing...");
 
                     var modalEl = document.getElementById('eventModal');
                     var modal = bootstrap.Modal.getInstance(modalEl);
@@ -165,12 +167,12 @@
 
                     setTimeout(() => {
                         location.reload();
-                    }, 300);
+                    }, 2200);
                 }
             },
 
             error: function (err) {
-                console.error(err);
+                Toast.error("Something went wrong!! ", "Try Again...");
             }
         });
     });

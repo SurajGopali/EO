@@ -223,8 +223,9 @@
         btn.closest(".schedule-item").remove();
     }
 
-        $(document).on('submit', '#editDetailsForm', function (e) {
+    $(document).on('submit', '#editDetailsForm', function (e) {
         e.preventDefault();
+    
 
         var formData = new FormData(this);
 
@@ -237,7 +238,9 @@
             success: function (res) {
                 if (res.success) {
 
-                    $('#pageLoader').fadeIn(150);
+                    // $('#pageLoader').fadeIn(150);
+
+                    Toast.success("Event Details updated successfully", "Refreshing...");
 
                     var modalEl = document.getElementById('eventDetailsModal');
                     var modal = bootstrap.Modal.getInstance(modalEl);
@@ -245,11 +248,11 @@
 
                     setTimeout(() => {
                         location.reload();
-                    }, 300);
+                    }, 2200);
                 }
             },
             error: function (err) {
-                console.error(err);
+                Toast.error("Something went wrong!! ", "Try Again...");
             }
         });
     });

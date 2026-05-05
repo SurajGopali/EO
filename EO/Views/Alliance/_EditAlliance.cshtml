@@ -92,6 +92,7 @@
 </div>
 
 <script>
+ var isEdit = @(isEdit.ToString().ToLower());
 
     $(document).on('submit', '#allianceForm', function (e) {
         e.preventDefault();
@@ -107,13 +108,16 @@
             success: function (res) {
 
                 if (res.success) {
+                    Toast.success("Alliance " +(isEdit ? "updated " : "added ") + "successfully", "Refreshing...");
 
                     var modalEl = document.getElementById('allianceModal');
                     var modal = bootstrap.Modal.getInstance(modalEl);
                     if (modal) modal.hide();
-
-                    location.reload();
+                    setTimeout(() => location.reload(), 2200);
                 }
+            },  
+            error: function(err){
+                Toast.error("Something went wrong!! ", "Try Again...");
             }
         });
     });

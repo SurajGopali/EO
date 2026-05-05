@@ -745,14 +745,48 @@
             if (!name && !school && !grade && !dob && !image) return;
 
             html += `
-                <div style="border:1px solid #e0ddf5;padding:12px;margin-bottom:12px;background:#f7f7fb;">
-                    <div style="font-weight:600;margin-bottom:8px;color:#6C5CE7;">Child ${index + 1}</div>
-                    <div class="review-row"><div class="review-label">Name</div><div class="review-value">${name || "-"}</div></div>
-                    <div class="review-row"><div class="review-label">School</div><div class="review-value">${school || "-"}</div></div>
-                    <div class="review-row"><div class="review-label">Grade</div><div class="review-value">${grade || "-"}</div></div>
-                    <div class="review-row"><div class="review-label">Date of Birth</div><div class="review-value">${dob || "-"}</div></div>
-                    <div class="review-row"><div class="review-label">Profile Image</div><div class="review-value">${image ? `<a href="${image}" target="_blank">View</a>` : "-"}</div></div>
-                </div>
+                <div style="
+    border: 1px solid var(--mf-card-border);
+    padding: 12px;
+    margin-bottom: 12px;
+    background: var(--mf-card-bg);
+    transition: background 0.3s, border-color 0.3s;
+">
+    <div style="
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--mf-primary);
+    ">
+        Child ${index + 1}
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">Name</div>
+        <div class="review-value">${name || "-"}</div>
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">School</div>
+        <div class="review-value">${school || "-"}</div>
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">Grade</div>
+        <div class="review-value">${grade || "-"}</div>
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">Date of Birth</div>
+        <div class="review-value">${dob || "-"}</div>
+    </div>
+
+    <div class="review-row">
+        <div class="review-label">Profile Image</div>
+        <div class="review-value">
+            ${image ? `<a href="${image}" target="_blank" style="color: var(--mf-primary); text-decoration: none;">View</a>` : "-"}
+        </div>
+    </div>
+</div>
             `;
         });
 

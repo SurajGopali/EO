@@ -2,6 +2,8 @@ html {
   font-size: 14px;
 }
 
+/********************************** TOAST MODEL ************************************************/
+
 :root {
   --toast-success-bg: linear-gradient(135deg,#e8faf0 0%,#f4fdf7 60%,#ffffff 100%);
   --toast-error-bg: linear-gradient(135deg,#fdf0f0 0%,#fdf6f6 60%,#ffffff 100%);
@@ -35,6 +37,10 @@ html {
   --toast-icon-success: #4ade80;
   --toast-icon-error: #fb7185;
 }
+
+
+
+
 
 @media (min-width: 768px) {
   html {

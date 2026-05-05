@@ -414,14 +414,11 @@ buildCarousel('bdayTrack', 'bdayDots', 126, -5, DATA.birthdays, b => `
   </div>`, 2);
 
 buildCarousel('membersTrack', 'memberDots', 96, 12, DATA.newMembers, m => `
-  <div class="member-card">
-    <div class="member-aw">
-      <img class="member-avatar" src="${m.avatar}" alt="${m.name}" loading="lazy">
-      <span class="new-pill">New</span>
-    </div>
-    <div class="member-name">${m.name}</div>
-    <div class="member-role">${m.role}</div>
-    <div class="member-joined">${m.joined}</div>
+  <div class="bday-card">
+      <img class="bday-avatar" src="${m.avatar}" alt="${m.name}" loading="lazy">
+    <div class="bday-name">${m.name}</div>
+    <div class="bday-role">${m.role}</div>
+    <div class="bday-date-pill">${m.joined}</div>
   </div>`, 2);
 
   buildCarousel('anniTrack', 'anniDots', 126, 12, DATA.anniversaries, a => `

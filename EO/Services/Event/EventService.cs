@@ -513,4 +513,31 @@ public class EventService : IEventService
             RemainingDays = 0 // today
         }).ToList();
     }
+
+    public async Task RegisterAsync(string userId, EventRegisterDto dto)
+    {
+        var existing = await _context.EventRegistrations
+            .FirstOrDefaultAsync(x => x.EventId == dto.EventId && x.UserId == userId);
+
+        if (existing == null)
+        {
+            existing = new EventRegistration
+            {
+                EventId = dto.EventId,
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.EventRegistrations.Add(existing);
+        }
+
+        existing.ResponseTypeId = dto.ResponseTypeId;
+
+        await _context.SaveChangesAsync();
+    }
+    public async Task<List<EventResponseType>> GetAllResponseTypeAsync()
+    {
+        return await _context.EventResponseTypes
+            .OrderBy(x => x.Id)
+            .ToListAsync();
+    }
 }

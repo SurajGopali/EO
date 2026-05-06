@@ -22,6 +22,8 @@ namespace EO.Services.Event
         Task<List<EventDto>> FilterEventsAsync(int? eventTypeId, int? year, string? range);
         Task<List<EventDto>> GetUpcomingEventsAsync();
         Task<List<EventDto>> GetTodayEventsAsync();
+        Task RegisterAsync(string userId, EventRegisterDto dto);
+        Task<List<EventResponseType>> GetAllResponseTypeAsync();
 
     }
 }

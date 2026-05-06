@@ -36,19 +36,15 @@
             <input type="hidden" name="Id" value="@Model.Id" />
             <input type="hidden" name="Image" value="@Model.Image" />
 
-            <!-- TITLE -->
             <label>Title</label>
             <input name="Title" value="@Model.Title" class="form-control" />
 
-            <!-- LOCATION -->
             <label>Location</label>
             <input name="Location" value="@Model.Location" class="form-control" />
 
-            <!-- DESCRIPTION -->
             <label>Description</label>
             <textarea name="Description" class="form-control">@Model.Description</textarea>
 
-            <!-- DATE + TIME ROW -->
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
 
                 <div style="flex:1;">
@@ -77,7 +73,6 @@
 
             </div>
 
-            <!-- EVENT TYPE -->
             <label>Event Type</label>
             <select name="TypeId" class="form-control">
                 <option value="">-- Select Event Type --</option>
@@ -91,7 +86,6 @@
                 }
             </select>
 
-            <!-- CURRENT IMAGE -->
 
             @if (!string.IsNullOrEmpty(Model.Image))
             {
@@ -109,14 +103,12 @@
                          style="display:none;width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #ddd;" />
                 }   
 
-            <!-- CHANGE IMAGE -->
             <label>Change Image</label>
             <input type="file"
                    name="ImageFile"
                    class="form-control"
                    onchange="previewImage(event)" />
 
-            <!-- BUTTONS -->
             <div class="mf-btn-row mt-3">
 
                 <button type="button"

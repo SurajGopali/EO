@@ -3,9 +3,7 @@ using System.Collections.Generic;
 
 namespace EO.Models
 {
-    // =========================
-    // MAIN EVENT ENTITY
-    // =========================
+
     public class Events
     {
         public int Id { get; set; }
@@ -29,18 +27,14 @@ namespace EO.Models
         public List<EventGuest>? Guests { get; set; }
     }
 
-    // =========================
-    // EVENT TYPE
-    // =========================
+
     public class EventType
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
 
-    // =========================
-    // EVENT DETAIL (1-1)
-    // =========================
+
     public class EventDetail
     {
         public int Id { get; set; }
@@ -57,9 +51,7 @@ namespace EO.Models
         public DateTime EndDateTime { get; set; }
     }
 
-    // =========================
-    // EVENT SCHEDULE
-    // =========================
+
     public class EventSchedule
     {
         public int Id { get; set; }
@@ -74,9 +66,7 @@ namespace EO.Models
         public string? Description { get; set; }
     }
 
-    // =========================
-    // EVENT GUEST (IDENTITY USER)
-    // =========================
+
     public class EventGuest
     {
         public int Id { get; set; }
@@ -88,9 +78,7 @@ namespace EO.Models
         public ApplicationUser? User { get; set; }
     }
 
-    // =========================
-    // EVENT LIST DTO
-    // =========================
+
     public class EventDto
     {
         public int Id { get; set; }
@@ -112,9 +100,7 @@ namespace EO.Models
         public int RemainingDays { get; set; }
     }
 
-    // =========================
-    // CREATE EVENT
-    // =========================
+
     public class EventCreateDto
     {
         public string Title { get; set; }
@@ -132,9 +118,7 @@ namespace EO.Models
         public string? Image { get; set; }
     }
 
-    // =========================
-    // EVENT DETAILS RESPONSE
-    // =========================
+
     public class EventDetailsDto
     {
         public string Id { get; set; }
@@ -153,9 +137,7 @@ namespace EO.Models
         public List<EventGuestDto> Guests { get; set; } = new();
     }
 
-    // =========================
-    // SCHEDULE DTO
-    // =========================
+
     public class ScheduleDto
     {
         public int Id { get; set; }
@@ -165,9 +147,7 @@ namespace EO.Models
         public string Description { get; set; }
     }
 
-    // =========================
-    // EVENT GUEST DTO (USER-BASED)
-    // =========================
+
     public class EventGuestDto
     {
         public string Id { get; set; }
@@ -177,9 +157,7 @@ namespace EO.Models
         public string? Avatar { get; set; }
     }
 
-    // =========================
-    // EVENT DETAIL CREATE/UPDATE
-    // =========================
+
     public class CreateEventDetailsDto
     {
         public string Title { get; set; }
@@ -196,9 +174,7 @@ namespace EO.Models
         public List<ScheduleDto> Schedule { get; set; } = new();
     }
 
-    // =========================
-    // FULL UPDATE DTO
-    // =========================
+
     public class UpdateEventDetailFullDto
     {
         public int EventId { get; set; }
@@ -210,9 +186,7 @@ namespace EO.Models
         public List<string> GuestIds { get; set; } = new();
     }
 
-    // =========================
-    // SIMPLE EVENT UPDATE
-    // =========================
+
     public class EventUpdateDto
     {
         public int Id { get; set; }
@@ -233,12 +207,38 @@ namespace EO.Models
         public IFormFile? ImageFile { get; set; }  
     }
 
-    // =========================
-    // ADD USER TO EVENT
-    // =========================
+
     public class AddGuestToEventDto
     {
         public int EventId { get; set; }
         public string UserId { get; set; }
+    }
+
+    public class EventResponseType
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class EventRegistration
+    {
+        public int Id { get; set; }
+        public int EventId { get; set; }
+        public string UserId { get; set; }
+        public int ResponseTypeId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public Events Event { get; set; }
+        public EventResponseType ResponseType { get; set; }
+    }
+    public class EventRegisterDto
+    {
+        public int EventId { get; set; }
+        public int ResponseTypeId { get; set; }
+    }
+
+    public class EventIndexViewModel
+    {
+        public List<EventDto> Events { get; set; }
+        public List<EventResponseType> ResponseTypes { get; set; }
     }
 }

@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Views\EventGuest\" />
+    <Folder Include="Views\Member\" />
   </ItemGroup>
 
 </Project>

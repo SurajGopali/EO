@@ -9,9 +9,7 @@
 <h3 class="mb-3">Members</h3>
 
 <div class="mb-3">
-    <a class="btn btn-primary btn-sm"
-           asp-area="Identity"
-           asp-page="/Account/Register">
+    <a class="btn btn-primary btn-sm" href="javascript:void(0);" id="addMemberBtn">
         + Add Member
     </a>
 
@@ -124,4 +122,91 @@
             });
         });
     </script>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#addMemberBtn').on('click', function () {
+
+                $.get('/AdminUsers/CreateMemberForm', function (data) {
+                    $('#setupModalContent').html(data);
+
+                    var modal = new bootstrap.Modal(document.getElementById('setupModal'));
+                    modal.show();
+                });
+
+            });
+
+        });
+
+
+        $(document).on('submit', '#registerMemberForm', function (e) {
+            e.preventDefault();
+
+            const btn = $(this).find("button[type='submit']");
+            btn.text("Creating...").prop("disabled", true);
+
+            const data = {
+                FirstName: $("[name='FirstName']").val(),
+                MiddleName: $("[name='MiddleName']").val(),
+                LastName: $("[name='LastName']").val(),
+                Email: $("[name='Email']").val(),
+                MobileNumber: $("[name='MobileNumber']").val(),
+                EoRole: $("[name='EoRole']").val(),
+                Gender: Number($("[name='Gender']").val()),
+                Password: $("[name='Password']").val(),
+                ConfirmPassword: $("[name='ConfirmPassword']").val()
+            };
+
+            $.ajax({
+                url: '/AdminUsers/CreateMember',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+
+                success: function (res) {
+
+                    if (res.success) {
+                        Toast.success(res.message || "Member created successfully", "Success");
+
+                        const modalEl = document.getElementById('setupModal');
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) modal.hide();
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    }
+                    else {
+                        Toast.error(res.message || "Failed to create member", "Error");
+                    }
+                },
+
+                error: function (err) {
+
+                    let message = "Something went wrong!!";
+
+                    if (err.responseJSON) {
+
+                        if (err.responseJSON.message) {
+                            message = err.responseJSON.message;
+                        }
+
+                        if (err.responseJSON.errors) {
+                            message += "\n" + err.responseJSON.errors.join("\n");
+                        }
+                    }
+
+                    Toast.error(message, "Try Again...");
+                },
+
+                complete: function () {
+                    btn.text("Create Member").prop("disabled", false);
+                }
+            });
+        });
+    </script>
+
+
+
 }

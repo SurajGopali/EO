@@ -23,8 +23,13 @@ namespace EO.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var events = await _eventService.GetEventsAsync();
-            return View(events);
+            var model = new EventIndexViewModel
+            {
+                Events = await _eventService.GetEventsAsync(),
+                ResponseTypes = await _eventService.GetAllResponseTypeAsync(),
+            };
+
+            return View(model);
         }
 
         [HttpGet]
@@ -136,6 +141,31 @@ namespace EO.Controllers
                 success = true,
                 message = "Event deleted successfully"
             });
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Register([FromBody] EventRegisterDto dto)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (dto.EventId <= 0 || dto.ResponseTypeId <= 0)
+                return Json(new { success = false, message = "Invalid data" });
+
+            await _eventService.RegisterAsync(userId, dto);
+
+            return Json(new { success = true });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetResponseTypes()
+        {
+            var types = await _eventService.GetAllResponseTypeAsync();
+
+            return Json(types.Select(x => new {
+                id = x.Id,
+                name = x.Name
+            }));
         }
     }
 }

@@ -94,7 +94,9 @@
 <script>
  var isEdit = @(isEdit.ToString().ToLower());
 
-    $(document).on('submit', '#allianceForm', function (e) {
+    $(document)
+        .off('submit', '#allianceForm')
+        .on('submit', '#allianceForm', function (e) {
         e.preventDefault();
 
         var formData = new FormData(this);
@@ -122,20 +124,23 @@
         });
     });
 
-    $(document).on('change', '#LogoFile', function () {
-    var file = this.files[0];
+       $(document)
+           .off('change', '#LogoFile')
+           .on('change', '#LogoFile', function () {
 
-    if (file) {
-        var reader = new FileReader();
+           var file = this.files[0];
 
-        reader.onload = function (e) {
-            $("#logoPreview").attr("src", e.target.result);
-            $("#logoPreviewContainer").show();
-        };
+           if (file) {
+               var reader = new FileReader();
 
-        reader.readAsDataURL(file);
-    } else {
-        $("#logoPreviewContainer").hide();
-    }
-});
+               reader.onload = function (e) {
+                   $("#logoPreview").attr("src", e.target.result);
+                   $("#logoPreviewContainer").show();
+               };
+
+               reader.readAsDataURL(file);
+           } else {
+               $("#logoPreviewContainer").hide();
+           }
+       });
 </script>

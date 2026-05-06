@@ -29,6 +29,8 @@ namespace EO.WebContext
         public DbSet<Perk> Perks { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<EventRegistration> EventRegistrations { get; set; }
+        public DbSet<EventResponseType> EventResponseTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

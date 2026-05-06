@@ -268,4 +268,12 @@
         public int Id { get; set; }
         public string Name { get; set; }
     }
+
+    public class MemberBoardMembership
+    {
+        public int id { get; set; }
+        public string MemberId { get; set; }
+        public string  RoleName { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
 }

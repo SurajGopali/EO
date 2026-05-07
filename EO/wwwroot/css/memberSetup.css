@@ -19,6 +19,7 @@
         --mf-add-btn-hover: #f0eeff;
         --mf-badge-text: #fff;
         --mf-step-circle-text: #fff;
+        --mf-danger: #dc3545;
     }
 
     [data-theme="dark"] {
@@ -42,6 +43,7 @@
         --mf-add-btn-hover: var(--sidebar-hover-bg, #2d2d2d);
         --mf-badge-text: #fff;
         --mf-step-circle-text: #fff;
+        --mf-danger: #ff5c6c;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -499,7 +501,7 @@
 
 .mf-option-btn {
     padding: 12px 14px;
-    border: 1px solid var(--mf-border-mid);
+    border: 2px solid var(--mf-border-mid);
     border-radius: 12px;
     background: var(--mf-card-bg);
     color: var(--mf-text-main);
@@ -517,4 +519,19 @@
 
 .mf-option-btn:active {
     transform: scale(0.99);
+}
+
+
+.mf-btn-back-cancel {
+    color: var(--mf-danger);
+    background: transparent;
+    border: 1px solid var(--mf-danger);
+    transition: 0.15s ease;
+    
+}
+
+
+.mf-btn-back-cancel:hover {
+    background: var(--mf-danger);
+    color: #fff;
 }

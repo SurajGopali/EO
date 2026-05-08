@@ -29,7 +29,13 @@ namespace EO.WebContext
         public DbSet<Perk> Perks { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
-
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<GroupTag> GroupTag { get; set; }
+        public DbSet<GroupCategory> GroupCategory { get; set; }
+        public DbSet<GroupTagMap> GroupTagMaps { get; set; }
+        public DbSet<GroupCategoryMap> GroupCategoryMaps { get; set; }
+        public DbSet<GroupChampionsMap> GroupChampionsMaps { get; set; }
+        public DbSet<GroupCoordinatorsMap> GroupCoordinatorsMaps { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -79,6 +85,40 @@ namespace EO.WebContext
                 .HasOne(ur => ur.Role)
                 .WithMany()
                 .HasForeignKey(ur => ur.RoleId);
+
+            modelBuilder.Entity<Group>().ToTable("Groups").HasKey(x => x.Id);
+
+            modelBuilder.Entity<GroupTag>()
+                .ToTable("GroupTag")
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<GroupCategory>()
+                .ToTable("GroupCategory")
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<GroupTagMap>(entity =>
+            {
+                entity.ToTable("GroupTagMap");
+                entity.HasKey(x => new { x.GroupId, x.TagId });
+            });
+
+            modelBuilder.Entity<GroupCategoryMap>(entity =>
+            {
+                entity.ToTable("GroupCategoryMap");
+                entity.HasKey(x => new { x.GroupId, x.CategoryId });
+            });
+
+            modelBuilder.Entity<GroupChampionsMap>(entity =>
+            {
+                entity.ToTable("GroupChampionsMap");
+                entity.HasKey(x => new { x.GroupId, x.UserId });
+            });
+
+            modelBuilder.Entity<GroupCoordinatorsMap>(entity =>
+            {
+                entity.ToTable("GroupCoordinatorsMap");
+                entity.HasKey(x => new { x.GroupId, x.UserId });
+            });
         }
     }
 }

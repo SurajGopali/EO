@@ -1,0 +1,61 @@
+﻿@model List<GroupDetailsVM>
+
+<h2>Groups</h2>
+
+<a class="btn btn-primary" href="/Group/Create">+ Create Group</a>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Group Name</th>
+            <th>Category</th>
+            <th>Tags</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var g in Model)
+        {
+            <tr>
+                <td>@g.GroupName</td>
+                <td>@g.Category</td>
+                <td>@string.Join(", ", g.Tags)</td>
+                <td>
+                    <a class="btn btn-sm btn-info" href="/Group/Details/@g.Id">View</a>
+                    <a class="btn btn-sm btn-warning" href="/Group/Edit/@g.Id">Edit</a>
+                    <a class="btn btn-sm btn-danger" href="/Group/Delete/@g.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    document.querySelector("form").addEventListener("submit", function () {
+
+        let tags = document.getElementById("tagsInput").value;
+        let champs = document.getElementById("championsInput").value;
+        let coords = document.getElementById("coordinatorsInput").value;
+
+        // convert to arrays
+        let tagArr = tags.split(",").map(x => x.trim()).filter(x => x);
+        let champArr = champs.split(",").map(x => x.trim()).filter(x => x);
+        let coordArr = coords.split(",").map(x => x.trim()).filter(x => x);
+
+        // inject into hidden fields (important for model binding)
+        appendHidden("Tags", tagArr);
+        appendHidden("ChampionUserIds", champArr);
+        appendHidden("CoordinatorUserIds", coordArr);
+    });
+
+    function appendHidden(name, values) {
+        values.forEach(v => {
+            let input = document.createElement("input");
+            input.type = "hidden";
+            input.name = name;
+            input.value = v;
+            document.querySelector("form").appendChild(input);
+        });
+    }
+</script>

@@ -1,0 +1,434 @@
+﻿@model EO.Models.CreateGroupPageVM
+
+@{
+    ViewData["Title"] = "Create Group";
+}
+
+<style>
+    /* ── Chip-box ── */
+    .chip-box {
+        position: relative;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        padding: 5px 8px;
+        background: #fff;
+        cursor: text;
+    }
+
+        .chip-box:focus-within {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+        }
+
+    .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        align-items: center;
+        min-height: 30px;
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #0d6efd;
+        color: #fff;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .chip-x {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 1rem;
+        line-height: 1;
+        padding: 0;
+        cursor: pointer;
+        opacity: .75;
+    }
+
+        .chip-x:hover {
+            opacity: 1;
+        }
+
+    .chip-box input[type="text"] {
+        border: none;
+        outline: none;
+        flex: 1;
+        min-width: 150px;
+        font-size: 1rem;
+        padding: 2px 4px;
+        background: transparent;
+    }
+    /* dropdown */
+    .chip-dropdown {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 3px);
+        background: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        z-index: 1060;
+        max-height: 210px;
+        overflow-y: auto;
+        box-shadow: 0 4px 14px rgba(0,0,0,.1);
+    }
+
+        .chip-dropdown.open {
+            display: block;
+        }
+
+    .chip-dd-item {
+        padding: 7px 12px;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+        .chip-dd-item:hover {
+            background: #e7f1ff;
+            color: #0d6efd;
+        }
+
+    .chip-dd-addnew {
+        padding: 7px 12px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #0d6efd;
+        border-top: 1px solid #e9ecef;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .chip-dd-addnew:hover {
+            background: #dceeff;
+        }
+
+    .chip-dd-empty {
+        padding: 8px 12px;
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-style: italic;
+    }
+</style>
+
+<div class="container mt-4" style="max-width: 720px;">
+    <h2 class="mb-4">Create Group</h2>
+
+    <form asp-action="Create" method="post" id="createGroupForm">
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Group Name</label>
+            <input asp-for="Group.GroupName" class="form-control" placeholder="e.g. MyEO Light Mind Body Soul" />
+            <span asp-validation-for="Group.GroupName" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Tagline</label>
+            <input asp-for="Group.Tagline" class="form-control" placeholder="Short description of the group" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Cover Image URL</label>
+            <input asp-for="Group.CoverImage" class="form-control" placeholder="https://..." />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">WhatsApp Link</label>
+            <input asp-for="Group.WhatsappLink" class="form-control" placeholder="https://chat.whatsapp.com/..." />
+        </div>
+
+        <hr />
+
+        @*
+            CATEGORY — multi-value chip-box
+            Posts as: Group.CategoryName[]  (one hidden input per selection)
+        *@
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Category</label>
+            <div class="chip-box" id="catBox">
+                <div class="chip-row" id="catChips">
+                    <input type="text" id="catSearch" placeholder="Search or add a category…" autocomplete="off" />
+                </div>
+                <div class="chip-dropdown" id="catDropdown"></div>
+            </div>
+            <div id="catHiddenInputs"></div>
+            <small class="text-muted">Select existing categories or type a new one and press <kbd>Enter</kbd>.</small>
+        </div>
+
+        <hr />
+
+        @*
+            TAGS — multi-value chip-box
+            Posts as: Group.Tags[]  (one hidden input per tag, bound to List<string>)
+        *@
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Tags</label>
+            <div class="chip-box" id="tagBox">
+                <div class="chip-row" id="tagChips">
+                    <input type="text" id="tagSearch" placeholder="Search or add tags…" autocomplete="off" />
+                </div>
+                <div class="chip-dropdown" id="tagDropdown"></div>
+            </div>
+            <div id="tagHiddenInputs"></div>
+            <small class="text-muted">Select existing tags or type a new one and press <kbd>Enter</kbd>.</small>
+        </div>
+
+        <hr />
+
+        @*
+            CHAMPIONS — chip-box, dropdown-only (no free-text, no new users)
+            Chip shows user name, hidden input posts user ID.
+            Posts as: Group.ChampionUserIds[]
+        *@
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Champions</label>
+            <div class="chip-box" id="champBox">
+                <div class="chip-row" id="champChips">
+                    <input type="text" id="champSearch" placeholder="Search champions…" autocomplete="off" />
+                </div>
+                <div class="chip-dropdown" id="champDropdown"></div>
+            </div>
+            <div id="champHiddenInputs"></div>
+            <small class="text-muted">Type to search and select champions.</small>
+        </div>
+
+        <hr />
+
+        @*
+            COORDINATORS — chip-box, dropdown-only
+            Posts as: Group.CoordinatorUserIds[]
+        *@
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Coordinators</label>
+            <div class="chip-box" id="coordBox">
+                <div class="chip-row" id="coordChips">
+                    <input type="text" id="coordSearch" placeholder="Search coordinators…" autocomplete="off" />
+                </div>
+                <div class="chip-dropdown" id="coordDropdown"></div>
+            </div>
+            <div id="coordHiddenInputs"></div>
+            <small class="text-muted">Type to search and select coordinators.</small>
+        </div>
+
+        <hr />
+
+        <button type="submit" class="btn btn-success px-4">Create Group</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+
+    </form>
+</div>
+
+@* Serialize server data for JS — no AJAX needed *@
+<script id="catData" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Categories.Select(c => c.CategoryName)))</script>
+<script id="tagData" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Tags.Select(t => t.TagName)))</script>
+<script id="userData" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Users.Select(u => new { id = u.UserId, label = u.Name })))</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(function () {
+
+        function makeChipBox(cfg) {
+           
+            var selected  = [];
+            var $box      = $(cfg.boxId);
+            var $chipsRow = $(cfg.chipsId);
+            var $input    = $(cfg.inputId);
+            var $dropdown = $(cfg.dropdownId);
+
+            var pool = (cfg.allValues || []).map(function(v) {
+                return (typeof v === 'object') ? v : { id: v, label: v };
+            });
+
+            function isSelectedId(id) {
+                return selected.some(function(s){ return s.id === id; });
+            }
+
+            /* ── render chips ── */
+            function render() {
+                $chipsRow.find('.chip').remove();
+                selected.forEach(function(item) {
+                    var $chip = $(
+                        '<span class="chip">' +
+                        '<span>' + escHtml(item.label) + '</span>' +
+                        '<button type="button" class="chip-x" tabindex="-1">&#215;</button>' +
+                        '</span>'
+                    );
+                    $chip.find('.chip-x').on('click', function(){ removeById(item.id); });
+                    $input.before($chip);
+                });
+                if (cfg.onRender) cfg.onRender(selected);
+            }
+
+            function addItem(item) {
+                if (cfg.single) selected = [];
+                if (isSelectedId(item.id)) { $input.val(''); hide(); return; }
+                selected.push(item);
+                render();
+                $input.val('');
+                hide();
+                if (cfg.onAdd) cfg.onAdd(item);
+            }
+
+            function removeById(id) {
+                selected = selected.filter(function(s){ return s.id !== id; });
+                render();
+                if (cfg.onRemove) cfg.onRemove(id);
+            }
+
+            function showDropdown(query) {
+                $dropdown.empty();
+                var low = query.toLowerCase();
+
+                var matches = pool.filter(function(v) {
+                    return v.label.toLowerCase().includes(low) && !isSelectedId(v.id);
+                });
+
+                matches.forEach(function(v) {
+                    $('<div class="chip-dd-item">').text(v.label)
+                        .on('mousedown', function(e){ e.preventDefault(); addItem(v); $input.focus(); })
+                        .appendTo($dropdown);
+                });
+
+                
+                if (cfg.allowNew && query) {
+                    var exactInPool     = pool.some(function(v){ return v.label.toLowerCase() === low; });
+                    var exactSelected   = selected.some(function(s){ return s.label.toLowerCase() === low; });
+                    if (!exactSelected) {
+                        var rowLabel = cfg.single ? 'Set as "' : 'Add "';
+                        $('<div class="chip-dd-addnew">')
+                            .html('<span>＋</span> ' + rowLabel + '<strong>' + escHtml(query) + '</strong>"')
+                            .on('mousedown', function(e){
+                                e.preventDefault();
+                                var canonical = pool.find(function(v){ return v.label.toLowerCase() === low; });
+                                addItem(canonical || { id: query, label: query });
+                                $input.focus();
+                            })
+                            .appendTo($dropdown);
+                    }
+                }
+
+                if ($dropdown.children().length === 0 && query && !cfg.allowNew) {
+                    $('<div class="chip-dd-empty">').text('No matches found')
+                        .appendTo($dropdown);
+                }
+
+                if ($dropdown.children().length) $dropdown.addClass('open'); else hide();
+            }
+
+            function hide() { $dropdown.removeClass('open').empty(); }
+
+            $input.on('input', function(){
+                var q = $(this).val().trim();
+                if (q) showDropdown(q); else hide();
+            });
+
+            $box.on('click', function(e){
+                if (!$(e.target).hasClass('chip-x')) {
+                    $input.focus();
+                    if (!$input.val().trim()) showDropdown('');
+                }
+            });
+
+            $input.on('keydown', function(e){
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (cfg.allowNew) {
+                        var v = $(this).val().trim();
+                        if (v) {
+                            var low = v.toLowerCase();
+                            var canonical = pool.find(function(p){ return p.label.toLowerCase() === low; });
+                            addItem(canonical || { id: v, label: v });
+                        }
+                    }
+                }
+                if (e.key === 'Escape') hide();
+                if (e.key === 'Backspace' && !$(this).val() && selected.length) {
+                    removeById(selected[selected.length - 1].id);
+                }
+            });
+
+            $input.on('blur', function(){ setTimeout(hide, 160); });
+
+            return {
+                addItem:     addItem,
+                removeById:  removeById,
+                getSelected: function(){ return selected.slice(); }
+            };
+        }
+
+        function escHtml(str) { return $('<span>').text(str).html(); }
+        makeChipBox({
+            boxId:      '#catBox',
+            chipsId:    '#catChips',
+            inputId:    '#catSearch',
+            dropdownId: '#catDropdown',
+            allValues:  JSON.parse($('#catData').text()),
+            single:     false,
+            allowNew:   true,
+            onRender: function(selected) {
+                var $c = $('#catHiddenInputs').empty();
+                selected.forEach(function(item){
+                    $('<input type="hidden" name="Group.CategoryName">').val(item.id).appendTo($c);
+                });
+            }
+        });
+        makeChipBox({
+            boxId:      '#tagBox',
+            chipsId:    '#tagChips',
+            inputId:    '#tagSearch',
+            dropdownId: '#tagDropdown',
+            allValues:  JSON.parse($('#tagData').text()),
+            single:     false,
+            allowNew:   true,
+            onRender: function(selected) {
+                var $c = $('#tagHiddenInputs').empty();
+                selected.forEach(function(item){
+                    $('<input type="hidden" name="Group.Tags">').val(item.id).appendTo($c);
+                });
+            }
+        });
+
+        makeChipBox({
+            boxId:      '#champBox',
+            chipsId:    '#champChips',
+            inputId:    '#champSearch',
+            dropdownId: '#champDropdown',
+            allValues:  JSON.parse($('#userData').text()), 
+            single:     false,
+            allowNew:   false,
+            onRender: function(selected) {
+                var $c = $('#champHiddenInputs').empty();
+                selected.forEach(function(item){
+                    $('<input type="hidden" name="Group.ChampionUserIds">').val(item.id).appendTo($c);
+                });
+            }
+        });
+
+        makeChipBox({
+            boxId:      '#coordBox',
+            chipsId:    '#coordChips',
+            inputId:    '#coordSearch',
+            dropdownId: '#coordDropdown',
+            allValues:  JSON.parse($('#userData').text()),
+            single:     false,
+            allowNew:   false,
+            onRender: function(selected) {
+                var $c = $('#coordHiddenInputs').empty();
+                selected.forEach(function(item){
+                    $('<input type="hidden" name="Group.CoordinatorUserIds">').val(item.id).appendTo($c);
+                });
+            }
+        });
+
+    });
+</script>
